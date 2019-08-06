@@ -46,19 +46,15 @@ func NewWords(list ...string) (func(count int) Template, error) {
 }
 
 func (w *words) Password(r io.Reader) (string, error) {
-	var pass strings.Builder
-
+	words := make([]string, w.count)
 	for i := 0; i < w.count; i++ {
 		idx, err := readUint32n(r, uint32(len(w.list)))
 		if err != nil {
 			return "", err
 		}
 
-		if i > 0 {
-			pass.WriteByte(' ')
-		}
-		pass.WriteString(w.list[idx])
+		words[i] = w.list[idx]
 	}
 
-	return pass.String(), nil
+	return strings.Join(words, " "), nil
 }

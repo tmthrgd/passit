@@ -3,14 +3,12 @@ package password
 import (
 	"errors"
 	"io"
-	"strings"
 	"unicode/utf8"
 )
 
 type charset struct {
 	runes []rune
 	count int
-	grow  int
 }
 
 func NewCharset(template string) (func(count int) Template, error) {
@@ -41,27 +39,20 @@ func NewCharset(template string) (func(count int) Template, error) {
 			panic("strongroom/password: count must be greater than zero")
 		}
 
-		grow := count * maxLen
-		if maxLen > 1 && maxLen < utf8.UTFMax {
-			grow += utf8.UTFMax
-		}
-
-		return &charset{runes, count, grow}
+		return &charset{runes, count}
 	}, nil
 }
 
 func (c *charset) Password(r io.Reader) (string, error) {
-	var pass strings.Builder
-	pass.Grow(c.grow)
-
+	runes := make([]rune, c.count)
 	for i := 0; i < c.count; i++ {
 		idx, err := readUint32n(r, uint32(len(c.runes)))
 		if err != nil {
 			return "", err
 		}
 
-		pass.WriteRune(c.runes[idx])
+		runes[i] = c.runes[idx]
 	}
 
-	return pass.String(), nil
+	return string(runes), nil
 }
