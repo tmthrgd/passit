@@ -3,6 +3,7 @@ package password
 import (
 	"errors"
 	"io"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -10,6 +11,8 @@ type charset struct {
 	runes []rune
 	count int
 }
+
+// TODO(tmthrgd): Rename NewCharset.
 
 func NewCharset(template string) (func(count int) Template, error) {
 	runes := []rune(template)
@@ -52,6 +55,39 @@ func (c *charset) Password(r io.Reader) (string, error) {
 		}
 
 		runes[i] = c.runes[idx]
+	}
+
+	return string(runes), nil
+}
+
+type rangeTable struct {
+	tab   *unicode.RangeTable
+	runes int
+	count int
+}
+
+// TODO(tmthrgd): Rename NewRangeTable.
+
+func NewRangeTable(tab *unicode.RangeTable) func(count int) Template {
+	runes := countTableRunes(tab)
+	return func(count int) Template {
+		if count <= 0 {
+			panic("strongroom/password: count must be greater than zero")
+		}
+
+		return &rangeTable{tab, runes, count}
+	}
+}
+
+func (rt *rangeTable) Password(r io.Reader) (string, error) {
+	runes := make([]rune, rt.count)
+	for i := 0; i < rt.count; i++ {
+		v, err := readRune(r, rt.tab, rt.runes)
+		if err != nil {
+			return "", err
+		}
+
+		runes[i] = v
 	}
 
 	return string(runes), nil

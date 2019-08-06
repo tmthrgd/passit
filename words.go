@@ -14,6 +14,8 @@ type words struct {
 	count int
 }
 
+// TODO(tmthrgd): Rename NewWords.
+
 func NewWords(list ...string) (func(count int) Template, error) {
 	if len(list) < 2 {
 		return nil, errors.New("strongroom/password: list too short")
