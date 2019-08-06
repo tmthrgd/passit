@@ -25,6 +25,7 @@ func TestWords(t *testing.T) {
 	}{
 		{"or and or and and and and and", mustWords(t, "and", "or")},
 		{"υγεία ευτυχία υγεία ελπίδα ευτυχία ευτυχία ελπίδα ευτυχία", mustWords(t, "ελπίδα", "υγεία", "ευτυχία", "αιώνια")},
+		{"native remover dismay vocation sepia backtalk think conjure", DefaultWords},
 	} {
 		const size = 8
 

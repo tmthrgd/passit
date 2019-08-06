@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"strings"
+	"sync"
 	"unicode"
 	"unicode/utf8"
 )
@@ -57,4 +58,20 @@ func (w *words) Password(r io.Reader) (string, error) {
 	}
 
 	return strings.Join(words, " "), nil
+}
+
+var defaultWords struct {
+	tmpl func(int) Template
+	sync.Once
+}
+
+func DefaultWords(count int) Template {
+	defaultWords.Do(func() {
+		tmpl, err := NewWords(strings.Split(defaultWordlist, "\n")...)
+		if err != nil {
+			panic("strongroom/password: internal error: " + err.Error())
+		}
+		defaultWords.tmpl = tmpl
+	})
+	return defaultWords.tmpl(count)
 }
