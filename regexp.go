@@ -84,12 +84,12 @@ func ParseRegexp(pattern string, flags syntax.Flags) (Template, error) {
 }
 
 func (rt *regexpTemplate) Password(r io.Reader) (string, error) {
-	var pass strings.Builder
-	if err := rt.gen(&pass, r); err != nil {
+	var b strings.Builder
+	if err := rt.gen(&b, r); err != nil {
 		return "", err
 	}
 
-	return pass.String(), nil
+	return b.String(), nil
 }
 
 func newRegexpGenerator(r *syntax.Regexp) (regexpGenerator, error) {
