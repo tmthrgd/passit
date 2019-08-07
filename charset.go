@@ -12,9 +12,7 @@ type charset struct {
 	count int
 }
 
-// TODO(tmthrgd): Rename NewCharset.
-
-func NewCharset(template string) (func(count int) Template, error) {
+func FromCharset(template string) (func(count int) Template, error) {
 	runes := []rune(template)
 	if len(runes) < 2 {
 		return nil, errors.New("strongroom/password: template too short")
@@ -66,9 +64,7 @@ type rangeTable struct {
 	count int
 }
 
-// TODO(tmthrgd): Rename NewRangeTable.
-
-func NewRangeTable(tab *unicode.RangeTable) func(count int) Template {
+func FromRangeTable(tab *unicode.RangeTable) func(count int) Template {
 	runes := countTableRunes(tab)
 	return func(count int) Template {
 		if count <= 0 {

@@ -14,9 +14,7 @@ type words struct {
 	count int
 }
 
-// TODO(tmthrgd): Rename NewWords.
-
-func NewWords(list ...string) (func(count int) Template, error) {
+func FromWords(list ...string) (func(count int) Template, error) {
 	if len(list) < 2 {
 		return nil, errors.New("strongroom/password: list too short")
 	} else if len(list) > maxUint32 {
@@ -69,7 +67,7 @@ var defaultWords struct {
 
 func DefaultWords(count int) Template {
 	defaultWords.Do(func() {
-		tmpl, err := NewWords(strings.Split(defaultWordlist, "\n")...)
+		tmpl, err := FromWords(strings.Split(defaultWordlist, "\n")...)
 		if err != nil {
 			panic("strongroom/password: internal error: " + err.Error())
 		}

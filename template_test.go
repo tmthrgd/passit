@@ -13,7 +13,7 @@ import (
 func mustCharset(t *testing.T, template string) func(int) Template {
 	t.Helper()
 
-	tmpl, err := NewCharset(template)
+	tmpl, err := FromCharset(template)
 	require.NoError(t, err)
 	return tmpl
 }

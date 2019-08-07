@@ -13,7 +13,7 @@ import (
 func mustWords(t *testing.T, list ...string) func(int) Template {
 	t.Helper()
 
-	tmpl, err := NewWords(list...)
+	tmpl, err := FromWords(list...)
 	require.NoError(t, err)
 	return tmpl
 }

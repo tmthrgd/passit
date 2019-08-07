@@ -26,7 +26,7 @@ func TestCharset(t *testing.T) {
 
 		testRand := rand.New(rand.NewSource(0))
 
-		tmpl, err := NewCharset(tc.template)
+		tmpl, err := FromCharset(tc.template)
 		if !assert.NoError(t, err) {
 			continue
 		}
@@ -71,7 +71,7 @@ func TestRangeTable(t *testing.T) {
 
 		testRand := rand.New(rand.NewSource(0))
 
-		pass, err := NewRangeTable(tc.tab)(size).Password(testRand)
+		pass, err := FromRangeTable(tc.tab)(size).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue
 		}
