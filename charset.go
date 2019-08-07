@@ -35,16 +35,14 @@ func FromCharset(template string) (func(count int) Template, error) {
 		seen[r] = struct{}{}
 	}
 
-	return func(count int) Template {
-		if count <= 0 {
-			panic("strongroom/password: count must be greater than zero")
-		}
-
-		return &charset{runes, count}
-	}, nil
+	return func(count int) Template { return &charset{runes, count} }, nil
 }
 
 func (c *charset) Password(r io.Reader) (string, error) {
+	if c.count <= 0 {
+		return "", errors.New("strongroom/password: count must be greater than zero")
+	}
+
 	runes := make([]rune, c.count)
 	for i := range runes {
 		idx, err := readUint32n(r, uint32(len(c.runes)))
@@ -66,16 +64,14 @@ type rangeTable struct {
 
 func FromRangeTable(tab *unicode.RangeTable) func(count int) Template {
 	runes := countTableRunes(tab)
-	return func(count int) Template {
-		if count <= 0 {
-			panic("strongroom/password: count must be greater than zero")
-		}
-
-		return &rangeTable{tab, runes, count}
-	}
+	return func(count int) Template { return &rangeTable{tab, runes, count} }
 }
 
 func (rt *rangeTable) Password(r io.Reader) (string, error) {
+	if rt.count <= 0 {
+		return "", errors.New("strongroom/password: count must be greater than zero")
+	}
+
 	runes := make([]rune, rt.count)
 	for i := range runes {
 		v, err := readRune(r, rt.tab, rt.runes)

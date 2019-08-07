@@ -37,16 +37,14 @@ func FromWords(list ...string) (func(count int) Template, error) {
 		seen[word] = struct{}{}
 	}
 
-	return func(count int) Template {
-		if count <= 0 {
-			panic("strongroom/password: count must be greater than zero")
-		}
-
-		return &words{list, count}
-	}, nil
+	return func(count int) Template { return &words{list, count} }, nil
 }
 
 func (w *words) Password(r io.Reader) (string, error) {
+	if w.count <= 0 {
+		return "", errors.New("strongroom/password: count must be greater than zero")
+	}
+
 	words := make([]string, w.count)
 	for i := range words {
 		idx, err := readUint32n(r, uint32(len(w.list)))
