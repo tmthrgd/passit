@@ -245,8 +245,6 @@ func (p *RegexpParser) star(sr *syntax.Regexp) (regexpGenerator, error) {
 func (p *RegexpParser) plus(sr *syntax.Regexp) (regexpGenerator, error) {
 	// We use maxUnboundedRepeatCount+1 here so that x{1,} and x+ are identical,
 	// x{0,} and x* are already identical.
-	//
-	// TODO(tmthrgd): Is this the behaviour we want?
 	return p.repeatInternal(sr, 1, maxUnboundedRepeatCount+1)
 }
 
