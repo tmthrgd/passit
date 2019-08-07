@@ -13,9 +13,6 @@ import (
 
 const maxUnboundedRepeatCount = 15
 
-const RegexpUnicodeAny syntax.Flags = regexpUnicodeAny
-const regexpUnicodeAny = syntax.Simple << 1
-
 type regexpGenerator func(*strings.Builder, io.Reader) error
 
 // regexpFactories is initialised in func init to prevent an initialization loop.
@@ -45,11 +42,15 @@ func init() {
 	}
 }
 
-type RegexpParser struct{}
+type RegexpParser struct {
+	unicodeAny bool
+}
 
 func ParseRegexp(pattern string, flags syntax.Flags) (Template, error) {
 	return new(RegexpParser).Parse(pattern, flags)
 }
+
+func (p *RegexpParser) SetUnicodeAny() { p.unicodeAny = true }
 
 type regexpTemplate struct{ gen regexpGenerator }
 
@@ -176,14 +177,14 @@ func (p *RegexpParser) charClass(sr *syntax.Regexp) (regexpGenerator, error) {
 	negated := len(sr.Rune) > 0 && sr.Rune[0] == 0 &&
 		sr.Rune[len(sr.Rune)-1] == unicode.MaxRune
 	if negated {
-		tab = intersectRangeTables(tab, regexpAnyRangeTable(sr.Flags))
+		tab = intersectRangeTables(tab, p.anyRangeTable())
 	}
 
 	return p.charClassInternal(sr, tab)
 }
 
 func (p *RegexpParser) anyCharNotNL(sr *syntax.Regexp) (regexpGenerator, error) {
-	return p.charClassInternal(sr, regexpAnyRangeTable(sr.Flags))
+	return p.charClassInternal(sr, p.anyRangeTable())
 }
 
 func (*RegexpParser) charClassInternal(sr *syntax.Regexp, tab *unicode.RangeTable) (regexpGenerator, error) {
@@ -295,8 +296,8 @@ var regexpAnyRangeTableUni struct {
 	sync.Once
 }
 
-func regexpAnyRangeTable(flags syntax.Flags) *unicode.RangeTable {
-	if flags&RegexpUnicodeAny == 0 {
+func (p *RegexpParser) anyRangeTable() *unicode.RangeTable {
+	if !p.unicodeAny {
 		return regexpAnyRangeTableASCII
 	}
 

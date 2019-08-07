@@ -61,7 +61,10 @@ func TestIntersectRangeTables(t *testing.T) {
 	a := unstridifyRangeTable(rangetable.Merge(
 		unicode.Latin, unicode.Greek, unicode.Cyrillic, unicode.ASCII_Hex_Digit,
 	))
-	b := regexpAnyRangeTable(RegexpUnicodeAny)
+
+	var p RegexpParser
+	p.SetUnicodeAny()
+	b := p.anyRangeTable()
 
 	t1 := intersectRangeTables(a, b)
 	t2 := naiveIntersectRangeTables(a, b)
@@ -98,7 +101,10 @@ func BenchmarkIntersectRangeTables(b *testing.B) {
 	t1 := unstridifyRangeTable(rangetable.Merge(
 		unicode.Latin, unicode.Greek, unicode.Cyrillic, unicode.ASCII_Hex_Digit,
 	))
-	t2 := regexpAnyRangeTable(RegexpUnicodeAny)
+
+	var p RegexpParser
+	p.SetUnicodeAny()
+	t2 := p.anyRangeTable()
 
 	b.Run("naive", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
