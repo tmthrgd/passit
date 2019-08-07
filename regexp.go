@@ -15,33 +15,6 @@ const maxUnboundedRepeatCount = 15
 
 type regexpGenerator func(*strings.Builder, io.Reader) error
 
-// regexpFactories is initialised in func init to prevent an initialization loop.
-var regexpFactories map[syntax.Op]func(*RegexpParser, *syntax.Regexp) (regexpGenerator, error)
-
-func init() {
-	regexpFactories = map[syntax.Op]func(*RegexpParser, *syntax.Regexp) (regexpGenerator, error){
-		//syntax.OpNoMatch:      (*RegexpParser).notImplemented,
-		syntax.OpEmptyMatch:     (*RegexpParser).noop,
-		syntax.OpLiteral:        (*RegexpParser).literal,
-		syntax.OpCharClass:      (*RegexpParser).charClass,
-		syntax.OpAnyCharNotNL:   (*RegexpParser).anyCharNotNL,
-		syntax.OpAnyChar:        (*RegexpParser).anyCharNotNL,
-		syntax.OpBeginLine:      (*RegexpParser).noop,
-		syntax.OpEndLine:        (*RegexpParser).noop,
-		syntax.OpBeginText:      (*RegexpParser).noop,
-		syntax.OpEndText:        (*RegexpParser).noop,
-		syntax.OpWordBoundary:   (*RegexpParser).noop,
-		syntax.OpNoWordBoundary: (*RegexpParser).noop,
-		syntax.OpCapture:        (*RegexpParser).capture,
-		syntax.OpStar:           (*RegexpParser).star,
-		syntax.OpPlus:           (*RegexpParser).plus,
-		syntax.OpQuest:          (*RegexpParser).quest,
-		syntax.OpRepeat:         (*RegexpParser).repeat,
-		syntax.OpConcat:         (*RegexpParser).concat,
-		syntax.OpAlternate:      (*RegexpParser).alternate,
-	}
-}
-
 type RegexpParser struct {
 	unicodeAny      bool
 	specialCaptures map[string]func(*syntax.Regexp) (Template, error)
@@ -109,12 +82,36 @@ func (rt *regexpTemplate) Password(r io.Reader) (string, error) {
 }
 
 func (p *RegexpParser) parse(r *syntax.Regexp) (regexpGenerator, error) {
-	factory, ok := regexpFactories[r.Op]
-	if !ok {
+	switch r.Op {
+	case syntax.OpEmptyMatch:
+		return p.noop(r)
+	case syntax.OpLiteral:
+		return p.literal(r)
+	case syntax.OpCharClass:
+		return p.charClass(r)
+	case syntax.OpAnyCharNotNL, syntax.OpAnyChar:
+		return p.anyCharNotNL(r)
+	case syntax.OpBeginLine, syntax.OpEndLine,
+		syntax.OpBeginText, syntax.OpEndText,
+		syntax.OpWordBoundary, syntax.OpNoWordBoundary:
+		return p.noop(r)
+	case syntax.OpCapture:
+		return p.capture(r)
+	case syntax.OpStar:
+		return p.star(r)
+	case syntax.OpPlus:
+		return p.plus(r)
+	case syntax.OpQuest:
+		return p.quest(r)
+	case syntax.OpRepeat:
+		return p.repeat(r)
+	case syntax.OpConcat:
+		return p.concat(r)
+	case syntax.OpAlternate:
+		return p.alternate(r)
+	default:
 		return nil, fmt.Errorf("strongroom/password: invalid regexp %q, unhandled op %s", r, r.Op)
 	}
-
-	return factory(p, r)
 }
 
 func (p *RegexpParser) parseMany(rs []*syntax.Regexp) ([]regexpGenerator, error) {
