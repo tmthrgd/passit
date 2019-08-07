@@ -208,19 +208,16 @@ func (*RegexpParser) charClassInternal(sr *syntax.Regexp, tab *unicode.RangeTabl
 
 func (p *RegexpParser) capture(sr *syntax.Regexp) (regexpGenerator, error) {
 	if sr.Name != "" {
-		gen, err := p.specialCapture(sr)
-		if gen != nil || err != nil {
-			return gen, err
-		}
+		return p.namedCapture(sr)
 	}
 
 	return p.parse(sr.Sub[0])
 }
 
-func (p *RegexpParser) specialCapture(sr *syntax.Regexp) (regexpGenerator, error) {
+func (p *RegexpParser) namedCapture(sr *syntax.Regexp) (regexpGenerator, error) {
 	factory, ok := p.specialCaptures[sr.Name]
 	if !ok {
-		return nil, nil
+		return p.parse(sr.Sub[0])
 	}
 
 	tmpl, err := factory(sr)
