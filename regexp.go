@@ -43,7 +43,8 @@ func init() {
 }
 
 type RegexpParser struct {
-	unicodeAny bool
+	unicodeAny      bool
+	specialCaptures map[string]func(*syntax.Regexp) (Template, error)
 }
 
 func ParseRegexp(pattern string, flags syntax.Flags) (Template, error) {
@@ -51,6 +52,14 @@ func ParseRegexp(pattern string, flags syntax.Flags) (Template, error) {
 }
 
 func (p *RegexpParser) SetUnicodeAny() { p.unicodeAny = true }
+
+func (p *RegexpParser) SetSpecialCapture(name string, factory func(*syntax.Regexp) (Template, error)) {
+	if p.specialCaptures == nil {
+		p.specialCaptures = make(map[string]func(*syntax.Regexp) (Template, error))
+	}
+
+	p.specialCaptures[name] = factory
+}
 
 type regexpTemplate struct{ gen regexpGenerator }
 
@@ -201,7 +210,32 @@ func (*RegexpParser) charClassInternal(sr *syntax.Regexp, tab *unicode.RangeTabl
 }
 
 func (p *RegexpParser) capture(sr *syntax.Regexp) (regexpGenerator, error) {
+	if sr.Name != "" {
+		gen, err := p.specialCapture(sr)
+		if gen != nil || err != nil {
+			return gen, err
+		}
+	}
+
 	return p.parse(sr.Sub[0])
+}
+
+func (p *RegexpParser) specialCapture(sr *syntax.Regexp) (regexpGenerator, error) {
+	factory, ok := p.specialCaptures[sr.Name]
+	if !ok {
+		return nil, nil
+	}
+
+	tmpl, err := factory(sr)
+	if err != nil {
+		return nil, err
+	}
+
+	return func(b *strings.Builder, r io.Reader) error {
+		pass, err := tmpl.Password(r)
+		b.WriteString(pass)
+		return err
+	}, nil
 }
 
 func (p *RegexpParser) star(sr *syntax.Regexp) (regexpGenerator, error) {

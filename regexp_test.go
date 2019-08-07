@@ -46,6 +46,30 @@ func TestRegexp(t *testing.T) {
 	}
 }
 
+func TestRegexpSpecialCaptures(t *testing.T) {
+	var p RegexpParser
+	p.SetSpecialCapture("word", func(*syntax.Regexp) (Template, error) {
+		return DefaultWords(1), nil
+	})
+
+	tmpl, err := p.Parse(`((?P<word>) ){6}[[:upper:]][[:digit:]][[:punct:]]`, syntax.PerlX)
+	require.NoError(t, err)
+
+	testRand := rand.New(rand.NewSource(0))
+
+	for _, expect := range []string{
+		"remover dismay vocation sepia backtalk think S3)",
+		"finance obscure dusk rigor hemlock dusk U8;",
+		"zoning say shrug actress swirl cross L9~",
+		"stiffen deduct amigo outmatch viral shrimp M4\\",
+	} {
+		pass, err := tmpl.Password(testRand)
+		require.NoError(t, err)
+
+		assert.Equal(t, expect, pass)
+	}
+}
+
 func TestUnstridifyRangeTable(t *testing.T) {
 	rt := unstridifyRangeTable(rangetable.Merge(unicode.C))
 
