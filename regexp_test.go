@@ -40,7 +40,7 @@ func TestRegexp(t *testing.T) {
 
 		assert.Equal(t, expect, pass)
 
-		matchPattern := "^" + pattern + "$"
+		matchPattern := "^(?:" + pattern + ")$"
 		assert.Truef(t, regexp.MustCompile(matchPattern).MatchString(pass),
 			"regexp.MustCompile(%q).MatchString(%q)", matchPattern, pass)
 	}
