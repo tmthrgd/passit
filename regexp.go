@@ -19,35 +19,41 @@ const regexpUnicodeAny = syntax.Simple << 1
 type regexpGenerator func(*strings.Builder, io.Reader) error
 
 // regexpFactories is initialised in func init to prevent an initialization loop.
-var regexpFactories map[syntax.Op]func(*syntax.Regexp) (regexpGenerator, error)
+var regexpFactories map[syntax.Op]func(*RegexpParser, *syntax.Regexp) (regexpGenerator, error)
 
 func init() {
-	regexpFactories = map[syntax.Op]func(*syntax.Regexp) (regexpGenerator, error){
-		//syntax.OpNoMatch:      regexpNotImplemented,
-		syntax.OpEmptyMatch:     regexpNoop,
-		syntax.OpLiteral:        regexpLiteral,
-		syntax.OpCharClass:      regexpCharClass,
-		syntax.OpAnyCharNotNL:   regexpAnyCharNotNL,
-		syntax.OpAnyChar:        regexpAnyCharNotNL,
-		syntax.OpBeginLine:      regexpNoop,
-		syntax.OpEndLine:        regexpNoop,
-		syntax.OpBeginText:      regexpNoop,
-		syntax.OpEndText:        regexpNoop,
-		syntax.OpWordBoundary:   regexpNoop,
-		syntax.OpNoWordBoundary: regexpNoop,
-		syntax.OpCapture:        regexpCapture,
-		syntax.OpStar:           regexpStar,
-		syntax.OpPlus:           regexpPlus,
-		syntax.OpQuest:          regexpQuest,
-		syntax.OpRepeat:         regexpRepeat,
-		syntax.OpConcat:         regexpConcat,
-		syntax.OpAlternate:      regexpAlternate,
+	regexpFactories = map[syntax.Op]func(*RegexpParser, *syntax.Regexp) (regexpGenerator, error){
+		//syntax.OpNoMatch:      (*RegexpParser).notImplemented,
+		syntax.OpEmptyMatch:     (*RegexpParser).noop,
+		syntax.OpLiteral:        (*RegexpParser).literal,
+		syntax.OpCharClass:      (*RegexpParser).charClass,
+		syntax.OpAnyCharNotNL:   (*RegexpParser).anyCharNotNL,
+		syntax.OpAnyChar:        (*RegexpParser).anyCharNotNL,
+		syntax.OpBeginLine:      (*RegexpParser).noop,
+		syntax.OpEndLine:        (*RegexpParser).noop,
+		syntax.OpBeginText:      (*RegexpParser).noop,
+		syntax.OpEndText:        (*RegexpParser).noop,
+		syntax.OpWordBoundary:   (*RegexpParser).noop,
+		syntax.OpNoWordBoundary: (*RegexpParser).noop,
+		syntax.OpCapture:        (*RegexpParser).capture,
+		syntax.OpStar:           (*RegexpParser).star,
+		syntax.OpPlus:           (*RegexpParser).plus,
+		syntax.OpQuest:          (*RegexpParser).quest,
+		syntax.OpRepeat:         (*RegexpParser).repeat,
+		syntax.OpConcat:         (*RegexpParser).concat,
+		syntax.OpAlternate:      (*RegexpParser).alternate,
 	}
+}
+
+type RegexpParser struct{}
+
+func ParseRegexp(pattern string, flags syntax.Flags) (Template, error) {
+	return new(RegexpParser).Parse(pattern, flags)
 }
 
 type regexpTemplate struct{ gen regexpGenerator }
 
-func ParseRegexp(pattern string, flags syntax.Flags) (Template, error) {
+func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Template, error) {
 	// We intentionally never generate newlines, but passing syntax.MatchNL to
 	// syntax.Parse simplifies the parsed character classes.
 	flags |= syntax.MatchNL
@@ -75,7 +81,7 @@ func ParseRegexp(pattern string, flags syntax.Flags) (Template, error) {
 	//
 	// r = r.Simplify()
 
-	gen, err := newRegexpGenerator(r)
+	gen, err := p.parse(r)
 	if err != nil {
 		return nil, err
 	}
@@ -92,19 +98,19 @@ func (rt *regexpTemplate) Password(r io.Reader) (string, error) {
 	return b.String(), nil
 }
 
-func newRegexpGenerator(r *syntax.Regexp) (regexpGenerator, error) {
+func (p *RegexpParser) parse(r *syntax.Regexp) (regexpGenerator, error) {
 	factory, ok := regexpFactories[r.Op]
 	if !ok {
 		return nil, fmt.Errorf("strongroom/password: invalid regexp %q, unhandled op %s", r, r.Op)
 	}
 
-	return factory(r)
+	return factory(p, r)
 }
 
-func newRegexpGenerators(rs []*syntax.Regexp) ([]regexpGenerator, error) {
+func (p *RegexpParser) parseMany(rs []*syntax.Regexp) ([]regexpGenerator, error) {
 	gens := make([]regexpGenerator, len(rs))
 	for i, r := range rs {
-		gen, err := newRegexpGenerator(r)
+		gen, err := p.parse(r)
 		if err != nil {
 			return nil, err
 		}
@@ -115,13 +121,13 @@ func newRegexpGenerators(rs []*syntax.Regexp) ([]regexpGenerator, error) {
 	return gens, nil
 }
 
-func regexpNoop(*syntax.Regexp) (regexpGenerator, error) {
+func (*RegexpParser) noop(*syntax.Regexp) (regexpGenerator, error) {
 	return func(*strings.Builder, io.Reader) error {
 		return nil
 	}, nil
 }
 
-func regexpLiteral(sr *syntax.Regexp) (regexpGenerator, error) {
+func (*RegexpParser) literal(sr *syntax.Regexp) (regexpGenerator, error) {
 	s := string(sr.Rune)
 	return func(b *strings.Builder, r io.Reader) error {
 		b.WriteString(s)
@@ -129,7 +135,7 @@ func regexpLiteral(sr *syntax.Regexp) (regexpGenerator, error) {
 	}, nil
 }
 
-func regexpCharClass(sr *syntax.Regexp) (regexpGenerator, error) {
+func (p *RegexpParser) charClass(sr *syntax.Regexp) (regexpGenerator, error) {
 	const maxR16 = 1<<16 - 1
 
 	tab := new(unicode.RangeTable)
@@ -173,14 +179,14 @@ func regexpCharClass(sr *syntax.Regexp) (regexpGenerator, error) {
 		tab = intersectRangeTables(tab, regexpAnyRangeTable(sr.Flags))
 	}
 
-	return regexpCharClassInternal(sr, tab)
+	return p.charClassInternal(sr, tab)
 }
 
-func regexpAnyCharNotNL(sr *syntax.Regexp) (regexpGenerator, error) {
-	return regexpCharClassInternal(sr, regexpAnyRangeTable(sr.Flags))
+func (p *RegexpParser) anyCharNotNL(sr *syntax.Regexp) (regexpGenerator, error) {
+	return p.charClassInternal(sr, regexpAnyRangeTable(sr.Flags))
 }
 
-func regexpCharClassInternal(sr *syntax.Regexp, tab *unicode.RangeTable) (regexpGenerator, error) {
+func (*RegexpParser) charClassInternal(sr *syntax.Regexp, tab *unicode.RangeTable) (regexpGenerator, error) {
 	count := countTableRunes(tab)
 	if count == 0 {
 		return nil, fmt.Errorf("strongroom/password: character class %s contains zero runes", sr)
@@ -193,37 +199,37 @@ func regexpCharClassInternal(sr *syntax.Regexp, tab *unicode.RangeTable) (regexp
 	}, nil
 }
 
-func regexpCapture(sr *syntax.Regexp) (regexpGenerator, error) {
-	return newRegexpGenerator(sr.Sub[0])
+func (p *RegexpParser) capture(sr *syntax.Regexp) (regexpGenerator, error) {
+	return p.parse(sr.Sub[0])
 }
 
-func regexpStar(sr *syntax.Regexp) (regexpGenerator, error) {
-	return regexpRepeatInternal(sr, 0, maxUnboundedRepeatCount)
+func (p *RegexpParser) star(sr *syntax.Regexp) (regexpGenerator, error) {
+	return p.repeatInternal(sr, 0, maxUnboundedRepeatCount)
 }
 
-func regexpPlus(sr *syntax.Regexp) (regexpGenerator, error) {
+func (p *RegexpParser) plus(sr *syntax.Regexp) (regexpGenerator, error) {
 	// We use maxUnboundedRepeatCount+1 here so that x{1,} and x+ are identical,
 	// x{0,} and x* are already identical.
 	//
 	// TODO(tmthrgd): Is this the behaviour we want?
-	return regexpRepeatInternal(sr, 1, maxUnboundedRepeatCount+1)
+	return p.repeatInternal(sr, 1, maxUnboundedRepeatCount+1)
 }
 
-func regexpQuest(sr *syntax.Regexp) (regexpGenerator, error) {
-	return regexpRepeatInternal(sr, 0, 1)
+func (p *RegexpParser) quest(sr *syntax.Regexp) (regexpGenerator, error) {
+	return p.repeatInternal(sr, 0, 1)
 }
 
-func regexpRepeat(sr *syntax.Regexp) (regexpGenerator, error) {
+func (p *RegexpParser) repeat(sr *syntax.Regexp) (regexpGenerator, error) {
 	max := sr.Max
 	if max == -1 {
 		max = sr.Min + maxUnboundedRepeatCount
 	}
 
-	return regexpRepeatInternal(sr, sr.Min, max)
+	return p.repeatInternal(sr, sr.Min, max)
 }
 
-func regexpRepeatInternal(sr *syntax.Regexp, min, max int) (regexpGenerator, error) {
-	gen, err := newRegexpGenerator(sr.Sub[0])
+func (p *RegexpParser) repeatInternal(sr *syntax.Regexp, min, max int) (regexpGenerator, error) {
+	gen, err := p.parse(sr.Sub[0])
 	if err != nil {
 		return nil, err
 	}
@@ -244,8 +250,8 @@ func regexpRepeatInternal(sr *syntax.Regexp, min, max int) (regexpGenerator, err
 	}, nil
 }
 
-func regexpConcat(sr *syntax.Regexp) (regexpGenerator, error) {
-	gens, err := newRegexpGenerators(sr.Sub)
+func (p *RegexpParser) concat(sr *syntax.Regexp) (regexpGenerator, error) {
+	gens, err := p.parseMany(sr.Sub)
 	if err != nil {
 		return nil, err
 	}
@@ -261,8 +267,8 @@ func regexpConcat(sr *syntax.Regexp) (regexpGenerator, error) {
 	}, nil
 }
 
-func regexpAlternate(sr *syntax.Regexp) (regexpGenerator, error) {
-	gens, err := newRegexpGenerators(sr.Sub)
+func (p *RegexpParser) alternate(sr *syntax.Regexp) (regexpGenerator, error) {
+	gens, err := p.parseMany(sr.Sub)
 	if err != nil {
 		return nil, err
 	}
