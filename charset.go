@@ -48,7 +48,7 @@ func NewCharset(template string) (func(count int) Template, error) {
 
 func (c *charset) Password(r io.Reader) (string, error) {
 	runes := make([]rune, c.count)
-	for i := 0; i < c.count; i++ {
+	for i := range runes {
 		idx, err := readUint32n(r, uint32(len(c.runes)))
 		if err != nil {
 			return "", err
@@ -81,7 +81,7 @@ func NewRangeTable(tab *unicode.RangeTable) func(count int) Template {
 
 func (rt *rangeTable) Password(r io.Reader) (string, error) {
 	runes := make([]rune, rt.count)
-	for i := 0; i < rt.count; i++ {
+	for i := range runes {
 		v, err := readRune(r, rt.tab, rt.runes)
 		if err != nil {
 			return "", err

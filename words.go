@@ -50,7 +50,7 @@ func NewWords(list ...string) (func(count int) Template, error) {
 
 func (w *words) Password(r io.Reader) (string, error) {
 	words := make([]string, w.count)
-	for i := 0; i < w.count; i++ {
+	for i := range words {
 		idx, err := readUint32n(r, uint32(len(w.list)))
 		if err != nil {
 			return "", err
