@@ -45,24 +45,16 @@ func TestIntersectRangeTables(t *testing.T) {
 		LatinOffset: 1,
 	}
 
-	var runes1, runes2 []rune
+	var runes1, runes2, runes3 []rune
 	for _, tabs := range [][2]*unicode.RangeTable{
 		{rangeTableASCII, allowed},
 		{rangeTableLatin1, allowed},
-		{allowed, rangeTableASCII},
-		{allowed, rangeTableLatin1},
 		{stridedR16, allowed},
-		{allowed, stridedR16},
 		{stridedR32, allowed},
-		{allowed, stridedR32},
 		{stridedBoth, allowed},
-		{allowed, stridedBoth},
 		{stridedR16, rangeTableASCII},
-		{rangeTableASCII, stridedR16},
 		{stridedR32, rangeTableASCII},
-		{rangeTableASCII, stridedR32},
 		{stridedBoth, rangeTableASCII},
-		{rangeTableASCII, stridedBoth},
 		{rangetable.Merge(unicode.Latin, unicode.Greek, unicode.Cyrillic, unicode.ASCII_Hex_Digit), allowed},
 		{unicode.Latin, unicode.C},
 		{unicode.Sc, unicode.S},
@@ -88,8 +80,9 @@ func TestIntersectRangeTables(t *testing.T) {
 			allowed,
 		},
 	} {
-		t1 := intersectRangeTables(unstridifyRangeTable(tabs[0]), tabs[1])
-		t2 := naiveIntersectRangeTables(tabs[0], tabs[1])
+		t1 := naiveIntersectRangeTables(tabs[0], tabs[1])
+		t2 := intersectRangeTables(unstridifyRangeTable(tabs[0]), tabs[1])
+		t3 := intersectRangeTables(unstridifyRangeTable(tabs[1]), tabs[0])
 
 		runes1 = runes1[:0]
 		rangetable.Visit(t1, func(r rune) { runes1 = append(runes1, r) })
@@ -97,7 +90,11 @@ func TestIntersectRangeTables(t *testing.T) {
 		runes2 = runes2[:0]
 		rangetable.Visit(t2, func(r rune) { runes2 = append(runes2, r) })
 
-		require.Equal(t, runes2, runes1)
+		runes3 = runes3[:0]
+		rangetable.Visit(t3, func(r rune) { runes3 = append(runes3, r) })
+
+		require.Equal(t, runes1, runes2)
+		require.Equal(t, runes1, runes3)
 	}
 }
 
