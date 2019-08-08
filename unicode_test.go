@@ -45,6 +45,13 @@ func TestIntersectRangeTables(t *testing.T) {
 		LatinOffset: 1,
 	}
 
+	asciiSpace := &unicode.RangeTable{
+		R16:         []unicode.Range16{{Lo: ' ', Hi: ' ', Stride: 1}},
+		LatinOffset: 1,
+	}
+	tab := intersectRangeTables(asciiSpace, unicode.Z)
+	assert.Equal(t, asciiSpace, tab)
+
 	var runes1, runes2, runes3 []rune
 	for _, tabs := range [][2]*unicode.RangeTable{
 		{rangeTableASCII, allowed},

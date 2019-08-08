@@ -52,7 +52,7 @@ func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 				continue
 			}
 
-			lo, hi := intersection(rune(r0.Lo), rune(r0.Hi), rune(r1.Lo), rune(r1.Hi), rune(r1.Stride))
+			lo, hi, stride := intersection(rune(r0.Lo), rune(r0.Hi), rune(r1.Lo), rune(r1.Hi), rune(r1.Stride))
 			if lo > hi {
 				continue
 			}
@@ -61,7 +61,7 @@ func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 				rt.LatinOffset++
 			}
 
-			rt.R16 = append(rt.R16, unicode.Range16{Lo: uint16(lo), Hi: uint16(hi), Stride: r1.Stride})
+			rt.R16 = append(rt.R16, unicode.Range16{Lo: uint16(lo), Hi: uint16(hi), Stride: uint16(stride)})
 		}
 	}
 
@@ -73,20 +73,20 @@ func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 				continue
 			}
 
-			lo, hi := intersection(rune(r0.Lo), rune(r0.Hi), rune(r1.Lo), rune(r1.Hi), rune(r1.Stride))
+			lo, hi, stride := intersection(rune(r0.Lo), rune(r0.Hi), rune(r1.Lo), rune(r1.Hi), rune(r1.Stride))
 			if lo > hi {
 				continue
 			}
 
-			rt.R32 = append(rt.R32, unicode.Range32{Lo: uint32(lo), Hi: uint32(hi), Stride: r1.Stride})
+			rt.R32 = append(rt.R32, unicode.Range32{Lo: uint32(lo), Hi: uint32(hi), Stride: uint32(stride)})
 		}
 	}
 
 	return &rt
 }
 
-func intersection(lo0, hi0, lo1, hi1, stride1 rune) (lo, hi rune) {
-	lo, hi = lo1, hi1
+func intersection(lo0, hi0, lo1, hi1, stride1 rune) (lo, hi, stride rune) {
+	lo, hi, stride = lo1, hi1, stride1
 
 	if stride1 == 1 {
 		if lo < lo0 {
@@ -108,7 +108,10 @@ func intersection(lo0, hi0, lo1, hi1, stride1 rune) (lo, hi rune) {
 			c -= c % stride1
 			hi -= c
 		}
+		if lo == hi {
+			stride = 1
+		}
 	}
 
-	return lo, hi
+	return
 }
