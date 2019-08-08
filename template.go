@@ -3,29 +3,10 @@ package password
 import (
 	"io"
 	"strings"
-	"unicode"
 )
 
 type Template interface {
 	Password(r io.Reader) (string, error)
-}
-
-var rangeTableASCII = &unicode.RangeTable{
-	R16: []unicode.Range16{
-		{Lo: 0x20, Hi: 0x7e, Stride: 1},
-	},
-	LatinOffset: 1,
-}
-
-// TODO(tmthrgd): Review these ranges. PrintRanges is likely too permissive.
-var allowedRanges = append(unicode.PrintRanges, rangeTableASCII)
-
-func notAllowed(r rune) bool {
-	if r <= 0x7e { // Fast path for ASCII.
-		return r < 0x20
-	}
-
-	return !unicode.In(r, allowedRanges...)
 }
 
 type joined struct {
