@@ -141,19 +141,30 @@ func TestAllowedRanges(t *testing.T) {
 		assert.Empty(t, runes, "allowedRanges contains %d unwanted runes from category %s", len(runes), name)
 	}
 
-	for _, r := range []rune{
-		0x200b,                         // Zero-width Space
-		0x200c,                         // Zero-width Non-Joiner
-		0x200d,                         // Zero-width Joiner
-		0x2060,                         // Word Joiner
-		0xfe00, 0xfe01, 0xfe02, 0xfe03, // Variant Selector 1-4
-		0xfe04, 0xfe05, 0xfe06, 0xfe07, // Variant Selector 5-8
-		0xfe08, 0xfe09, 0xfe0a, 0xfe0b, // Variant Selector 9-12
-		0xfe0c, 0xfe0d, 0xfe0e, 0xfe0f, // Variant Selector 13-16
-		0xfeff, // Zero-width No-break Space
+	for _, name := range []string{
+		"Bidi_Control",
+		"Join_Control",
+		"Noncharacter_Code_Point",
+		"Other_Grapheme_Extend",
+		"Pattern_White_Space",
+		"Prepended_Concatenation_Mark",
+		"Variation_Selector",
+		"White_Space",
+
+		// TODO(tmthrgd): Remove characters from allowedRanges with these properties:
+		//  Deprecated
+		//  Other_Default_Ignorable_Code_Point
+		//
+		// Also remove characters from CJK Unified Ideographs Extension X blocks.
 	} {
-		assert.False(t, unicode.In(r, allowedRanges...),
-			"allowedRanges contains unwanted rune %U", r)
+		var runes []rune
+		rangetable.Visit(unicode.Properties[name], func(r rune) {
+			if unicode.In(r, allowedRanges...) && !unicode.Is(rangeTableASCII, r) {
+				runes = append(runes, r)
+			}
+		})
+
+		assert.Empty(t, runes, "allowedRanges contains %d unwanted runes with property %s", len(runes), name)
 	}
 }
 
