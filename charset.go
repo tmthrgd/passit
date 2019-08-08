@@ -63,9 +63,7 @@ type rangeTable struct {
 }
 
 func FromRangeTable(tab *unicode.RangeTable) (func(count int) Template, error) {
-	tab = unstridifyRangeTable(tab)
-	tab = intersectRangeTables(tab, allowedRangeTable)
-
+	tab = intersectRangeTables(allowedRangeTableStride1, tab)
 	runes := countTableRunes(tab)
 	if runes == 0 {
 		return nil, errors.New("strongroom/password: unicode.RangeTable contains zero allowed runes")

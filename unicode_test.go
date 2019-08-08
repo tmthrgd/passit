@@ -247,3 +247,46 @@ func naiveIntersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 
 	return rangetable.Merge(&rt)
 }
+
+func unstridifyRangeTable(tab *unicode.RangeTable) *unicode.RangeTable {
+	rt := &unicode.RangeTable{
+		R16: tab.R16[:len(tab.R16):len(tab.R16)],
+		R32: tab.R32[:len(tab.R32):len(tab.R32)],
+	}
+
+	for i := 0; i < len(rt.R16); i++ {
+		if r16 := rt.R16[i]; r16.Stride != 1 {
+			size := int((r16.Hi-r16.Lo)/r16.Stride) + 1
+			rt.R16 = append(rt.R16, make([]unicode.Range16, size-1)...)
+			copy(rt.R16[i+size:], rt.R16[i+1:])
+
+			for r := rune(r16.Lo); r <= rune(r16.Hi); r += rune(r16.Stride) {
+				if r <= unicode.MaxLatin1 {
+					rt.LatinOffset++
+				}
+
+				rt.R16[i] = unicode.Range16{Lo: uint16(r), Hi: uint16(r), Stride: 1}
+				i++
+			}
+			i--
+		} else if r16.Hi <= unicode.MaxLatin1 {
+			rt.LatinOffset++
+		}
+	}
+
+	for i := 0; i < len(rt.R32); i++ {
+		if r32 := rt.R32[i]; r32.Stride != 1 {
+			size := int((r32.Hi-r32.Lo)/r32.Stride) + 1
+			rt.R32 = append(rt.R32, make([]unicode.Range32, size-1)...)
+			copy(rt.R32[i+size:], rt.R32[i+1:])
+
+			for r := rune(r32.Lo); r <= rune(r32.Hi); r += rune(r32.Stride) {
+				rt.R32[i] = unicode.Range32{Lo: uint32(r), Hi: uint32(r), Stride: 1}
+				i++
+			}
+			i--
+		}
+	}
+
+	return rt
+}
