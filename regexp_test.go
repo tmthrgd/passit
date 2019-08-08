@@ -61,16 +61,16 @@ func TestRegexpUnicodeAny(t *testing.T) {
 		"x90822236719\U00027618\U00016820\U000216df\u4ed6yyyyzzzzyy=",
 		"x7977150zzyyyyzzzzzzyyzzzzyyyy<",
 		"x14404\U00028f55\u4e68\U0001d734\u096fyyyyzzyyyyyyyyyyyyyyzz#",
-		"acd0saaaaaabbbbbbbbbbbbbbbbccccddddeeeeeeeeeeeeeeeeegggggggghhhhhhhhhhhhhhh\U00028617\U00024a948>G;K",
-		"abd9Xaaaaaaaaabbbbbbbbbbbbbbccccddddeeeeeeeeeggggggghhhhhhhhhhhhhhh\U000131bd\U00027390Z6",
+		"acd0saaaaaabbbbbbbbbbbbbbbbccccddddeeeeeeeeeeeeeeeeegggggggghhhhhhhhhhhhhhh\U00028617\U00024a94\U00017db0\U00027fb3\U00029c0f\u4fdc\U0001f5cc",
+		"abd9Xaaaaaaaaabbbbbbbbbbbbbbccccddddeeeeeeeeeggggggghhhhhhhhhhhhhhh\U000131bd\U00027390\U0002a346\u32ba",
 		"x30\u230a\U0002357e\ua219\U00026243\U00017e4bzzzzyyzzyyzzzzyyzzzz(",
 		"x67927673\U0002aaec\U0002400d\U000273c0\u4580yyyyyyyyyyyyyyyyzzyyyyzz^",
 		"x21903591837\u69fc\u31f9\U0002b611\U00011684yyyyzzyyyyyyyy<",
-		"abd6Faaabbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeeeef\U000288eb\U0002b76b/4\"\")@",
+		"abd6Faaabbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeeeef\U000288eb\U0002b76b\u8c00\u41c1\U00016b5e\U0002bd02\U00026d44\u35af",
 		"x7055\U0001d728\U0001740f\U0002aa29zzyyyyyyzzyyyyyyzzyyzz?",
-		"acd8Iabbbbbbbbbbbbccccddddddeeeeeeeee\u9c38\u241dI^=",
-		"abd8Vaaaaaaaaaaaaaabbbbbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeggggggggggggghhhhhhhhhhhhhhhh\U000121b5\U00028fb7&Z7<,9{7\U000100057I\U00010002",
-		"acd1Yaaaaaaaaaaabbbbbbbbbbbbbbbccccdddddeeeeeeeeeeef\U00016974\U00021933<[PZ\U00010006IE",
+		"acd8Iabbbbbbbbbbbbccccddddddeeeeeeeee\u9c38\u241d\U000187ca\U0002d4fa\U0002f860",
+		"abd8Vaaaaaaaaaaaaaabbbbbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeggggggggggggghhhhhhhhhhhhhhhh\U000121b5\U00028fb7\ucf9f\U000228e5\ud367\U0001d803\U00026306\u3cd6\ua88e\U0001335d\U0002598a\ua3ad\U00018841\ub51b",
+		"acd1Yaaaaaaaaaaabbbbbbbbbbbbbbbccccdddddeeeeeeeeeeef\U00016974\U00021933\U0002b008\U0001207d\U0002464b\u361e\u540e\U0002dfab\U00024f6a",
 	} {
 		pass, err := tmpl.Password(testRand)
 		require.NoError(t, err)
@@ -124,42 +124,78 @@ func TestUnstridifyRangeTable(t *testing.T) {
 }
 
 func TestIntersectRangeTables(t *testing.T) {
-	a := unstridifyRangeTable(rangetable.Merge(
-		unicode.Latin, unicode.Greek, unicode.Cyrillic, unicode.ASCII_Hex_Digit,
-	))
-
-	var p RegexpParser
-	p.SetUnicodeAny()
-	b := p.anyRangeTable()
-
-	t1 := intersectRangeTables(a, b)
-	t2 := naiveIntersectRangeTables(a, b)
-
-	var diff1 []rune
-	rangetable.Visit(t1, func(r rune) {
-		if !unicode.Is(t2, r) {
-			diff1 = append(diff1, r)
-		}
-	})
-	assert.Empty(t, diff1, "entries in intersectRangeTables not in naiveIntersectRangeTables")
-
-	var diff2 []rune
-	rangetable.Visit(t2, func(r rune) {
-		if !unicode.Is(t1, r) {
-			diff2 = append(diff2, r)
-		}
-	})
-	assert.Empty(t, diff1, "entries in naiveIntersectRangeTables not in intersectRangeTables")
-
-	for i := 0; i < len(t1.R16)-1; i++ {
-		require.True(t, t1.R16[i].Lo <= t1.R16[i].Hi &&
-			t1.R16[i].Hi < t1.R16[i+1].Lo,
-			"not sorted or overlap")
+	allowed := rangetable.Merge(allowedRanges...)
+	rangeTableLatin1 := &unicode.RangeTable{
+		R16:         []unicode.Range16{{Lo: 0, Hi: unicode.MaxLatin1, Stride: 1}},
+		LatinOffset: 1,
 	}
-	for i := 0; i < len(t1.R32)-1; i++ {
-		require.True(t, t1.R32[i].Lo <= t1.R32[i].Hi &&
-			t1.R32[i].Hi < t1.R32[i+1].Lo,
-			"not sorted or overlap")
+	stridedR16 := &unicode.RangeTable{
+		R16:         []unicode.Range16{{Lo: 0, Hi: 128, Stride: 2}},
+		LatinOffset: 1,
+	}
+	stridedR32 := &unicode.RangeTable{
+		R32:         []unicode.Range32{{Lo: 1 << 16, Hi: 1<<16 + 128, Stride: 2}},
+		LatinOffset: 1,
+	}
+	stridedBoth := &unicode.RangeTable{
+		R16:         []unicode.Range16{{Lo: 0, Hi: 128, Stride: 2}},
+		R32:         []unicode.Range32{{Lo: 1 << 16, Hi: 1<<16 + 128, Stride: 2}},
+		LatinOffset: 1,
+	}
+
+	var runes1, runes2 []rune
+	for _, tabs := range [][2]*unicode.RangeTable{
+		{rangeTableASCII, allowed},
+		{rangeTableLatin1, allowed},
+		{allowed, rangeTableASCII},
+		{allowed, rangeTableLatin1},
+		{stridedR16, allowed},
+		{allowed, stridedR16},
+		{stridedR32, allowed},
+		{allowed, stridedR32},
+		{stridedBoth, allowed},
+		{allowed, stridedBoth},
+		{stridedR16, rangeTableASCII},
+		{rangeTableASCII, stridedR16},
+		{stridedR32, rangeTableASCII},
+		{rangeTableASCII, stridedR32},
+		{stridedBoth, rangeTableASCII},
+		{rangeTableASCII, stridedBoth},
+		{rangetable.Merge(unicode.Latin, unicode.Greek, unicode.Cyrillic, unicode.ASCII_Hex_Digit), allowed},
+		{unicode.Latin, unicode.C},
+		{unicode.Sc, unicode.S},
+		{unicode.L, unicode.Lo},
+		{
+			&unicode.RangeTable{
+				R16: []unicode.Range16{{Lo: 0, Hi: 1<<16 - 1, Stride: 1}},
+				R32: []unicode.Range32{{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1}},
+			},
+			allowed,
+		},
+		{
+			&unicode.RangeTable{
+				R16: []unicode.Range16{
+					{Lo: 0, Hi: 'a' - 1, Stride: 1},
+					{Lo: 'z' + 1, Hi: 1<<16 - 1, Stride: 1},
+				},
+				R32: []unicode.Range32{
+					{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1},
+				},
+				LatinOffset: 1,
+			},
+			allowed,
+		},
+	} {
+		t1 := intersectRangeTables(unstridifyRangeTable(tabs[0]), unstridifyRangeTable(tabs[1]))
+		t2 := naiveIntersectRangeTables(tabs[0], tabs[1])
+
+		runes1 = runes1[:0]
+		rangetable.Visit(t1, func(r rune) { runes1 = append(runes1, r) })
+
+		runes2 = runes2[:0]
+		rangetable.Visit(t2, func(r rune) { runes2 = append(runes2, r) })
+
+		require.Equal(t, runes2, runes1)
 	}
 }
 
@@ -203,6 +239,10 @@ func naiveIntersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 				Hi:     uint16(r),
 				Stride: 1,
 			})
+
+			if r <= unicode.MaxLatin1 {
+				rt.LatinOffset++
+			}
 		} else {
 			rt.R32 = append(rt.R32, unicode.Range32{
 				Lo:     uint32(r),

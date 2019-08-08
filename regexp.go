@@ -378,7 +378,9 @@ func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 
 	for _, r0 := range a.R16 {
 		for _, r1 := range b.R16 {
-			if !anyOverlap(rune(r0.Lo), rune(r0.Hi), rune(r1.Lo), rune(r1.Hi)) {
+			if r1.Lo > r0.Hi {
+				break
+			} else if r0.Lo > r1.Hi {
 				continue
 			}
 
@@ -395,13 +397,14 @@ func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 			}
 
 			rt.R16 = append(rt.R16, unicode.Range16{Lo: lo, Hi: hi, Stride: 1})
-			break
 		}
 	}
 
 	for _, r0 := range a.R32 {
 		for _, r1 := range b.R32 {
-			if !anyOverlap(rune(r0.Lo), rune(r0.Hi), rune(r1.Lo), rune(r1.Hi)) {
+			if r1.Lo > r0.Hi {
+				break
+			} else if r0.Lo > r1.Hi {
 				continue
 			}
 
@@ -414,13 +417,8 @@ func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 			}
 
 			rt.R32 = append(rt.R32, unicode.Range32{Lo: lo, Hi: hi, Stride: 1})
-			break
 		}
 	}
 
 	return &rt
-}
-
-func anyOverlap(aLo, aHi, bLo, bHi rune) bool {
-	return aLo <= bHi && bLo <= aHi
 }
