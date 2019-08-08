@@ -374,16 +374,16 @@ func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 }
 
 func intersection(lo0, hi0, lo1, hi1, stride1 rune) (lo, hi rune) {
-	// TODO(tmthrgd): Eliminate for loops.
-
 	lo, hi = lo1, hi1
 
 	if lo < lo0 {
 		if stride1 == 1 {
 			lo = lo0
 		} else {
-			for ; lo < lo0; lo += stride1 {
-			}
+			c := lo0 - lo1
+			c += stride1 - 1
+			c -= c % stride1
+			lo += c
 		}
 	}
 
@@ -391,8 +391,10 @@ func intersection(lo0, hi0, lo1, hi1, stride1 rune) (lo, hi rune) {
 		if stride1 == 1 {
 			hi = hi0
 		} else {
-			for ; hi > hi0; hi -= stride1 {
-			}
+			c := hi1 - hi0
+			c += stride1 - 1
+			c -= c % stride1
+			hi -= c
 		}
 	}
 
