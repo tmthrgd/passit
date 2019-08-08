@@ -200,13 +200,13 @@ func TestIntersectRangeTables(t *testing.T) {
 }
 
 func BenchmarkIntersectRangeTables(b *testing.B) {
-	t1 := unstridifyRangeTable(rangetable.Merge(
+	t1 := rangetable.Merge(
 		unicode.Latin, unicode.Greek, unicode.Cyrillic, unicode.ASCII_Hex_Digit,
-	))
+	)
+	t1u := unstridifyRangeTable(t1)
 
-	var p RegexpParser
-	p.SetUnicodeAny()
-	t2 := p.anyRangeTable()
+	t2 := rangetable.Merge(allowedRanges...)
+	t2u := unstridifyRangeTable(t2)
 
 	b.Run("naive", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
@@ -215,7 +215,7 @@ func BenchmarkIntersectRangeTables(b *testing.B) {
 	})
 	b.Run("efficient", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
-			intersectRangeTables(t1, t2)
+			intersectRangeTables(t1u, t2u)
 		}
 	})
 }
