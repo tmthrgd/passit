@@ -62,12 +62,14 @@ type rangeTable struct {
 	count int
 }
 
-func FromRangeTable(tab *unicode.RangeTable) func(count int) Template {
-	// TODO(tmthrgd): This doesn't restrict the runes to allowedRanges like
-	// other functions. Should it?
-
+func FromRangeTable(tab *unicode.RangeTable) (func(count int) Template, error) {
+	tab = intersectRangeTables(allowedRangeTable(), tab)
 	runes := countTableRunes(tab)
-	return func(count int) Template { return &rangeTable{tab, runes, count} }
+	if runes == 0 {
+		return nil, errors.New("strongroom/password: unicode.RangeTable contains zero allowed runes")
+	}
+
+	return func(count int) Template { return &rangeTable{tab, runes, count} }, nil
 }
 
 func (rt *rangeTable) Password(r io.Reader) (string, error) {

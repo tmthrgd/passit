@@ -5,11 +5,8 @@ import (
 	"io"
 	"regexp/syntax"
 	"strings"
-	"sync"
 	"unicode"
 	"unicode/utf8"
-
-	"golang.org/x/text/unicode/rangetable"
 )
 
 const maxUnboundedRepeatCount = 15
@@ -309,18 +306,10 @@ func (p *RegexpParser) alternate(sr *syntax.Regexp) (regexpGenerator, error) {
 	}, nil
 }
 
-var regexpAnyRangeTableUni struct {
-	tab *unicode.RangeTable
-	sync.Once
-}
-
 func (p *RegexpParser) anyRangeTable() *unicode.RangeTable {
-	if !p.unicodeAny {
-		return rangeTableASCII
+	if p.unicodeAny {
+		return allowedRangeTable()
 	}
 
-	regexpAnyRangeTableUni.Do(func() {
-		regexpAnyRangeTableUni.tab = rangetable.Merge(allowedRanges...)
-	})
-	return regexpAnyRangeTableUni.tab
+	return rangeTableASCII
 }

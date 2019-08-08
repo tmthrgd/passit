@@ -71,7 +71,12 @@ func TestRangeTable(t *testing.T) {
 
 		testRand := rand.New(rand.NewSource(0))
 
-		pass, err := FromRangeTable(tc.tab)(size).Password(testRand)
+		tmpl, err := FromRangeTable(tc.tab)
+		if !assert.NoError(t, err) {
+			continue
+		}
+
+		pass, err := tmpl(size).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue
 		}

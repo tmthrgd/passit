@@ -1,6 +1,11 @@
 package password
 
-import "unicode"
+import (
+	"sync"
+	"unicode"
+
+	"golang.org/x/text/unicode/rangetable"
+)
 
 var rangeTableASCII = &unicode.RangeTable{
 	R16: []unicode.Range16{
@@ -18,6 +23,18 @@ func notAllowed(r rune) bool {
 	}
 
 	return !unicode.In(r, allowedRanges...)
+}
+
+var allowedRangeTableVal struct {
+	tab *unicode.RangeTable
+	sync.Once
+}
+
+func allowedRangeTable() *unicode.RangeTable {
+	allowedRangeTableVal.Do(func() {
+		allowedRangeTableVal.tab = rangetable.Merge(allowedRanges...)
+	})
+	return allowedRangeTableVal.tab
 }
 
 func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
