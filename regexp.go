@@ -7,6 +7,8 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf8"
+
+	"go.tmthrgd.dev/strongroom/internal"
 )
 
 const maxUnboundedRepeatCount = 15
@@ -146,39 +148,9 @@ func (*RegexpParser) literal(sr *syntax.Regexp) (regexpGenerator, error) {
 }
 
 func (p *RegexpParser) charClass(sr *syntax.Regexp) (regexpGenerator, error) {
-	const maxR16 = 1<<16 - 1
-
 	tab := new(unicode.RangeTable)
 	for i := 0; i < len(sr.Rune); i += 2 {
-		start, end := sr.Rune[i], sr.Rune[i+1]
-
-		if start > maxR16 {
-			tab.R32 = append(tab.R32, unicode.Range32{
-				Lo:     uint32(start),
-				Hi:     uint32(end),
-				Stride: 1,
-			})
-			continue
-		}
-
-		if end > maxR16 {
-			tab.R32 = append(tab.R32, unicode.Range32{
-				Lo:     maxR16 + 1,
-				Hi:     uint32(end),
-				Stride: 1,
-			})
-			end = maxR16
-		}
-
-		tab.R16 = append(tab.R16, unicode.Range16{
-			Lo:     uint16(start),
-			Hi:     uint16(end),
-			Stride: 1,
-		})
-
-		if end <= unicode.MaxLatin1 {
-			tab.LatinOffset++
-		}
+		internal.AppendToRangeTable(tab, sr.Rune[i], sr.Rune[i+1])
 	}
 
 	tab = intersectRangeTables(tab, p.anyRangeTable())
