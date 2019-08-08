@@ -22,13 +22,8 @@ func FromCharset(template string) (func(count int) Template, error) {
 		return nil, errors.New("strongroom/password: template contains invalid unicode rune")
 	}
 
-	var maxLen int
 	seen := make(map[rune]struct{}, len(runes))
 	for _, r := range runes {
-		if len := utf8.RuneLen(r); len > maxLen {
-			maxLen = len
-		}
-
 		if _, dup := seen[r]; dup {
 			return nil, errors.New("strongroom/password: template contains duplicate rune")
 		}
