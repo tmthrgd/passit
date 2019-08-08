@@ -41,5 +41,6 @@ func TestWords(t *testing.T) {
 			`strings.Count(%q, " ")`, pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
+		allRunesAllowed(t, pass)
 	}
 }

@@ -41,6 +41,7 @@ func TestCharset(t *testing.T) {
 			"utf8.RuneCountInString(%q)", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
+		allRunesAllowed(t, pass)
 	}
 }
 
@@ -86,5 +87,6 @@ func TestRangeTable(t *testing.T) {
 			"utf8.RuneCountInString(%q)", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
+		allRunesAllowed(t, pass)
 	}
 }

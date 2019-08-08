@@ -3,12 +3,22 @@ package password
 import (
 	"math/rand"
 	"regexp"
+	"strings"
 	"testing"
 	"unicode/utf8"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func allRunesAllowed(t *testing.T, str string) {
+	if idx := strings.IndexFunc(str, notAllowed); idx >= 0 {
+		t.Helper()
+
+		r, _ := utf8.DecodeRuneInString(str[idx:])
+		t.Errorf("string contains prohibitted rune %U: %+q", r, str)
+	}
+}
 
 func mustCharset(t *testing.T, template string) func(int) Template {
 	t.Helper()
@@ -42,4 +52,5 @@ func TestJoinTemplates(t *testing.T) {
 		"regexp.MustCompile(%q).MatchString(%q)", pattern, pass)
 	assert.Truef(t, utf8.ValidString(pass),
 		"utf8.ValidString(%q)", pass)
+	allRunesAllowed(t, pass)
 }
