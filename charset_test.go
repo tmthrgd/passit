@@ -72,7 +72,7 @@ func TestRangeTable(t *testing.T) {
 		{"﷼₶₧￠￠؋₲₢¢$₻₹₵￥¤$￥₴₢₠﹩＄₭₦￠", unicode.Sc},
 	}
 
-	if hasUnicode10 {
+	if unicode.Version == "10.0.0" {
 		testCases = append(testCases, testCasesUni...)
 	} else {
 		t.Logf("skipping %d test cases without unicode 10.0.0", len(testCasesUni))

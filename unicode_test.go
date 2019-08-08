@@ -11,8 +11,6 @@ import (
 	"golang.org/x/text/unicode/rangetable"
 )
 
-const hasUnicode10 = unicode.Version == "10.0.0"
-
 func allRunesAllowed(t *testing.T, str string) {
 	if idx := strings.IndexFunc(str, notAllowed); idx >= 0 {
 		t.Helper()
@@ -76,15 +74,15 @@ func TestIntersectRangeTables(t *testing.T) {
 
 	var runes1, runes2, runes3 []rune
 	for _, tabs := range [][2]*unicode.RangeTable{
-		{rangeTableASCII, allowedRangeTable()},
-		{rangeTableLatin1, allowedRangeTable()},
-		{stridedR16, allowedRangeTable()},
-		{stridedR32, allowedRangeTable()},
-		{stridedBoth, allowedRangeTable()},
+		{rangeTableASCII, allowedRangeTable},
+		{rangeTableLatin1, allowedRangeTable},
+		{stridedR16, allowedRangeTable},
+		{stridedR32, allowedRangeTable},
+		{stridedBoth, allowedRangeTable},
 		{stridedR16, rangeTableASCII},
 		{stridedR32, rangeTableASCII},
 		{stridedBoth, rangeTableASCII},
-		{rangetable.Merge(unicode.Latin, unicode.Greek, unicode.Cyrillic, unicode.ASCII_Hex_Digit), allowedRangeTable()},
+		{rangetable.Merge(unicode.Latin, unicode.Greek, unicode.Cyrillic, unicode.ASCII_Hex_Digit), allowedRangeTable},
 		{unicode.Latin, unicode.C},
 		{unicode.Sc, unicode.S},
 		{unicode.L, unicode.Lo},
@@ -93,7 +91,7 @@ func TestIntersectRangeTables(t *testing.T) {
 				R16: []unicode.Range16{{Lo: 0, Hi: 1<<16 - 1, Stride: 1}},
 				R32: []unicode.Range32{{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1}},
 			},
-			allowedRangeTable(),
+			allowedRangeTable,
 		},
 		{
 			&unicode.RangeTable{
@@ -106,9 +104,9 @@ func TestIntersectRangeTables(t *testing.T) {
 				},
 				LatinOffset: 1,
 			},
-			allowedRangeTable(),
+			allowedRangeTable,
 		},
-		{unicode.M, allowedRangeTable()},
+		{unicode.M, allowedRangeTable},
 		{unicode.M, notASCII},
 	} {
 		t1 := naiveIntersectRangeTables(tabs[0], tabs[1])
@@ -129,11 +127,39 @@ func TestIntersectRangeTables(t *testing.T) {
 	}
 }
 
+func TestGeneratedRangeTables(t *testing.T) {
+	rangeTableASCIIManual := &unicode.RangeTable{
+		R16:         []unicode.Range16{{Lo: 0x20, Hi: 0x7e, Stride: 1}},
+		LatinOffset: 1,
+	}
+	assert.Equal(t, rangeTableASCIIManual, rangeTableASCII, "generated rangeTableASCII")
+
+	if unicode.Version != unicodeVersion {
+		t.Skipf("skipping rest of test due to mismatched unicode versions; have %s, want %s", unicode.Version, unicodeVersion)
+	}
+
+	allowedRangeTableManual := rangetable.Merge(
+		unicode.Lu, unicode.Ll, unicode.Lt, unicode.Lo,
+		unicode.N,
+		unicode.P,
+		unicode.Sm, unicode.Sc, unicode.So,
+		rangeTableASCIIManual,
+	)
+
+	var runes1, runes2 []rune
+	rangetable.Visit(allowedRangeTableManual, func(r rune) { runes1 = append(runes1, r) })
+	rangetable.Visit(allowedRangeTable, func(r rune) { runes2 = append(runes2, r) })
+	assert.Equal(t, runes1, runes2, "generated allowedRangeTable")
+}
+
 func TestAllowedRanges(t *testing.T) {
 	for _, name := range []string{"C", "Lm", "M", "Sk", "Z"} {
 		var runes []rune
 		rangetable.Visit(unicode.Categories[name], func(r rune) {
-			if unicode.In(r, allowedRanges...) && !unicode.Is(rangeTableASCII, r) {
+			if unicode.Is(allowedRangeTable, r) && !unicode.Is(rangeTableASCII, r) &&
+				// This is a temporary work around as Unicode 11.0.0
+				// includes this in M whereas 10.0.0 includes it in P.
+				r != 0x111c9 {
 				runes = append(runes, r)
 			}
 		})
@@ -159,7 +185,7 @@ func TestAllowedRanges(t *testing.T) {
 	} {
 		var runes []rune
 		rangetable.Visit(unicode.Properties[name], func(r rune) {
-			if unicode.In(r, allowedRanges...) && !unicode.Is(rangeTableASCII, r) {
+			if unicode.Is(allowedRangeTable, r) && !unicode.Is(rangeTableASCII, r) {
 				runes = append(runes, r)
 			}
 		})
@@ -174,16 +200,14 @@ func BenchmarkIntersectRangeTables(b *testing.B) {
 	)
 	t1u := unstridifyRangeTable(t1)
 
-	t2 := allowedRangeTable()
-
 	b.Run("naive", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
-			naiveIntersectRangeTables(t1, t2)
+			naiveIntersectRangeTables(t1, allowedRangeTable)
 		}
 	})
 	b.Run("efficient", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
-			intersectRangeTables(t1u, t2)
+			intersectRangeTables(t1u, allowedRangeTable)
 		}
 	})
 }

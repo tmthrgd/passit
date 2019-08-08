@@ -1,46 +1,17 @@
 package password
 
 import (
-	"sync"
 	"unicode"
-
-	"golang.org/x/text/unicode/rangetable"
 )
 
-var rangeTableASCII = &unicode.RangeTable{
-	R16: []unicode.Range16{
-		{Lo: 0x20, Hi: 0x7e, Stride: 1},
-	},
-	LatinOffset: 1,
-}
-
-// TODO(tmthrgd): Review these ranges.
-var allowedRanges = []*unicode.RangeTable{
-	unicode.Lu, unicode.Ll, unicode.Lt, unicode.Lo,
-	unicode.N,
-	unicode.P,
-	unicode.Sm, unicode.Sc, unicode.So,
-	rangeTableASCII,
-}
+//go:generate go run unicode_generate.go unicode_generate_gen.go unicode_generate_ucd.go -unicode 10.0.0
 
 func notAllowed(r rune) bool {
 	if r <= 0x7e { // Fast path for ASCII.
 		return r < 0x20
 	}
 
-	return !unicode.In(r, allowedRanges...)
-}
-
-var allowedRangeTableVal struct {
-	tab *unicode.RangeTable
-	sync.Once
-}
-
-func allowedRangeTable() *unicode.RangeTable {
-	allowedRangeTableVal.Do(func() {
-		allowedRangeTableVal.tab = rangetable.Merge(allowedRanges...)
-	})
-	return allowedRangeTableVal.tab
+	return !unicode.Is(allowedRangeTable, r)
 }
 
 func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {

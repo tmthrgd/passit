@@ -308,7 +308,7 @@ func (p *RegexpParser) alternate(sr *syntax.Regexp) (regexpGenerator, error) {
 
 func (p *RegexpParser) anyRangeTable() *unicode.RangeTable {
 	if p.unicodeAny {
-		return allowedRangeTable()
+		return allowedRangeTable
 	}
 
 	return rangeTableASCII

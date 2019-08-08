@@ -64,7 +64,7 @@ type rangeTable struct {
 
 func FromRangeTable(tab *unicode.RangeTable) (func(count int) Template, error) {
 	tab = unstridifyRangeTable(tab)
-	tab = intersectRangeTables(tab, allowedRangeTable())
+	tab = intersectRangeTables(tab, allowedRangeTable)
 
 	runes := countTableRunes(tab)
 	if runes == 0 {
