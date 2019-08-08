@@ -384,12 +384,12 @@ func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 				continue
 			}
 
-			lo, hi := r0.Lo, r0.Hi
-			if lo < r1.Lo {
-				lo = r1.Lo
+			lo, hi := r1.Lo, r1.Hi
+			if lo < r0.Lo {
+				lo = r0.Lo
 			}
-			if hi > r1.Hi {
-				hi = r1.Hi
+			if hi > r0.Hi {
+				hi = r0.Hi
 			}
 
 			if hi <= unicode.MaxLatin1 {
@@ -408,12 +408,12 @@ func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 				continue
 			}
 
-			lo, hi := r0.Lo, r0.Hi
-			if lo < r1.Lo {
-				lo = r1.Lo
+			lo, hi := r1.Lo, r1.Hi
+			if lo < r0.Lo {
+				lo = r0.Lo
 			}
-			if hi > r1.Hi {
-				hi = r1.Hi
+			if hi > r0.Hi {
+				hi = r0.Hi
 			}
 
 			rt.R32 = append(rt.R32, unicode.Range32{Lo: lo, Hi: hi, Stride: 1})
