@@ -108,7 +108,12 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 }
 
 func TestUnstridifyRangeTable(t *testing.T) {
-	rt := unstridifyRangeTable(rangetable.Merge(unicode.C))
+	// This will trip the race detector if unicode.C is modified.
+	go func() { _ = *unicode.C }()
+
+	oldC := *unicode.C
+	rt := unstridifyRangeTable(unicode.C)
+	assert.Equal(t, &oldC, unicode.C, "mutated input")
 
 	for _, r16 := range rt.R16 {
 		require.Equal(t, uint16(1), r16.Stride)

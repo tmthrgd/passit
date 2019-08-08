@@ -327,35 +327,46 @@ func (p *RegexpParser) anyRangeTable() *unicode.RangeTable {
 }
 
 func unstridifyRangeTable(tab *unicode.RangeTable) *unicode.RangeTable {
-	for i := 0; i < len(tab.R16); i++ {
-		if r16 := tab.R16[i]; r16.Stride != 1 {
+	rt := &unicode.RangeTable{
+		R16: tab.R16[:len(tab.R16):len(tab.R16)],
+		R32: tab.R32[:len(tab.R32):len(tab.R32)],
+	}
+
+	for i := 0; i < len(rt.R16); i++ {
+		if r16 := rt.R16[i]; r16.Stride != 1 {
 			size := int((r16.Hi-r16.Lo)/r16.Stride) + 1
-			tab.R16 = append(tab.R16, make([]unicode.Range16, size-1)...)
-			copy(tab.R16[i+size:], tab.R16[i+1:])
+			rt.R16 = append(rt.R16, make([]unicode.Range16, size-1)...)
+			copy(rt.R16[i+size:], rt.R16[i+1:])
 
 			for r := rune(r16.Lo); r <= rune(r16.Hi); r += rune(r16.Stride) {
-				tab.R16[i] = unicode.Range16{Lo: uint16(r), Hi: uint16(r), Stride: 1}
+				if r <= unicode.MaxLatin1 {
+					rt.LatinOffset++
+				}
+
+				rt.R16[i] = unicode.Range16{Lo: uint16(r), Hi: uint16(r), Stride: 1}
 				i++
 			}
 			i--
+		} else if r16.Hi <= unicode.MaxLatin1 {
+			rt.LatinOffset++
 		}
 	}
 
-	for i := 0; i < len(tab.R32); i++ {
-		if r32 := tab.R32[i]; r32.Stride != 1 {
+	for i := 0; i < len(rt.R32); i++ {
+		if r32 := rt.R32[i]; r32.Stride != 1 {
 			size := int((r32.Hi-r32.Lo)/r32.Stride) + 1
-			tab.R32 = append(tab.R32, make([]unicode.Range32, size-1)...)
-			copy(tab.R32[i+size:], tab.R32[i+1:])
+			rt.R32 = append(rt.R32, make([]unicode.Range32, size-1)...)
+			copy(rt.R32[i+size:], rt.R32[i+1:])
 
 			for r := rune(r32.Lo); r <= rune(r32.Hi); r += rune(r32.Stride) {
-				tab.R32[i] = unicode.Range32{Lo: uint32(r), Hi: uint32(r), Stride: 1}
+				rt.R32[i] = unicode.Range32{Lo: uint32(r), Hi: uint32(r), Stride: 1}
 				i++
 			}
 			i--
 		}
 	}
 
-	return tab
+	return rt
 }
 
 func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
