@@ -147,7 +147,12 @@ func TestGeneratedRangeTables(t *testing.T) {
 	)
 
 	var runes1, runes2 []rune
-	rangetable.Visit(allowedRangeTableManual, func(r rune) { runes1 = append(runes1, r) })
+	rangetable.Visit(allowedRangeTableManual, func(r rune) {
+		if !unicode.In(r, unicode.Deprecated,
+			unicode.Other_Default_Ignorable_Code_Point) {
+			runes1 = append(runes1, r)
+		}
+	})
 	rangetable.Visit(allowedRangeTable, func(r rune) { runes2 = append(runes2, r) })
 	assert.Equal(t, runes1, runes2, "generated allowedRangeTable")
 }
@@ -169,19 +174,15 @@ func TestAllowedRanges(t *testing.T) {
 
 	for _, name := range []string{
 		"Bidi_Control",
+		"Deprecated",
 		"Join_Control",
 		"Noncharacter_Code_Point",
 		"Other_Grapheme_Extend",
+		"Other_Default_Ignorable_Code_Point",
 		"Pattern_White_Space",
 		"Prepended_Concatenation_Mark",
 		"Variation_Selector",
 		"White_Space",
-
-		// TODO(tmthrgd): Remove characters from allowedRanges with these properties:
-		//  Deprecated
-		//  Other_Default_Ignorable_Code_Point
-		//
-		// Also remove characters from CJK Unified Ideographs Extension X blocks.
 	} {
 		var runes []rune
 		rangetable.Visit(unicode.Properties[name], func(r rune) {

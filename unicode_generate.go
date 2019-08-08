@@ -14,6 +14,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"unicode"
 
 	"golang.org/x/text/unicode/rangetable"
 )
@@ -21,7 +22,8 @@ import (
 func main() {
 	flag.Parse()
 	setupOutput()
-	loadChars() // always needed
+	loadChars()
+	loadProperties()
 	printCategories()
 	printSizes()
 	flushOutput()
@@ -57,6 +59,7 @@ type Char struct {
 const MaxChar = 0x10FFFF
 
 var chars = make([]Char, MaxChar+1)
+var props = make(map[string][]rune)
 
 func loadChars() {
 	ucd_Parse(gen_OpenUCDFile("UnicodeData.txt"), func(p *ucd_Parser) {
@@ -68,6 +71,13 @@ func loadChars() {
 	})
 }
 
+func loadProperties() {
+	ucd_Parse(gen_OpenUCDFile("PropList.txt"), func(p *ucd_Parser) {
+		name := p.String(1)
+		props[name] = append(props[name], p.Rune(0))
+	})
+}
+
 func printCategories() {
 	println("import \"unicode\"\n\n")
 
@@ -76,6 +86,9 @@ func printCategories() {
 
 	// TODO(tmthrgd): Review these ranges.
 
+	deprecated := rangetable.New(props["Deprecated"]...)
+	ignorable := rangetable.New(props["Other_Default_Ignorable_Code_Point"]...)
+
 	dumpRange("rangeTableASCII", func(code rune) bool {
 		return code >= 0x20 && code <= 0x7e
 	})
@@ -83,6 +96,10 @@ func printCategories() {
 	dumpRange("allowedRangeTable", func(code rune) bool {
 		if code <= 0x7e { // Special case ASCII.
 			return code >= 0x20
+		}
+
+		if unicode.In(code, deprecated, ignorable) {
+			return false
 		}
 
 		c := chars[code]
