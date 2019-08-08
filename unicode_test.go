@@ -161,10 +161,7 @@ func TestAllowedRanges(t *testing.T) {
 	for _, name := range []string{"C", "Lm", "M", "Sk", "Z"} {
 		var runes []rune
 		rangetable.Visit(unicode.Categories[name], func(r rune) {
-			if unicode.Is(allowedRangeTable, r) && !unicode.Is(rangeTableASCII, r) &&
-				// This is a temporary work around as Unicode 11.0.0
-				// includes this in M whereas 10.0.0 includes it in P.
-				r != 0x111c9 {
+			if unicode.Is(allowedRangeTable, r) && !unicode.Is(rangeTableASCII, r) {
 				runes = append(runes, r)
 			}
 		})
