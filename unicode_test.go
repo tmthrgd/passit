@@ -26,7 +26,6 @@ func TestUnstridifyRangeTable(t *testing.T) {
 }
 
 func TestIntersectRangeTables(t *testing.T) {
-	allowed := rangetable.Merge(allowedRanges...)
 	rangeTableLatin1 := &unicode.RangeTable{
 		R16:         []unicode.Range16{{Lo: 0, Hi: unicode.MaxLatin1, Stride: 1}},
 		LatinOffset: 1,
@@ -44,6 +43,16 @@ func TestIntersectRangeTables(t *testing.T) {
 		R32:         []unicode.Range32{{Lo: 1 << 16, Hi: 1<<16 + 128, Stride: 2}},
 		LatinOffset: 1,
 	}
+	notASCII := &unicode.RangeTable{
+		R16: []unicode.Range16{
+			{Lo: 0, Hi: 0x20 - 1, Stride: 1},
+			{Lo: 0x7e + 1, Hi: 1<<16 - 1, Stride: 1},
+		},
+		R32: []unicode.Range32{
+			{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1},
+		},
+		LatinOffset: 1,
+	}
 
 	asciiSpace := &unicode.RangeTable{
 		R16:         []unicode.Range16{{Lo: ' ', Hi: ' ', Stride: 1}},
@@ -54,15 +63,15 @@ func TestIntersectRangeTables(t *testing.T) {
 
 	var runes1, runes2, runes3 []rune
 	for _, tabs := range [][2]*unicode.RangeTable{
-		{rangeTableASCII, allowed},
-		{rangeTableLatin1, allowed},
-		{stridedR16, allowed},
-		{stridedR32, allowed},
-		{stridedBoth, allowed},
+		{rangeTableASCII, allowedRangeTable()},
+		{rangeTableLatin1, allowedRangeTable()},
+		{stridedR16, allowedRangeTable()},
+		{stridedR32, allowedRangeTable()},
+		{stridedBoth, allowedRangeTable()},
 		{stridedR16, rangeTableASCII},
 		{stridedR32, rangeTableASCII},
 		{stridedBoth, rangeTableASCII},
-		{rangetable.Merge(unicode.Latin, unicode.Greek, unicode.Cyrillic, unicode.ASCII_Hex_Digit), allowed},
+		{rangetable.Merge(unicode.Latin, unicode.Greek, unicode.Cyrillic, unicode.ASCII_Hex_Digit), allowedRangeTable()},
 		{unicode.Latin, unicode.C},
 		{unicode.Sc, unicode.S},
 		{unicode.L, unicode.Lo},
@@ -71,7 +80,7 @@ func TestIntersectRangeTables(t *testing.T) {
 				R16: []unicode.Range16{{Lo: 0, Hi: 1<<16 - 1, Stride: 1}},
 				R32: []unicode.Range32{{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1}},
 			},
-			allowed,
+			allowedRangeTable(),
 		},
 		{
 			&unicode.RangeTable{
@@ -84,8 +93,10 @@ func TestIntersectRangeTables(t *testing.T) {
 				},
 				LatinOffset: 1,
 			},
-			allowed,
+			allowedRangeTable(),
 		},
+		{unicode.M, allowedRangeTable()},
+		{unicode.M, notASCII},
 	} {
 		t1 := naiveIntersectRangeTables(tabs[0], tabs[1])
 		t2 := intersectRangeTables(unstridifyRangeTable(tabs[0]), tabs[1])
@@ -105,13 +116,41 @@ func TestIntersectRangeTables(t *testing.T) {
 	}
 }
 
+func TestAllowedRanges(t *testing.T) {
+	for _, name := range []string{"C", "Lm", "M", "Sk", "Z"} {
+		var runes []rune
+		rangetable.Visit(unicode.Categories[name], func(r rune) {
+			if unicode.In(r, allowedRanges...) && !unicode.Is(rangeTableASCII, r) {
+				runes = append(runes, r)
+			}
+		})
+
+		assert.Empty(t, runes, "allowedRanges contains %d unwanted runes from category %s", len(runes), name)
+	}
+
+	for _, r := range []rune{
+		0x200b,                         // Zero-width Space
+		0x200c,                         // Zero-width Non-Joiner
+		0x200d,                         // Zero-width Joiner
+		0x2060,                         // Word Joiner
+		0xfe00, 0xfe01, 0xfe02, 0xfe03, // Variant Selector 1-4
+		0xfe04, 0xfe05, 0xfe06, 0xfe07, // Variant Selector 5-8
+		0xfe08, 0xfe09, 0xfe0a, 0xfe0b, // Variant Selector 9-12
+		0xfe0c, 0xfe0d, 0xfe0e, 0xfe0f, // Variant Selector 13-16
+		0xfeff, // Zero-width No-break Space
+	} {
+		assert.False(t, unicode.In(r, allowedRanges...),
+			"allowedRanges contains unwanted rune %U", r)
+	}
+}
+
 func BenchmarkIntersectRangeTables(b *testing.B) {
 	t1 := rangetable.Merge(
 		unicode.Latin, unicode.Greek, unicode.Cyrillic, unicode.ASCII_Hex_Digit,
 	)
 	t1u := unstridifyRangeTable(t1)
 
-	t2 := rangetable.Merge(allowedRanges...)
+	t2 := allowedRangeTable()
 
 	b.Run("naive", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {

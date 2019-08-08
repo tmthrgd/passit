@@ -14,8 +14,14 @@ var rangeTableASCII = &unicode.RangeTable{
 	LatinOffset: 1,
 }
 
-// TODO(tmthrgd): Review these ranges. PrintRanges is likely too permissive.
-var allowedRanges = append(unicode.PrintRanges, rangeTableASCII)
+// TODO(tmthrgd): Review these ranges.
+var allowedRanges = []*unicode.RangeTable{
+	unicode.Lu, unicode.Ll, unicode.Lt, unicode.Lo,
+	unicode.N,
+	unicode.P,
+	unicode.Sm, unicode.Sc, unicode.So,
+	rangeTableASCII,
+}
 
 func notAllowed(r rune) bool {
 	if r <= 0x7e { // Fast path for ASCII.

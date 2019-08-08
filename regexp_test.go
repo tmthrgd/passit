@@ -56,19 +56,19 @@ func TestRegexpUnicodeAny(t *testing.T) {
 	testRand := rand.New(rand.NewSource(0))
 
 	for _, expect := range []string{
-		"x90822236719\U00027618\U00016820\U000216df\u4ed6yyyyzzzzyy=",
+		"x90822236719\U000281f1\U00020c7c\u9158\U0002beaeyyyyzzzzyy=",
 		"x7977150zzyyyyzzzzzzyyzzzzyyyy<",
-		"x14404\U00028f55\u4e68\U0001d734\u096fyyyyzzyyyyyyyyyyyyyyzz#",
-		"acd0saaaaaabbbbbbbbbbbbbbbbccccddddeeeeeeeeeeeeeeeeegggggggghhhhhhhhhhhhhhh\U00028617\U00024a94\U00017db0\U00027fb3\U00029c0f\u4fdc\U0001f5cc",
-		"abd9Xaaaaaaaaabbbbbbbbbbbbbbccccddddeeeeeeeeeggggggghhhhhhhhhhhhhhh\U000131bd\U00027390\U0002a346\u32ba",
-		"x30\u230a\U0002357e\ua219\U00026243\U00017e4bzzzzyyzzyyzzzzyyzzzz(",
-		"x67927673\U0002aaec\U0002400d\U000273c0\u4580yyyyyyyyyyyyyyyyzzyyyyzz^",
-		"x21903591837\u69fc\u31f9\U0002b611\U00011684yyyyzzyyyyyyyy<",
-		"abd6Faaabbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeeeef\U000288eb\U0002b76b\u8c00\u41c1\U00016b5e\U0002bd02\U00026d44\u35af",
-		"x7055\U0001d728\U0001740f\U0002aa29zzyyyyyyzzyyyyyyzzyyzz?",
-		"acd8Iabbbbbbbbbbbbccccddddddeeeeeeeee\u9c38\u241d\U000187ca\U0002d4fa\U0002f860",
-		"abd8Vaaaaaaaaaaaaaabbbbbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeggggggggggggghhhhhhhhhhhhhhhh\U000121b5\U00028fb7\ucf9f\U000228e5\ud367\U0001d803\U00026306\u3cd6\ua88e\U0001335d\U0002598a\ua3ad\U00018841\ub51b",
-		"acd1Yaaaaaaaaaaabbbbbbbbbbbbbbbccccdddddeeeeeeeeeeef\U00016974\U00021933\U0002b008\U0001207d\U0002464b\u361e\u540e\U0002dfab\U00024f6a",
+		"x14404\U0002af07\U000225f8\uc9de\u925dyyyyzzyyyyyyyyyyyyyyzz#",
+		"acd0saaaaaabbbbbbbbbbbbbbbbccccddddeeeeeeeeeeeeeeeeegggggggghhhhhhhhhhhhhhh\u89bb\U00017007\U00010b45\U0002084f\uaf59\U0002abb0\U0001b04a",
+		"abd9Xaaaaaaaaabbbbbbbbbbbbbbccccddddeeeeeeeeeggggggghhhhhhhhhhhhhhh\u231f\U0002b3aa\U0002d1c6\U0002a316",
+		"x30\U000168ba\u6d97\uae28\U00026d49\u41ebzzzzyyzzyyzzzzyyzzzz(",
+		"x67927673\u6c23\u3c57\ua1ad\U0002cc4eyyyyyyyyyyyyyyyyzzyyyyzz^",
+		"x21903591837\u5674\u0f6a\U00029475\u698cyyyyzzyyyyyyyy<",
+		"abd6Faaabbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeeeef\ua98f\U000295f8\U00021d16\U000205ad\U00021c08\U000274b4\U0001072b\ud269",
+		"x7055\U0001f7b4\U000207b5\U00024a4ezzyyyyyyzzyyyyyyzzyyzz?",
+		"acd8Iabbbbbbbbbbbbccccddddddeeeeeeeee\U00020f75\u6abd\uae8c\u6b30\u3dcd",
+		"abd8Vaaaaaaaaaaaaaabbbbbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeggggggggggggghhhhhhhhhhhhhhhh\u13ac\u6679\U000216eb\U0002e96b\U0001854a\ub42d\U0002bb27\U0002deb7\uce48\u0761\U00023f28\U0002dd20\u8beb\U00012452",
+		"acd1Yaaaaaaaaaaabbbbbbbbbbbbbbbccccdddddeeeeeeeeeeef\u77d9\U000189db\u55c0\U0002ddba\ua695\U000271fb\U00028c40\U000214f4\U0002346e",
 	} {
 		pass, err := tmpl.Password(testRand)
 		require.NoError(t, err)
