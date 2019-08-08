@@ -1,13 +1,26 @@
 package password
 
 import (
+	"strings"
 	"testing"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/text/unicode/rangetable"
 )
+
+const hasUnicode10 = unicode.Version == "10.0.0"
+
+func allRunesAllowed(t *testing.T, str string) {
+	if idx := strings.IndexFunc(str, notAllowed); idx >= 0 {
+		t.Helper()
+
+		r, _ := utf8.DecodeRuneInString(str[idx:])
+		t.Errorf("string contains prohibitted rune %U: %+q", r, str)
+	}
+}
 
 func TestUnstridifyRangeTable(t *testing.T) {
 	// This will trip the race detector if unicode.C is modified.

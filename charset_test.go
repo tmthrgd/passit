@@ -50,10 +50,11 @@ func TestRangeTable(t *testing.T) {
 		return rangetable.New([]rune(s)...)
 	}
 
-	for _, tc := range []struct {
+	type testCase struct {
 		expect string
 		tab    *unicode.RangeTable
-	}{
+	}
+	testCases := []testCase{
 		{"1010000010111010000001100", newTable("01")},
 		{"1690822236719012868805980", newTable("0123456789")},
 		{"lwrqmcesfypbvqzagueycldeq", newTable("abcdefghijklmnopqrstuvwxyz")},
@@ -64,10 +65,20 @@ func TestRangeTable(t *testing.T) {
 		{"κΟΡΘΤΡμτΚλμΙΓωθηεηΘΑΙΧΤπς", newTable("ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω")},
 		{"🍈🐂👒🌴🚱🍉💅🍉🍧🔱🚋🍈👒👗🍈💅🚱🐂🐝🐝🌴💻🛰🚱👗", newTable("🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋")},
 		{"7032aEC2b213F2f2eaCecdFc4", unicode.ASCII_Hex_Digit},
+	}
+	testCasesUni := []testCase{
 		{"ᵲꜩƗņḎǸıỏʭȜĠɞɻŁþᴒẘⅫｑǙĽŤᶌʕꟽ", unicode.Latin},
 		{"ὦ𐆋𐅼ᾡ𝈉𝈓𐆇ᾶ𐅨Ὺ𝈶ἠῑϸϽῪϸϘΏ𐅵𐅡𝈾ῆϊβ", unicode.Greek},
 		{"﷼₶₧￠￠؋₲₢¢$₻₹₵￥¤$￥₴₢₠﹩＄₭₦￠", unicode.Sc},
-	} {
+	}
+
+	if hasUnicode10 {
+		testCases = append(testCases, testCasesUni...)
+	} else {
+		t.Logf("skipping %d test cases without unicode 10.0.0", len(testCasesUni))
+	}
+
+	for _, tc := range testCases {
 		const size = 25
 
 		testRand := rand.New(rand.NewSource(0))

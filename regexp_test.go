@@ -46,6 +46,10 @@ func TestRegexp(t *testing.T) {
 }
 
 func TestRegexpUnicodeAny(t *testing.T) {
+	if !hasUnicode10 {
+		t.Skip("skipping without unicode 10.0.0")
+	}
+
 	pattern := `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+(?P<punct>[[:punct:]])`
 
 	var p RegexpParser
