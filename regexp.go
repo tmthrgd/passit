@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 	"unicode"
+	"unicode/utf8"
 
 	"golang.org/x/text/unicode/rangetable"
 )
@@ -136,6 +137,11 @@ func (*RegexpParser) noop(*syntax.Regexp) (regexpGenerator, error) {
 
 func (*RegexpParser) literal(sr *syntax.Regexp) (regexpGenerator, error) {
 	s := string(sr.Rune)
+	if idx := strings.IndexFunc(s, notAllowed); idx >= 0 {
+		r, _ := utf8.DecodeRuneInString(s[idx:])
+		return nil, fmt.Errorf("strongroom/password: regexp literal contains prohibitted rune %U", r)
+	}
+
 	return func(b *strings.Builder, r io.Reader) error {
 		b.WriteString(s)
 		return nil
@@ -178,14 +184,7 @@ func (p *RegexpParser) charClass(sr *syntax.Regexp) (regexpGenerator, error) {
 		}
 	}
 
-	// If a character class contains both 0 and MaxRune, it's probably a negated
-	// class. There is no way to directly test for this.
-	negated := len(sr.Rune) > 0 && sr.Rune[0] == 0 &&
-		sr.Rune[len(sr.Rune)-1] == unicode.MaxRune
-	if negated {
-		tab = intersectRangeTables(tab, p.anyRangeTable())
-	}
-
+	tab = intersectRangeTables(tab, p.anyRangeTable())
 	return p.charClassInternal(sr, tab)
 }
 
@@ -196,7 +195,7 @@ func (p *RegexpParser) anyCharNotNL(sr *syntax.Regexp) (regexpGenerator, error) 
 func (*RegexpParser) charClassInternal(sr *syntax.Regexp, tab *unicode.RangeTable) (regexpGenerator, error) {
 	count := countTableRunes(tab)
 	if count == 0 {
-		return nil, fmt.Errorf("strongroom/password: character class %s contains zero runes", sr)
+		return nil, fmt.Errorf("strongroom/password: character class %s contains zero allowed runes", sr)
 	}
 
 	return func(b *strings.Builder, r io.Reader) error {
@@ -310,13 +309,6 @@ func (p *RegexpParser) alternate(sr *syntax.Regexp) (regexpGenerator, error) {
 	}, nil
 }
 
-var regexpAnyRangeTableASCII = &unicode.RangeTable{
-	R16: []unicode.Range16{
-		{Lo: 0x20, Hi: 0x7e, Stride: 1},
-	},
-	LatinOffset: 1,
-}
-
 var regexpAnyRangeTableUni struct {
 	tab *unicode.RangeTable
 	sync.Once
@@ -324,18 +316,12 @@ var regexpAnyRangeTableUni struct {
 
 func (p *RegexpParser) anyRangeTable() *unicode.RangeTable {
 	if !p.unicodeAny {
-		return regexpAnyRangeTableASCII
+		return rangeTableASCII
 	}
 
 	regexpAnyRangeTableUni.Do(func() {
-		regexpAnyRangeTableUni.tab = unstridifyRangeTable(rangetable.Merge(
-			// TODO(tmthrgd): Review these ranges.
-			unicode.Lu, unicode.Ll, unicode.Lt, unicode.Lo,
-			unicode.Mn,
-			unicode.N,
-			unicode.P,
-			unicode.S,
-		))
+		allowed := rangetable.Merge(allowedRanges...)
+		regexpAnyRangeTableUni.tab = unstridifyRangeTable(allowed)
 	})
 	return regexpAnyRangeTableUni.tab
 }

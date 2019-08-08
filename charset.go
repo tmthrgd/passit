@@ -2,7 +2,9 @@ package password
 
 import (
 	"errors"
+	"fmt"
 	"io"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 )
@@ -20,6 +22,9 @@ func FromCharset(template string) (func(count int) Template, error) {
 		return nil, errors.New("strongroom/password: template too long")
 	} else if !utf8.ValidString(template) {
 		return nil, errors.New("strongroom/password: template contains invalid unicode rune")
+	} else if idx := strings.IndexFunc(template, notAllowed); idx >= 0 {
+		r, _ := utf8.DecodeRuneInString(template[idx:])
+		return nil, fmt.Errorf("strongroom/password: template contains prohibitted rune %U", r)
 	}
 
 	seen := make(map[rune]struct{}, len(runes))
@@ -58,6 +63,9 @@ type rangeTable struct {
 }
 
 func FromRangeTable(tab *unicode.RangeTable) func(count int) Template {
+	// TODO(tmthrgd): This doesn't restrict the runes to allowedRanges like
+	// other functions. Should it?
+
 	runes := countTableRunes(tab)
 	return func(count int) Template { return &rangeTable{tab, runes, count} }
 }

@@ -58,19 +58,19 @@ func TestRegexpUnicodeAny(t *testing.T) {
 	testRand := rand.New(rand.NewSource(0))
 
 	for _, expect := range []string{
-		"x90822236719\u5b5f\U0002ae5c\u74a0\U00018834yyyyzzzzyy=",
+		"x90822236719\U00027618\U00016820\U000216df\u4ed6yyyyzzzzyy=",
 		"x7977150zzyyyyzzzzzzyyzzzzyyyy<",
-		"x14404\ubb94\U00020f6c\u682f\U00023747yyyyzzyyyyyyyyyyyyyyzz#",
-		"acd0saaaaaabbbbbbbbbbbbbbbbccccddddeeeeeeeeeeeeeeeeegggggggghhhhhhhhhhhhhhh\U00027267\u75095KK)(",
-		"abd9Xaaaaaaaaabbbbbbbbbbbbbbccccddddeeeeeeeeeggggggghhhhhhhhhhhhhhh\U000144fd\U00017c7fCO",
-		"x30\U0002ba33\U00023784\U0002c39a\U000175ab\U0002d49dzzzzyyzzyyzzzzyyzzzz(",
-		"x67927673\U0002154d\U00010cce\U0001d681\U000223fayyyyyyyyyyyyyyyyzzyyyyzz^",
-		"x21903591837\U0001b0d5\U00026945\u1c49\u80b6yyyyzzyyyyyyyy<",
-		"abd6Faaabbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeeeef\u0734\U0002c726{2PL$A",
-		"x7055\U00025ee7\ubd9f\u3ae2zzyyyyyyzzyyyyyyzzyyzz?",
-		"acd8Iabbbbbbbbbbbbccccddddddeeeeeeeee\u9580\u26956\U00010007R",
-		"abd8Vaaaaaaaaaaaaaabbbbbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeggggggggggggghhhhhhhhhhhhhhhh\U00020c6a\U00026038T&\U0001000bSY3JQGREV",
-		"acd1Yaaaaaaaaaaabbbbbbbbbbbbbbbccccdddddeeeeeeeeeeef\U00017dac\uc94c\U0001000b\U0001000aE)-<^",
+		"x14404\U00028f55\u4e68\U0001d734\u096fyyyyzzyyyyyyyyyyyyyyzz#",
+		"acd0saaaaaabbbbbbbbbbbbbbbbccccddddeeeeeeeeeeeeeeeeegggggggghhhhhhhhhhhhhhh\U00028617\U00024a948>G;K",
+		"abd9Xaaaaaaaaabbbbbbbbbbbbbbccccddddeeeeeeeeeggggggghhhhhhhhhhhhhhh\U000131bd\U00027390Z6",
+		"x30\u230a\U0002357e\ua219\U00026243\U00017e4bzzzzyyzzyyzzzzyyzzzz(",
+		"x67927673\U0002aaec\U0002400d\U000273c0\u4580yyyyyyyyyyyyyyyyzzyyyyzz^",
+		"x21903591837\u69fc\u31f9\U0002b611\U00011684yyyyzzyyyyyyyy<",
+		"abd6Faaabbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeeeef\U000288eb\U0002b76b/4\"\")@",
+		"x7055\U0001d728\U0001740f\U0002aa29zzyyyyyyzzyyyyyyzzyyzz?",
+		"acd8Iabbbbbbbbbbbbccccddddddeeeeeeeee\u9c38\u241dI^=",
+		"abd8Vaaaaaaaaaaaaaabbbbbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeggggggggggggghhhhhhhhhhhhhhhh\U000121b5\U00028fb7&Z7<,9{7\U000100057I\U00010002",
+		"acd1Yaaaaaaaaaaabbbbbbbbbbbbbbbccccdddddeeeeeeeeeeef\U00016974\U00021933<[PZ\U00010006IE",
 	} {
 		pass, err := tmpl.Password(testRand)
 		require.NoError(t, err)

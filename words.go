@@ -2,6 +2,7 @@ package password
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"sync"
@@ -29,6 +30,9 @@ func FromWords(list ...string) (func(count int) Template, error) {
 			return nil, errors.New("strongroom/password: word contains invalid unicode rune")
 		} else if strings.IndexFunc(word, unicode.IsSpace) >= 0 {
 			return nil, errors.New("strongroom/password: word contains space")
+		} else if idx := strings.IndexFunc(word, notAllowed); idx >= 0 {
+			r, _ := utf8.DecodeRuneInString(word[idx:])
+			return nil, fmt.Errorf("strongroom/password: word contains prohibitted rune %U", r)
 		}
 
 		if _, dup := seen[word]; dup {
