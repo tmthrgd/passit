@@ -138,7 +138,7 @@ func (*RegexpParser) literal(sr *syntax.Regexp) (regexpGenerator, error) {
 	s := string(sr.Rune)
 	if idx := strings.IndexFunc(s, notAllowed); idx >= 0 {
 		r, _ := utf8.DecodeRuneInString(s[idx:])
-		return nil, fmt.Errorf("strongroom/password: regexp literal contains prohibitted rune %U", r)
+		return nil, fmt.Errorf("strongroom/password: regexp literal contains prohibited rune %U", r)
 	}
 
 	return func(b *strings.Builder, r io.Reader) error {

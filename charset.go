@@ -24,7 +24,7 @@ func FromCharset(template string) (func(count int) Template, error) {
 		return nil, errors.New("strongroom/password: template contains invalid unicode rune")
 	} else if idx := strings.IndexFunc(template, notAllowed); idx >= 0 {
 		r, _ := utf8.DecodeRuneInString(template[idx:])
-		return nil, fmt.Errorf("strongroom/password: template contains prohibitted rune %U", r)
+		return nil, fmt.Errorf("strongroom/password: template contains prohibited rune %U", r)
 	}
 
 	seen := make(map[rune]struct{}, len(runes))

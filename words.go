@@ -28,11 +28,11 @@ func FromWords(list ...string) (func(count int) Template, error) {
 			return nil, errors.New("strongroom/password: empty word in list")
 		} else if !utf8.ValidString(word) {
 			return nil, errors.New("strongroom/password: word contains invalid unicode rune")
-		} else if strings.IndexFunc(word, unicode.IsSpace) >= 0 {
-			return nil, errors.New("strongroom/password: word contains space")
 		} else if idx := strings.IndexFunc(word, notAllowed); idx >= 0 {
 			r, _ := utf8.DecodeRuneInString(word[idx:])
-			return nil, fmt.Errorf("strongroom/password: word contains prohibitted rune %U", r)
+			return nil, fmt.Errorf("strongroom/password: word contains prohibited rune %U", r)
+		} else if strings.IndexFunc(word, unicode.IsSpace) >= 0 {
+			return nil, errors.New("strongroom/password: word contains space")
 		}
 
 		if _, dup := seen[word]; dup {

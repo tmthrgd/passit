@@ -16,7 +16,7 @@ func allRunesAllowed(t *testing.T, str string) {
 		t.Helper()
 
 		r, _ := utf8.DecodeRuneInString(str[idx:])
-		t.Errorf("string contains prohibitted rune %U: %+q", r, str)
+		t.Errorf("string contains prohibited rune %U: %+q", r, str)
 	}
 }
 
