@@ -149,7 +149,7 @@ func TestGeneratedRangeTables(t *testing.T) {
 	// See unicode_generate.go.
 	skipable := rangetable.New(0x534d, 0x5350, 0x0fd5, 0x0fd6)
 
-	var runes1, runes2 []rune
+	var runes1, runes2, runes3 []rune
 	rangetable.Visit(allowedRangeTableManual, func(r rune) {
 		if !unicode.In(r, skipable, unicode.Deprecated,
 			unicode.Other_Default_Ignorable_Code_Point) {
@@ -157,7 +157,17 @@ func TestGeneratedRangeTables(t *testing.T) {
 		}
 	})
 	rangetable.Visit(allowedRangeTable, func(r rune) { runes2 = append(runes2, r) })
-	assert.Equal(t, runes1, runes2, "generated allowedRangeTable")
+	rangetable.Visit(allowedRangeTableStride1, func(r rune) { runes3 = append(runes3, r) })
+	if assert.Equal(t, runes1, runes2, "generated allowedRangeTable") {
+		assert.Equal(t, runes1, runes3, "generated allowedRangeTableStride1")
+	}
+
+	for _, r16 := range allowedRangeTableStride1.R16 {
+		require.Equal(t, uint16(1), r16.Stride, "generated allowedRangeTableStride1 has Stride != 1")
+	}
+	for _, r32 := range allowedRangeTableStride1.R32 {
+		require.Equal(t, uint32(1), r32.Stride, "generated allowedRangeTableStride1 has Stride != 1")
+	}
 }
 
 func TestAllowedRanges(t *testing.T) {
