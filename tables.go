@@ -182,7 +182,8 @@ var allowedRangeTable = &unicode.RangeTable{
 		{Lo: 0x0f89, Hi: 0x0f8c, Stride: 1},
 		{Lo: 0x0fbe, Hi: 0x0fc5, Stride: 1},
 		{Lo: 0x0fc7, Hi: 0x0fcc, Stride: 1},
-		{Lo: 0x0fce, Hi: 0x0fda, Stride: 1},
+		{Lo: 0x0fce, Hi: 0x0fd4, Stride: 1},
+		{Lo: 0x0fd7, Hi: 0x0fda, Stride: 1},
 		{Lo: 0x1000, Hi: 0x102a, Stride: 1},
 		{Lo: 0x103f, Hi: 0x1055, Stride: 1},
 		{Lo: 0x105a, Hi: 0x105d, Stride: 1},
@@ -343,7 +344,9 @@ var allowedRangeTable = &unicode.RangeTable{
 		{Lo: 0x31f0, Hi: 0x321e, Stride: 1},
 		{Lo: 0x3220, Hi: 0x32fe, Stride: 1},
 		{Lo: 0x3300, Hi: 0x4db5, Stride: 1},
-		{Lo: 0x4dc0, Hi: 0x9fef, Stride: 1},
+		{Lo: 0x4dc0, Hi: 0x534c, Stride: 1},
+		{Lo: 0x534e, Hi: 0x534f, Stride: 1},
+		{Lo: 0x5351, Hi: 0x9fef, Stride: 1},
 		{Lo: 0xa000, Hi: 0xa014, Stride: 1},
 		{Lo: 0xa016, Hi: 0xa48c, Stride: 1},
 		{Lo: 0xa490, Hi: 0xa4c6, Stride: 1},
@@ -940,7 +943,8 @@ var allowedRangeTableStride1 = &unicode.RangeTable{
 		{Lo: 0x0f89, Hi: 0x0f8c, Stride: 1},
 		{Lo: 0x0fbe, Hi: 0x0fc5, Stride: 1},
 		{Lo: 0x0fc7, Hi: 0x0fcc, Stride: 1},
-		{Lo: 0x0fce, Hi: 0x0fda, Stride: 1},
+		{Lo: 0x0fce, Hi: 0x0fd4, Stride: 1},
+		{Lo: 0x0fd7, Hi: 0x0fda, Stride: 1},
 		{Lo: 0x1000, Hi: 0x102a, Stride: 1},
 		{Lo: 0x103f, Hi: 0x1055, Stride: 1},
 		{Lo: 0x105a, Hi: 0x105d, Stride: 1},
@@ -1119,7 +1123,9 @@ var allowedRangeTableStride1 = &unicode.RangeTable{
 		{Lo: 0x31f0, Hi: 0x321e, Stride: 1},
 		{Lo: 0x3220, Hi: 0x32fe, Stride: 1},
 		{Lo: 0x3300, Hi: 0x4db5, Stride: 1},
-		{Lo: 0x4dc0, Hi: 0x9fef, Stride: 1},
+		{Lo: 0x4dc0, Hi: 0x534c, Stride: 1},
+		{Lo: 0x534e, Hi: 0x534f, Stride: 1},
+		{Lo: 0x5351, Hi: 0x9fef, Stride: 1},
 		{Lo: 0xa000, Hi: 0xa014, Stride: 1},
 		{Lo: 0xa016, Hi: 0xa48c, Stride: 1},
 		{Lo: 0xa490, Hi: 0xa4c6, Stride: 1},
@@ -1558,5 +1564,5 @@ var allowedRangeTableStride1 = &unicode.RangeTable{
 	LatinOffset: 7,
 }
 
-// Range entries: 911 16-bit, 618 32-bit, 1529 total.
-// Range bytes: 5466 16-bit, 7416 32-bit, 12882 total.
+// Range entries: 917 16-bit, 618 32-bit, 1535 total.
+// Range bytes: 5502 16-bit, 7416 32-bit, 12918 total.

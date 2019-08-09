@@ -89,6 +89,13 @@ func printCategories() {
 	deprecated := rangetable.New(props["Deprecated"]...)
 	ignorable := rangetable.New(props["Other_Default_Ignorable_Code_Point"]...)
 
+	skipable := rangetable.New(
+		// CJK UNIFIED IDEOGRAPH, but too similar to a swastika.
+		0x534d, 0x5350,
+		// X-FACING SVASTI SIGN, but too similar to a swastika.
+		0x0fd5, 0x0fd6,
+	)
+
 	dumpRange("rangeTableASCII", func(code rune) bool {
 		return code >= 0x20 && code <= 0x7e
 	}, false)
@@ -98,7 +105,7 @@ func printCategories() {
 			return code >= 0x20
 		}
 
-		if unicode.In(code, deprecated, ignorable) {
+		if unicode.In(code, deprecated, ignorable, skipable) {
 			return false
 		}
 

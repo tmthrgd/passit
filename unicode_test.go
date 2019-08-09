@@ -146,9 +146,12 @@ func TestGeneratedRangeTables(t *testing.T) {
 		rangeTableASCIIManual,
 	)
 
+	// See unicode_generate.go.
+	skipable := rangetable.New(0x534d, 0x5350, 0x0fd5, 0x0fd6)
+
 	var runes1, runes2 []rune
 	rangetable.Visit(allowedRangeTableManual, func(r rune) {
-		if !unicode.In(r, unicode.Deprecated,
+		if !unicode.In(r, skipable, unicode.Deprecated,
 			unicode.Other_Default_Ignorable_Code_Point) {
 			runes1 = append(runes1, r)
 		}
