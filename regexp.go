@@ -1,6 +1,7 @@
 package password
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"regexp/syntax"
@@ -195,8 +196,17 @@ func (p *RegexpParser) namedCapture(sr *syntax.Regexp) (regexpGenerator, error) 
 
 	return func(b *strings.Builder, r io.Reader) error {
 		pass, err := tmpl.Password(r)
+		if err != nil {
+			return err
+		} else if !utf8.ValidString(pass) {
+			return errors.New("strongroom/password: special capture output contains invalid unicode rune")
+		} else if idx := strings.IndexFunc(pass, notAllowed); idx >= 0 {
+			r, _ := utf8.DecodeRuneInString(pass[idx:])
+			return fmt.Errorf("strongroom/password: special capture output contains prohibited rune %U", r)
+		}
+
 		b.WriteString(pass)
-		return err
+		return nil
 	}, nil
 }
 
