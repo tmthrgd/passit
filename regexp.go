@@ -70,10 +70,10 @@ func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Template, erro
 		return nil, err
 	}
 
-	return &regexpTemplate{gen}, nil
+	return regexpTemplate{gen}, nil
 }
 
-func (rt *regexpTemplate) Password(r io.Reader) (string, error) {
+func (rt regexpTemplate) Password(r io.Reader) (string, error) {
 	var b strings.Builder
 	if err := rt.gen(&b, r); err != nil {
 		return "", err
