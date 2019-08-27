@@ -67,3 +67,42 @@ func TestCountTableRunes(t *testing.T) {
 		}
 	}
 }
+
+type u32Reader uint32
+
+func (u *u32Reader) Read(p []byte) (int, error) {
+	binary.LittleEndian.PutUint32(p, uint32(*u))
+	*u++
+	return 4, nil
+}
+
+func TestReadRune(t *testing.T) {
+	for _, tab := range []*unicode.RangeTable{
+		rangeTableASCII,
+		unicode.Lu,
+		unicode.Ll,
+		unicode.N,
+	} {
+		count := countTableRunes(tab)
+
+		var ur u32Reader
+		seen := make(map[rune]struct{}, count)
+		for i := 0; i < count; i++ {
+			r, err := readRune(&ur, tab, count)
+			require.NoError(t, err)
+
+			_, dup := seen[r]
+			seen[r] = struct{}{}
+
+			require.Truef(t, unicode.Is(tab, r), "rune %U not found in table", r)
+			require.Falsef(t, dup, "duplicate rune %U returned", r)
+		}
+
+		r, err := readRune(&ur, tab, count)
+		require.NoError(t, err)
+
+		_, dup := seen[r]
+		require.Truef(t, unicode.Is(tab, r), "rune %U not found in table", r)
+		require.Truef(t, dup, "expected duplicate rune %U not returned", r)
+	}
+}
