@@ -67,15 +67,15 @@ func TestRangeTable(t *testing.T) {
 		{"7032aEC2b213F2f2eaCecdFc4", unicode.ASCII_Hex_Digit},
 	}
 	testCasesUni := []testCase{
-		{"ʠƧᶊɱꬿȕḰṲḱꞥʤＢꝐȽꭌᵹꜧꞡẘﬅĐṫɤṤẊ", unicode.Latin},
+		{"ȅḓộỐSɖⅹǞꝭḧȸꞡġŐfⅴꝏůＫỉℲÐṈếå", unicode.Latin},
 		{"ὦ𐆋𐅼ᾡ𝈉𝈓𐆇ᾶ𐅨Ὺ𝈶ἠῑϸϽῪϸϘΏ𐅵𐅡𝈾ῆϊβ", unicode.Greek},
-		{"﷼₶₧￠￠؋₲₢¢$₻₹₵￥¤$￥₴₢₠﹩＄₭₦￠", unicode.Sc},
+		{"₧৲₥֏฿৲฿¥€$֏؋₼￦؋₴¥߾৳₹৲৳₴߿₤", unicode.Sc},
 	}
 
-	if unicode.Version == "10.0.0" {
+	if unicode.Version == "11.0.0" {
 		testCases = append(testCases, testCasesUni...)
 	} else {
-		t.Logf("skipping %d test cases without unicode 10.0.0", len(testCasesUni))
+		t.Logf("skipping %d test cases without Unicode 11.0.0", len(testCasesUni))
 	}
 
 	for _, tc := range testCases {
