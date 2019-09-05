@@ -4,7 +4,7 @@
 // a build constraint and modify gen_header:
 //   bundle -o unicode_generate_gen.go -pkg main golang.org/x/text/internal/gen
 
-// +build generate
+// +build ignore
 
 // Package gen contains common code for the various code generation tools in the
 // text repository. Its usage ensures consistency between tools.

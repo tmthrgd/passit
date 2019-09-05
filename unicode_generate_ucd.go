@@ -4,7 +4,7 @@
 // a build constraint:
 //   bundle -o unicode_generate_ucd.go -pkg main golang.org/x/text/internal/ucd
 
-// +build generate
+// +build ignore
 
 // Package ucd provides a parser for Unicode Character Database files, the
 // format of which is defined in https://www.unicode.org/reports/tr44/. See
