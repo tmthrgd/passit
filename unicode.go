@@ -1,8 +1,6 @@
 package password
 
-import (
-	"unicode"
-)
+import "unicode"
 
 //go:generate go run unicode_generate.go unicode_generate_gen.go unicode_generate_ucd.go -unicode 11.0.0
 
