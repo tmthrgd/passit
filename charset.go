@@ -77,6 +77,8 @@ func (rt *rangeTable) Password(r io.Reader) (string, error) {
 		return "", errors.New("strongroom/password: count must be greater than zero")
 	}
 
+	maybeUnicodeReadByte(r)
+
 	runes := make([]rune, rt.count)
 	for i := range runes {
 		v, err := readRune(r, rt.tab, rt.runes)

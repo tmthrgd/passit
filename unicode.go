@@ -1,6 +1,13 @@
 package password
 
-import "unicode"
+import (
+	"io"
+	"os"
+	"strings"
+	"unicode"
+
+	"go.tmthrgd.dev/strongroom/internal"
+)
 
 //go:generate go run unicode_generate.go unicode_generate_gen.go unicode_generate_ucd.go -unicode 12.0.0
 
@@ -10,6 +17,21 @@ func notAllowed(r rune) bool {
 	}
 
 	return !unicode.Is(allowedRangeTable, r)
+}
+
+func isTestBinary() bool {
+	// This is an approach that was used previously by the standard library in
+	// net/http/roundtrip_js.go. See useFakeNetwork in:
+	// https://github.com/golang/go/blob/220552f662%5E/src/net/http/roundtrip_js.go#L185-L189.
+	return len(os.Args) > 0 && strings.HasSuffix(os.Args[0], ".test")
+}
+
+func maybeUnicodeReadByte(r io.Reader) {
+	// TODO(tmthrgd): Remove once allowedRangeTable has stabalized.
+
+	if !isTestBinary() {
+		internal.MaybeReadByte(r)
+	}
 }
 
 func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {

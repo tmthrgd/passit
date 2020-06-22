@@ -36,6 +36,7 @@ func (p *RegexpParser) SetSpecialCapture(name string, factory func(*syntax.Regex
 }
 
 type regexpTemplate struct{ gen regexpGenerator }
+type regexpUnicodeTemplate struct{ regexpTemplate }
 
 func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Template, error) {
 	// We intentionally never generate newlines, but passing syntax.MatchNL to
@@ -70,6 +71,10 @@ func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Template, erro
 		return nil, err
 	}
 
+	if p.unicodeAny {
+		return regexpUnicodeTemplate{regexpTemplate{gen}}, nil
+	}
+
 	return regexpTemplate{gen}, nil
 }
 
@@ -80,6 +85,11 @@ func (rt regexpTemplate) Password(r io.Reader) (string, error) {
 	}
 
 	return b.String(), nil
+}
+
+func (rt regexpUnicodeTemplate) Password(r io.Reader) (string, error) {
+	maybeUnicodeReadByte(r)
+	return rt.regexpTemplate.Password(r)
 }
 
 func (p *RegexpParser) parse(r *syntax.Regexp) (regexpGenerator, error) {
