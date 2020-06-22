@@ -518,8 +518,7 @@ var (
 const gen_permissions = 0755
 
 func gen_localReadmeFile() (string, error) {
-	name, err := ioutil.TempDir("", "unicode_gen-*")
-	return filepath.Join(name, "DATA", "README"), err
+	return filepath.Join(os.TempDir(), "strongroom_password_unicode_gen", "DATA", "README"), nil
 }
 
 func gen_getLocalDir() string {
