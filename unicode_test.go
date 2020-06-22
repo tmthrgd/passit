@@ -152,7 +152,8 @@ func TestGeneratedRangeTables(t *testing.T) {
 	var runes1, runes2, runes3 []rune
 	rangetable.Visit(allowedRangeTableManual, func(r rune) {
 		if !unicode.In(r, skipable, unicode.Deprecated,
-			unicode.Other_Default_Ignorable_Code_Point) {
+			unicode.Other_Default_Ignorable_Code_Point) &&
+			!(r >= 0x1CD0 && r <= 0x1CFF) {
 			runes1 = append(runes1, r)
 		}
 	})

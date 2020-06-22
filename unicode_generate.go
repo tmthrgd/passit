@@ -109,6 +109,17 @@ func printCategories() {
 			return false
 		}
 
+		if code >= 0x1CD0 && code <= 0x1CFF {
+			// Two characters in the Vedic Extensions block were moved
+			// from Mc to Lo in Unicode 12.0.0. To simplify we're
+			// excluding the block in it's entirety as it doesn't seem
+			// appropriate for passwords anyway.
+			//
+			// This special case can likely be removed once more
+			// specific ranges are determined.
+			return false
+		}
+
 		c := chars[code]
 		switch c.category {
 		case "":
