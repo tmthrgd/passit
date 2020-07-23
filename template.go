@@ -18,7 +18,7 @@ func JoinTemplates(t ...Template) Template {
 		return t[0]
 	}
 
-	return &joined{t}
+	return &joined{append([]Template(nil), t...)}
 }
 
 func (j *joined) Password(r io.Reader) (string, error) {

@@ -41,6 +41,7 @@ func FromWords(list ...string) (func(count int) Template, error) {
 		seen[word] = struct{}{}
 	}
 
+	list = append([]string(nil), list...)
 	return func(count int) Template { return &words{list, count} }, nil
 }
 
