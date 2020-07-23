@@ -15,6 +15,9 @@ type words struct {
 	count int
 }
 
+// FromWords returns a Template factory that generates passwords of count words
+// length by joining random words from list. It returns an error if the list of
+// words is invalid.
 func FromWords(list ...string) (func(count int) Template, error) {
 	if len(list) < 2 {
 		return nil, errors.New("strongroom/password: list too short")
@@ -68,6 +71,9 @@ var defaultWords struct {
 	list []string
 }
 
+// DefaultWords returns a Template that generates passwords of count words length by
+// joining random words from the EFF Large Wordlist for Passphrases
+// (eff_large_wordlist.txt).
 func DefaultWords(count int) Template {
 	defaultWords.Do(func() {
 		defaultWords.list = strings.Split(defaultWordlist, "\n")

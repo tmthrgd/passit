@@ -1,3 +1,4 @@
+// Package password provides various password generators.
 package password
 
 import (
@@ -5,7 +6,10 @@ import (
 	"strings"
 )
 
+// Template is an interface for generating passwords.
 type Template interface {
+	// Password returns a randomly generated password using r as the source of
+	// randomness.
 	Password(r io.Reader) (string, error)
 }
 
@@ -13,6 +17,8 @@ type joined struct {
 	ts []Template
 }
 
+// JoinTemplates returns a Template that returns a password that is the
+// concatenation of all the given Templates.
 func JoinTemplates(t ...Template) Template {
 	if len(t) == 1 {
 		return t[0]
@@ -35,9 +41,11 @@ func (j *joined) Password(r io.Reader) (string, error) {
 	return strings.Join(parts, ""), nil
 }
 
+// Space is a Template that always returns a fixed ASCII space.
 const Space = space
 const space = fixedString(" ")
 
+// FixedString returns a Template that always returns the given string.
 func FixedString(s string) Template { return fixedString(s) }
 
 type fixedString string

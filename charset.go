@@ -14,6 +14,9 @@ type charset struct {
 	count int
 }
 
+// FromCharset returns a Template factory that generates passwords of count runes
+// length by joining random runes from template. It returns an error if the template
+// is invalid.
 func FromCharset(template string) (func(count int) Template, error) {
 	runes := []rune(template)
 	if len(runes) < 2 {
@@ -62,6 +65,10 @@ type rangeTable struct {
 	count int
 }
 
+// FromRangeTable returns a Template factory that generates passwords of count
+// runes length by joining random runes from the given unicode.RangeTable. It
+// returns an error if the table has zero allowed runes. The table will be filtered
+// by internally allowed runes.
 func FromRangeTable(tab *unicode.RangeTable) (func(count int) Template, error) {
 	tab = intersectRangeTables(allowedRangeTableStride1, tab)
 	runes := countTableRunes(tab)

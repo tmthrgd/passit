@@ -16,17 +16,27 @@ const maxUnboundedRepeatCount = 15
 
 type regexpGenerator func(*strings.Builder, io.Reader) error
 
+// RegexpParser is a regular expressions parser that parses patterns into a Template
+// that generates passwords matching the parsed regexp.
 type RegexpParser struct {
 	unicodeAny      bool
 	specialCaptures map[string]func(*syntax.Regexp) (Template, error)
 }
 
+// ParseRegexp is a shortcut for new(RegexpParser).Parse(pattern, flags).
 func ParseRegexp(pattern string, flags syntax.Flags) (Template, error) {
 	return new(RegexpParser).Parse(pattern, flags)
 }
 
+// SetUnicodeAny puts the regexp parser into a unicode mode where character classes
+// and the any character will produce unicode characters not only ASCII printable
+// characters. The unicode characters are limited to an internal allowed list of
+// unicode runes.
 func (p *RegexpParser) SetUnicodeAny() { p.unicodeAny = true }
 
+// SetSpecialCapture adds a special factory to use for matching named captures. A
+// regexp pattern such as "((?P<name>) )" will invoke the factory and use the
+// returned Template instead of the contents of the capture.
 func (p *RegexpParser) SetSpecialCapture(name string, factory func(*syntax.Regexp) (Template, error)) {
 	if p.specialCaptures == nil {
 		p.specialCaptures = make(map[string]func(*syntax.Regexp) (Template, error))
@@ -38,6 +48,15 @@ func (p *RegexpParser) SetSpecialCapture(name string, factory func(*syntax.Regex
 type regexpTemplate struct{ gen regexpGenerator }
 type regexpUnicodeTemplate struct{ regexpTemplate }
 
+// Parse parses the regexp pattern according to the flags and returns a Template. It
+// returns an error if the regexp is invalid. It uses regexp/syntax to parse the
+// pattern.
+//
+// All regexp features supported by regexp/syntax are supported, though some may
+// have no effect.
+//
+// Neither syntax.MatchNL nor syntax.FoldCase will have any effect whether present
+// or not.
 func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Template, error) {
 	// We intentionally never generate newlines, but passing syntax.MatchNL to
 	// syntax.Parse simplifies the parsed character classes.
