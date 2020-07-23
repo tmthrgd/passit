@@ -64,17 +64,13 @@ func (w *words) Password(r io.Reader) (string, error) {
 }
 
 var defaultWords struct {
-	tmpl func(int) Template
 	sync.Once
+	list []string
 }
 
 func DefaultWords(count int) Template {
 	defaultWords.Do(func() {
-		tmpl, err := FromWords(strings.Split(defaultWordlist, "\n")...)
-		if err != nil {
-			panic("strongroom/password: internal error: " + err.Error())
-		}
-		defaultWords.tmpl = tmpl
+		defaultWords.list = strings.Split(defaultWordlist, "\n")
 	})
-	return defaultWords.tmpl(count)
+	return &words{defaultWords.list, count}
 }

@@ -44,3 +44,10 @@ func TestWords(t *testing.T) {
 		allRunesAllowed(t, pass)
 	}
 }
+
+func TestDefaultWordsValid(t *testing.T) {
+	DefaultWords(1) // Initialise defaultWords.list.
+
+	_, err := FromWords(defaultWords.list...)
+	assert.NoError(t, err)
+}
