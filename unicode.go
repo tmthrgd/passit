@@ -34,6 +34,39 @@ func maybeUnicodeReadByte(r io.Reader) {
 	}
 }
 
+// AppendToRangeTable appends the runes in [lo, hi] to the unicode.RangeTable.
+func AppendToRangeTable(tab *unicode.RangeTable, lo, hi rune) {
+	const maxR16 = 1<<16 - 1
+
+	if lo > maxR16 {
+		tab.R32 = append(tab.R32, unicode.Range32{
+			Lo:     uint32(lo),
+			Hi:     uint32(hi),
+			Stride: 1,
+		})
+		return
+	}
+
+	if hi > maxR16 {
+		tab.R32 = append(tab.R32, unicode.Range32{
+			Lo:     maxR16 + 1,
+			Hi:     uint32(hi),
+			Stride: 1,
+		})
+		hi = maxR16
+	}
+
+	tab.R16 = append(tab.R16, unicode.Range16{
+		Lo:     uint16(lo),
+		Hi:     uint16(hi),
+		Stride: 1,
+	})
+
+	if hi <= unicode.MaxLatin1 {
+		tab.LatinOffset++
+	}
+}
+
 func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 	var rt unicode.RangeTable
 
