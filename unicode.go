@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode"
 
-	"go.tmthrgd.dev/strongroom/internal"
+	"go.tmthrgd.dev/strongroom/internal/randutil"
 )
 
 //go:generate go run unicode_generate.go unicode_generate_gen.go unicode_generate_ucd.go -unicode 12.0.0
@@ -30,7 +30,7 @@ func maybeUnicodeReadByte(r io.Reader) {
 	// TODO(tmthrgd): Remove once allowedRangeTable has stabalized.
 
 	if !isTestBinary() {
-		internal.MaybeReadByte(r)
+		randutil.MaybeReadByte(r)
 	}
 }
 
