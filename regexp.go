@@ -33,8 +33,8 @@ func ParseRegexp(pattern string, flags syntax.Flags) (Template, error) {
 func (p *RegexpParser) SetUnicodeAny() { p.unicodeAny = true }
 
 // SetSpecialCapture adds a special factory to use for matching named captures. A
-// regexp pattern such as "((?P<name>) )" will invoke the factory and use the
-// returned Template instead of the contents of the capture.
+// regexp pattern such as "(?P<name>)" will invoke the factory and use the returned
+// Template instead of the contents of the capture.
 func (p *RegexpParser) SetSpecialCapture(name string, factory func(*syntax.Regexp) (Template, error)) {
 	if p.specialCaptures == nil {
 		p.specialCaptures = make(map[string]func(*syntax.Regexp) (Template, error))
