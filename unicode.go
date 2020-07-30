@@ -2,8 +2,6 @@ package password
 
 import (
 	"io"
-	"os"
-	"strings"
 	"unicode"
 
 	"go.tmthrgd.dev/strongroom/internal/randutil"
@@ -19,17 +17,12 @@ func notAllowed(r rune) bool {
 	return !unicode.Is(allowedRangeTable, r)
 }
 
-func isTestBinary() bool {
-	// This is an approach that was used previously by the standard library in
-	// net/http/roundtrip_js.go. See useFakeNetwork in:
-	// https://github.com/golang/go/blob/220552f662%5E/src/net/http/roundtrip_js.go#L185-L189.
-	return len(os.Args) > 0 && strings.HasSuffix(os.Args[0], ".test")
-}
+var isTestBinary bool // This is set to true in test init functions.
 
 func maybeUnicodeReadByte(r io.Reader) {
 	// TODO(tmthrgd): Remove once allowedRangeTable has stabalized.
 
-	if !isTestBinary() {
+	if !isTestBinary {
 		randutil.MaybeReadByte(r)
 	}
 }

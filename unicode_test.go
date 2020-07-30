@@ -11,6 +11,8 @@ import (
 	"golang.org/x/text/unicode/rangetable"
 )
 
+func init() { isTestBinary = true }
+
 func allRunesAllowed(t *testing.T, str string) {
 	if idx := strings.IndexFunc(str, notAllowed); idx >= 0 {
 		t.Helper()
