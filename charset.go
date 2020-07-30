@@ -98,3 +98,26 @@ func (rt *rangeTable) Password(r io.Reader) (string, error) {
 
 	return string(runes), nil
 }
+
+type emoji struct{ count int }
+
+// Emoji returns a Template that generates passwords contain count number of emoji
+// from the Unicode emoji list.
+func Emoji(count int) Template { return &emoji{count} }
+
+func (e *emoji) Password(r io.Reader) (string, error) {
+	// TODO(tmthrgd): Remove once we switch to Unicode 13.0.
+	maybeUnicodeReadByte(r)
+
+	emoji := make([]string, e.count)
+	for i := range emoji {
+		idx, err := readUint32n(r, uint32(len(unicodeEmoji)))
+		if err != nil {
+			return "", err
+		}
+
+		emoji[i] = unicodeEmoji[idx]
+	}
+
+	return strings.Join(emoji, ""), nil
+}

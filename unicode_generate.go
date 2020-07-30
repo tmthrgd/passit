@@ -14,6 +14,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"sort"
+	"strings"
 	"unicode"
 
 	"golang.org/x/text/unicode/rangetable"
@@ -24,7 +26,10 @@ func main() {
 	setupOutput()
 	loadChars()
 	loadProperties()
+	loadEmoji()
+	loadEmojiZWJ()
 	printCategories()
+	printEmoji()
 	printSizes()
 	flushOutput()
 }
@@ -60,6 +65,7 @@ const MaxChar = 0x10FFFF
 
 var chars = make([]Char, MaxChar+1)
 var props = make(map[string][]rune)
+var emoji [][]rune
 
 func loadChars() {
 	ucd_Parse(gen_OpenUCDFile("UnicodeData.txt"), func(p *ucd_Parser) {
@@ -75,6 +81,27 @@ func loadProperties() {
 	ucd_Parse(gen_OpenUCDFile("PropList.txt"), func(p *ucd_Parser) {
 		name := p.String(1)
 		props[name] = append(props[name], p.Rune(0))
+	})
+}
+
+var emojiVersion = func() string {
+	vers := gen_UnicodeVersion()
+	return vers[:strings.LastIndex(vers, ".")]
+}()
+
+func loadEmoji() {
+	ucd_Parse(gen_OpenUnicodeFile("emoji", emojiVersion, "emoji-sequences.txt"), func(p *ucd_Parser) {
+		if strings.Contains(p.String(0), "..") {
+			emoji = append(emoji, []rune{p.Rune(0)})
+		} else {
+			emoji = append(emoji, p.Runes(0))
+		}
+	})
+}
+
+func loadEmojiZWJ() {
+	ucd_Parse(gen_OpenUnicodeFile("emoji", emojiVersion, "emoji-zwj-sequences.txt"), func(p *ucd_Parser) {
+		emoji = append(emoji, p.Runes(0))
 	})
 }
 
@@ -120,6 +147,8 @@ func printCategories() {
 			return false
 		}
 
+		// TODO(tmthrgd): Filter out emoji from allowedRangeTable?
+
 		c := chars[code]
 		switch c.category {
 		case "":
@@ -140,6 +169,27 @@ func printCategories() {
 	}
 	dumpRange("allowedRangeTable", allowed, false)
 	dumpRange("allowedRangeTableStride1", allowed, true)
+}
+
+var emojiBytes int
+
+func printEmoji() {
+	sort.Slice(emoji, func(i, j int) bool {
+		// Sort first by number of runes for countEmojiInString.
+		if len(emoji[i]) != len(emoji[j]) {
+			return len(emoji[i]) < len(emoji[j])
+		}
+
+		// Then by string representation.
+		return string(emoji[i]) < string(emoji[j])
+	})
+
+	println("var unicodeEmoji = []string{")
+	for _, runes := range emoji {
+		printf("\t%q,\n", string(runes))
+		emojiBytes += len(string(runes))
+	}
+	printf("}\n\n")
 }
 
 type Op func(code rune) bool
@@ -212,4 +262,6 @@ func printSizes() {
 	range16Bytes := range16Count * 3 * 2
 	range32Bytes := range32Count * 3 * 4
 	printf("// Range bytes: %d 16-bit, %d 32-bit, %d total.\n", range16Bytes, range32Bytes, range16Bytes+range32Bytes)
+	printf("// Emoji entries: %d total.\n", len(emoji))
+	printf("// Emoji bytes: %d total.\n", emojiBytes)
 }
