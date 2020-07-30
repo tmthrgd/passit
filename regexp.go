@@ -164,11 +164,6 @@ func (*RegexpParser) noop(*syntax.Regexp) (regexpGenerator, error) {
 
 func (*RegexpParser) literal(sr *syntax.Regexp) (regexpGenerator, error) {
 	s := string(sr.Rune)
-	if idx := strings.IndexFunc(s, notAllowed); idx >= 0 {
-		r, _ := utf8.DecodeRuneInString(s[idx:])
-		return nil, fmt.Errorf("strongroom/password: regexp literal contains prohibited rune %U", r)
-	}
-
 	return func(b *strings.Builder, r io.Reader) error {
 		b.WriteString(s)
 		return nil
@@ -227,9 +222,6 @@ func (p *RegexpParser) namedCapture(sr *syntax.Regexp) (regexpGenerator, error) 
 			return err
 		} else if !utf8.ValidString(pass) {
 			return errors.New("strongroom/password: special capture output contains invalid unicode rune")
-		} else if idx := strings.IndexFunc(pass, notAllowed); idx >= 0 {
-			r, _ := utf8.DecodeRuneInString(pass[idx:])
-			return fmt.Errorf("strongroom/password: special capture output contains prohibited rune %U", r)
 		}
 
 		b.WriteString(pass)
