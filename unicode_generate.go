@@ -175,13 +175,15 @@ var emojiBytes int
 
 func printEmoji() {
 	sort.Slice(emoji, func(i, j int) bool {
-		// Sort first by number of runes for countEmojiInString.
-		if len(emoji[i]) != len(emoji[j]) {
-			return len(emoji[i]) < len(emoji[j])
+		emojiI, emojiJ := string(emoji[i]), string(emoji[j])
+
+		// Sort first by number of bytes for countEmojiInString.
+		if len(emojiI) != len(emojiJ) {
+			return len(emojiI) < len(emojiJ)
 		}
 
 		// Then by string representation.
-		return string(emoji[i]) < string(emoji[j])
+		return emojiI < emojiJ
 	})
 
 	println("var unicodeEmoji = []string{")
