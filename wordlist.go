@@ -6,7 +6,7 @@
 
 package password
 
-const defaultWordlist = `abacus
+const effLargeWordlist = `abacus
 abdomen
 abdominal
 abide

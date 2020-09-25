@@ -66,17 +66,17 @@ func (w *words) Password(r io.Reader) (string, error) {
 	return strings.Join(words, " "), nil
 }
 
-var defaultWords struct {
+var effLargeWordlistVal struct {
 	sync.Once
 	list []string
 }
 
-// DefaultWords returns a Template that generates passwords of count words length by
-// joining random words from the EFF Large Wordlist for Passphrases
+// EFFLargeWordlist returns a Template that generates passwords of count words
+// length by joining random words from the EFF Large Wordlist for Passphrases
 // (eff_large_wordlist.txt).
-func DefaultWords(count int) Template {
-	defaultWords.Do(func() {
-		defaultWords.list = strings.Split(defaultWordlist, "\n")
+func EFFLargeWordlist(count int) Template {
+	effLargeWordlistVal.Do(func() {
+		effLargeWordlistVal.list = strings.Split(effLargeWordlist, "\n")
 	})
-	return &words{defaultWords.list, count}
+	return &words{effLargeWordlistVal.list, count}
 }

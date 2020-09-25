@@ -22,7 +22,7 @@ func TestJoinTemplates(t *testing.T) {
 	pattern := regexp.MustCompile(`^([a-z]+ ){5}[A-Z][0-9][~!@#$%^&*()] \+abc[de]$`)
 
 	tmpl := JoinTemplates(
-		DefaultWords(5),
+		EFFLargeWordlist(5),
 		Space,
 		mustCharset(t, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")(1),
 		mustCharset(t, "0123456789")(1),

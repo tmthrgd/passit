@@ -88,7 +88,7 @@ func TestRegexpUnicodeAny(t *testing.T) {
 func TestRegexpSpecialCaptures(t *testing.T) {
 	var p RegexpParser
 	p.SetSpecialCapture("word", func(*syntax.Regexp) (Template, error) {
-		return DefaultWords(1), nil
+		return EFFLargeWordlist(1), nil
 	})
 
 	tmpl, err := p.Parse(`((?P<word>) ){6}[[:upper:]][[:digit:]][[:punct:]]`, syntax.PerlX)
