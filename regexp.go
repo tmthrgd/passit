@@ -138,7 +138,7 @@ func (p *RegexpParser) parse(r *syntax.Regexp) (regexpGenerator, error) {
 	case syntax.OpAlternate:
 		return p.alternate(r)
 	default:
-		return nil, fmt.Errorf("strongroom/password: invalid regexp %q, unhandled op %s", r, r.Op)
+		return nil, fmt.Errorf("password: invalid regexp %q, unhandled op %s", r, r.Op)
 	}
 }
 
@@ -187,7 +187,7 @@ func (p *RegexpParser) anyCharNotNL(sr *syntax.Regexp) (regexpGenerator, error) 
 func (*RegexpParser) charClassInternal(sr *syntax.Regexp, tab *unicode.RangeTable) (regexpGenerator, error) {
 	count := countTableRunes(tab)
 	if count == 0 {
-		return nil, fmt.Errorf("strongroom/password: character class %s contains zero allowed runes", sr)
+		return nil, fmt.Errorf("password: character class %s contains zero allowed runes", sr)
 	}
 
 	return func(b *strings.Builder, r io.Reader) error {
@@ -221,7 +221,7 @@ func (p *RegexpParser) namedCapture(sr *syntax.Regexp) (regexpGenerator, error) 
 		if err != nil {
 			return err
 		} else if !utf8.ValidString(pass) {
-			return errors.New("strongroom/password: special capture output contains invalid unicode rune")
+			return errors.New("password: special capture output contains invalid unicode rune")
 		}
 
 		b.WriteString(pass)
