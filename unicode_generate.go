@@ -84,13 +84,13 @@ func loadProperties() {
 	})
 }
 
-var emojiVersion = func() string {
+func emojiVersion() string {
 	vers := gen_UnicodeVersion()
 	return vers[:strings.LastIndex(vers, ".")]
-}()
+}
 
 func loadEmoji() {
-	ucd_Parse(gen_OpenUnicodeFile("emoji", emojiVersion, "emoji-sequences.txt"), func(p *ucd_Parser) {
+	ucd_Parse(gen_OpenUnicodeFile("emoji", emojiVersion(), "emoji-sequences.txt"), func(p *ucd_Parser) {
 		if strings.Contains(p.String(0), "..") {
 			emoji = append(emoji, []rune{p.Rune(0)})
 		} else {
@@ -100,7 +100,7 @@ func loadEmoji() {
 }
 
 func loadEmojiZWJ() {
-	ucd_Parse(gen_OpenUnicodeFile("emoji", emojiVersion, "emoji-zwj-sequences.txt"), func(p *ucd_Parser) {
+	ucd_Parse(gen_OpenUnicodeFile("emoji", emojiVersion(), "emoji-zwj-sequences.txt"), func(p *ucd_Parser) {
 		emoji = append(emoji, p.Runes(0))
 	})
 }
