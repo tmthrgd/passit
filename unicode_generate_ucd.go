@@ -4,6 +4,7 @@
 // a build constraint:
 //   bundle -o unicode_generate_ucd.go -pkg main golang.org/x/text/internal/ucd
 
+//go:build ignore
 // +build ignore
 
 // Package ucd provides a parser for Unicode Character Database files, the

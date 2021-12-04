@@ -4,6 +4,7 @@
 // a build constraint, modify gen_header and change gen_localReadmeFile:
 //   bundle -o unicode_generate_gen.go -pkg main golang.org/x/text/internal/gen
 
+//go:build ignore
 // +build ignore
 
 // Package gen contains common code for the various code generation tools in the
