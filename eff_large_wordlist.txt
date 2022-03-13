@@ -1,12 +1,4 @@
-// This wordlist was taken from:
-// https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt.
-//
-// eff_large_wordlist.txt is licensed by the Electronic Frontier Foundation under a
-// CC BY 3.0 US license (https://creativecommons.org/licenses/by/3.0/us/).
-
-package password
-
-const effLargeWordlist = `abacus
+abacus
 abdomen
 abdominal
 abide
@@ -7781,4 +7773,4 @@ zoning
 zookeeper
 zoologist
 zoology
-zoom`
+zoom
