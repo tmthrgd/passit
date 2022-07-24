@@ -3,8 +3,6 @@ package password
 import (
 	"io"
 	"unicode"
-
-	"go.tmthrgd.dev/strongroom/internal/randutil"
 )
 
 //go:generate go run unicode_generate.go unicode_generate_gen.go unicode_generate_ucd.go -unicode 13.0.0
@@ -23,7 +21,7 @@ func maybeUnicodeReadByte(r io.Reader) {
 	// TODO(tmthrgd): Remove once allowedRangeTable has stabalized.
 
 	if !isTestBinary {
-		randutil.MaybeReadByte(r)
+		maybeReadByte(r)
 	}
 }
 
