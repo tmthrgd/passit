@@ -5,7 +5,7 @@
 // This file is taken from crypto/internal/randutil in the go1.14.4 standard
 // library.
 
-package password
+package passit
 
 import (
 	"io"

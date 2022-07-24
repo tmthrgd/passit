@@ -1,5 +1,5 @@
-// Package password provides various password generators.
-package password
+// Package passit provides various password generators.
+package passit
 
 import (
 	"io"

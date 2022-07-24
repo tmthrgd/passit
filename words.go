@@ -1,4 +1,4 @@
-package password
+package passit
 
 import (
 	_ "embed" // for go:embed
