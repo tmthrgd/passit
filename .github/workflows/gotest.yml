@@ -1,0 +1,47 @@
+name: go test
+on:
+  push:
+    branches: [ main ]
+    paths-ignore: [ README.md, LICENSE ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  test:
+    name: go test
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+        go: [ 1.18.x ]
+        include:
+          - os: ubuntu-latest
+            go: 1.17.x
+    if: |
+      (
+        github.event_name == 'push' &&
+        !contains(github.event.head_commit.message, '[ci skip]') &&
+        !contains(github.event.head_commit.message, '[skip ci]')
+      ) || (
+        github.event_name == 'pull_request' &&
+        !contains(github.event.pull_request.body, '[ci skip]') &&
+        !contains(github.event.pull_request.body, '[skip ci]')
+      )
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: setup go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: go version
+        run: go version
+      - name: go env
+        run: go env
+      - name: download go modules
+        # See go.dev/issue/41431#issuecomment-694232902.
+        run: go list -test -deps ./...
+      - name: go vet
+        run: go vet ./...
+        if: runner.os == 'Linux'
+      - name: go test
+        run: go test -v -race -short -vet=off ./...
