@@ -46,6 +46,34 @@ func TestCharset(t *testing.T) {
 	}
 }
 
+func TestFixedCharset(t *testing.T) {
+	for _, tc := range []struct {
+		expect   string
+		template func(int) Template
+	}{
+		{"lwrqmcesfypbvqzagueycldeq", LatinLower},
+		{"LWRQMCESFYPBVQZAGUEYCLDEQ", LatinUpper},
+		{"LwrqMcesFyPbvQzagUeyCldEQ", LatinMixed},
+		{"1690822236719012868805980", Number},
+	} {
+		const size = 25
+
+		testRand := rand.New(rand.NewSource(0))
+
+		pass, err := tc.template(size).Password(testRand)
+		if !assert.NoError(t, err) {
+			continue
+		}
+
+		assert.Equal(t, tc.expect, pass)
+		assert.Equal(t, size, utf8.RuneCountInString(pass),
+			"utf8.RuneCountInString(%q)", pass)
+		assert.Truef(t, utf8.ValidString(pass),
+			"utf8.ValidString(%q)", pass)
+		allRunesAllowed(t, pass)
+	}
+}
+
 func TestRangeTable(t *testing.T) {
 	newTable := func(s string) *unicode.RangeTable {
 		return rangetable.New([]rune(s)...)

@@ -41,6 +41,29 @@ func FromCharset(template string) (func(count int) Template, error) {
 	return func(count int) Template { return &charset{runes, count} }, nil
 }
 
+// LatinLower returns a Template that generates count lowercase characters from the
+// latin alphabet.
+func LatinLower(count int) Template {
+	return &charset{[]rune("abcdefghijklmnopqrstuvwxyz"), count}
+}
+
+// LatinUpper returns a Template that generates count uppercase characters from the
+// latin alphabet.
+func LatinUpper(count int) Template {
+	return &charset{[]rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), count}
+}
+
+// LatinMixed returns a Template that generates count mixed-case characters from the
+// latin alphabet.
+func LatinMixed(count int) Template {
+	return &charset{[]rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), count}
+}
+
+// Number returns a Template that generates count numeric digits.
+func Number(count int) Template {
+	return &charset{[]rune("0123456789"), count}
+}
+
 func (c *charset) Password(r io.Reader) (string, error) {
 	if c.count <= 0 {
 		return "", errors.New("password: count must be greater than zero")
