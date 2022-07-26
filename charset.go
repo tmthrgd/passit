@@ -132,6 +132,10 @@ type emoji struct {
 func Emoji13(count int) Template { return &emoji{unicodeEmoji, count} }
 
 func (e *emoji) Password(r io.Reader) (string, error) {
+	if e.count <= 0 {
+		return "", errors.New("password: count must be greater than zero")
+	}
+
 	emoji := make([]string, e.count)
 	for i := range emoji {
 		idx, err := readUint32n(r, uint32(len(e.list)))
