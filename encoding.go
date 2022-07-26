@@ -5,6 +5,7 @@ import (
 	"encoding/base32"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"io"
 )
 
@@ -52,6 +53,10 @@ func Ascii85(count int) Template {
 }
 
 func (e *encoding) Password(r io.Reader) (string, error) {
+	if e.count <= 0 {
+		return "", errors.New("passit: count must be greater than zero")
+	}
+
 	buf := make([]byte, e.count)
 	if _, err := io.ReadFull(r, buf); err != nil {
 		return "", err
