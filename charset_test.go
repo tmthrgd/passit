@@ -131,7 +131,7 @@ func TestRangeTable(t *testing.T) {
 	}
 }
 
-func TestEmoji(t *testing.T) {
+func TestEmoji13(t *testing.T) {
 	const size = 25
 
 	for i, expect := range []string{
@@ -142,7 +142,7 @@ func TestEmoji(t *testing.T) {
 	} {
 		testRand := rand.New(rand.NewSource(int64(i)))
 
-		pass, err := Emoji(size).Password(testRand)
+		pass, err := Emoji13(size).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue
 		}
