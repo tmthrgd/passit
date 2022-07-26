@@ -29,6 +29,7 @@ func main() {
 
 	pass, err := passit.EFFLargeWordlist(*count).Password(rand.Reader)
 	if err != nil {
+		log.SetFlags(0)
 		log.Fatal(err)
 	}
 
