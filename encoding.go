@@ -22,13 +22,15 @@ func Hex(count int) Template {
 // Base32Std returns a Template that encodes count-bytes with
 // encoding/base32.StdEncoding without padding.
 func Base32Std(count int) Template {
-	return &encoding{base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString, count}
+	rawStd := base32.StdEncoding.WithPadding(base32.NoPadding)
+	return &encoding{rawStd.EncodeToString, count}
 }
 
 // Base32Std returns a Template that encodes count-bytes with
 // encoding/base32.HexEncoding without padding.
 func Base32Hex(count int) Template {
-	return &encoding{base32.HexEncoding.WithPadding(base32.NoPadding).EncodeToString, count}
+	rawHex := base32.HexEncoding.WithPadding(base32.NoPadding)
+	return &encoding{rawHex.EncodeToString, count}
 }
 
 // Base64Std returns a Template that encodes count-bytes with
