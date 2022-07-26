@@ -18,6 +18,12 @@ func readUint32n(r io.Reader, n uint32) (uint32, error) {
 	// This was modeled on golang.org/x/exp/rand:
 	// https://github.com/golang/exp/blob/ec7cb31e5a562f5e9e31b300128d2f530f55d127/rand/rand.go#L91-L109.
 
+	// If n is 1, meaning the result will always be 0, avoid reading anything
+	// from r and immediately return 0.
+	if n == 1 {
+		return 0, nil
+	}
+
 	v, err := readUint32(r)
 	if err != nil {
 		return 0, err
