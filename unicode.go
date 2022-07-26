@@ -62,7 +62,7 @@ func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 	var rt unicode.RangeTable
 
 	/*if r0.Stride != 1 {
-		panic("password: unicode.RangeTable has entry with Stride > 1")
+		panic("passit: unicode.RangeTable has entry with Stride > 1")
 	}*/
 
 	for _, r0 := range a.R16 {

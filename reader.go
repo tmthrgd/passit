@@ -52,7 +52,7 @@ func countTableRunes(tab *unicode.RangeTable) int {
 
 func readRune(r io.Reader, tab *unicode.RangeTable, count int) (rune, error) {
 	if int(uint32(count)) != count {
-		panic("password: unicode.RangeTable is too large")
+		panic("passit: unicode.RangeTable is too large")
 	}
 
 	v, err := readUint32n(r, uint32(count))
@@ -76,5 +76,5 @@ func readRune(r io.Reader, tab *unicode.RangeTable, count int) (rune, error) {
 		v -= size
 	}
 
-	panic("password: internal error: unicode.RangeTable did not contain rune")
+	panic("passit: internal error: unicode.RangeTable did not contain rune")
 }

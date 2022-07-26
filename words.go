@@ -21,26 +21,26 @@ type words struct {
 // words is invalid.
 func FromWords(list ...string) (func(count int) Template, error) {
 	if len(list) < 2 {
-		return nil, errors.New("password: list too short")
+		return nil, errors.New("passit: list too short")
 	} else if len(list) > maxUint32 {
-		return nil, errors.New("password: list too long")
+		return nil, errors.New("passit: list too long")
 	}
 
 	seen := make(map[string]struct{}, len(list))
 	for _, word := range list {
 		if len(word) < 1 {
-			return nil, errors.New("password: empty word in list")
+			return nil, errors.New("passit: empty word in list")
 		} else if !utf8.ValidString(word) {
-			return nil, errors.New("password: word contains invalid unicode rune")
+			return nil, errors.New("passit: word contains invalid unicode rune")
 		} else if idx := strings.IndexFunc(word, notAllowed); idx >= 0 {
 			r, _ := utf8.DecodeRuneInString(word[idx:])
-			return nil, fmt.Errorf("password: word contains prohibited rune %U", r)
+			return nil, fmt.Errorf("passit: word contains prohibited rune %U", r)
 		} else if strings.IndexFunc(word, unicode.IsSpace) >= 0 {
-			return nil, errors.New("password: word contains space")
+			return nil, errors.New("passit: word contains space")
 		}
 
 		if _, dup := seen[word]; dup {
-			return nil, errors.New("password: list contains duplicate word")
+			return nil, errors.New("passit: list contains duplicate word")
 		}
 		seen[word] = struct{}{}
 	}
@@ -51,7 +51,7 @@ func FromWords(list ...string) (func(count int) Template, error) {
 
 func (w *words) Password(r io.Reader) (string, error) {
 	if w.count <= 0 {
-		return "", errors.New("password: count must be greater than zero")
+		return "", errors.New("passit: count must be greater than zero")
 	}
 
 	words := make([]string, w.count)
