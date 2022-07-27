@@ -87,9 +87,7 @@ func TestRegexpUnicodeAny(t *testing.T) {
 
 func TestRegexpSpecialCaptures(t *testing.T) {
 	var p RegexpParser
-	p.SetSpecialCapture("word", func(*syntax.Regexp) (Template, error) {
-		return EFFLargeWordlist(1), nil
-	})
+	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist(1)))
 
 	tmpl, err := p.Parse(`((?P<word>) ){6}[[:upper:]][[:digit:]][[:punct:]]`, syntax.PerlX)
 	require.NoError(t, err)
@@ -107,6 +105,50 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 
 		assert.Equal(t, expect, pass)
 		allRunesAllowed(t, pass)
+	}
+}
+
+func TestRegexpSpecialCaptureFactories(t *testing.T) {
+	var p RegexpParser
+	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist(1)))
+	p.SetSpecialCapture("words", SpecialCaptureWithCount(EFFLargeWordlist))
+
+	for _, tc := range []struct {
+		pattern, expect string
+	}{
+		{"(?P<word>)", "clanking"},
+		{"(?P<words>)", "clanking"},
+		{"(?P<words>1)", "clanking"},
+		{"(?P<words>2)", "clanking avalanche"},
+		{"(?P<words>03)", "clanking avalanche cursor"},
+		{`(?P<words>\+2)`, "clanking avalanche"},
+	} {
+		testRand := rand.New(rand.NewSource(1))
+
+		tmpl, err := p.Parse(tc.pattern, syntax.PerlX)
+		if !assert.NoError(t, err, tc.pattern) {
+			continue
+		}
+
+		pass, err := tmpl.Password(testRand)
+		if assert.NoError(t, err, tc.pattern) {
+			assert.Equal(t, tc.expect, pass, tc.pattern)
+			allRunesAllowed(t, pass)
+		}
+	}
+
+	for _, tc := range []struct {
+		pattern, errString string
+	}{
+		{"(?P<word>1)", "passit: unsupported capture"},
+		{"(?P<word> )", "passit: unsupported capture"},
+		{"(?P<word>[0-9])", "passit: unsupported capture"},
+		{"(?P<words>[0-9])", "passit: unsupported capture"},
+		{"(?P<words>0x12)", "passit: failed to parse capture: strconv.ParseInt: parsing \"0x12\": invalid syntax"},
+		{"(?P<words>4a)", "passit: failed to parse capture: strconv.ParseInt: parsing \"4a\": invalid syntax"},
+	} {
+		_, err := p.Parse(tc.pattern, syntax.PerlX)
+		assert.EqualError(t, err, tc.errString, tc.pattern)
 	}
 }
 

@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/bits"
 	"regexp/syntax"
+	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -18,7 +20,7 @@ type regexpGenerator func(*strings.Builder, io.Reader) error
 // that generates passwords matching the parsed regexp.
 type RegexpParser struct {
 	unicodeAny      bool
-	specialCaptures map[string]func(*syntax.Regexp) (Template, error)
+	specialCaptures map[string]SpecialCaptureFactory
 }
 
 // ParseRegexp is a shortcut for new(RegexpParser).Parse(pattern, flags).
@@ -32,12 +34,12 @@ func ParseRegexp(pattern string, flags syntax.Flags) (Template, error) {
 // unicode runes.
 func (p *RegexpParser) SetUnicodeAny() { p.unicodeAny = true }
 
-// SetSpecialCapture adds a special factory to use for matching named captures. A
-// regexp pattern such as "(?P<name>)" will invoke the factory and use the returned
-// Template instead of the contents of the capture.
-func (p *RegexpParser) SetSpecialCapture(name string, factory func(*syntax.Regexp) (Template, error)) {
+// SetSpecialCapture adds a special capture factory to use for matching named
+// captures. A regexp pattern such as "(?P<name>)" will invoke the factory and use
+// the returned Template instead of the contents of the capture.
+func (p *RegexpParser) SetSpecialCapture(name string, factory SpecialCaptureFactory) {
 	if p.specialCaptures == nil {
-		p.specialCaptures = make(map[string]func(*syntax.Regexp) (Template, error))
+		p.specialCaptures = make(map[string]SpecialCaptureFactory)
 	}
 
 	p.specialCaptures[name] = factory
@@ -313,4 +315,41 @@ func (p *RegexpParser) anyRangeTable() *unicode.RangeTable {
 	}
 
 	return rangeTableASCII
+}
+
+// SpecialCaptureFactory represents a special capture factory to be used with
+// (*RegexpParser).SetSpecialCapture.
+type SpecialCaptureFactory func(*syntax.Regexp) (Template, error)
+
+// SpecialCaptureBasic returns a special capture factory that doesn't accept any
+// input and always returns the provided Template.
+func SpecialCaptureBasic(tmpl Template) SpecialCaptureFactory {
+	return func(sr *syntax.Regexp) (Template, error) {
+		if sr.Sub[0].Op == syntax.OpEmptyMatch {
+			return tmpl, nil
+		}
+
+		return nil, errors.New("passit: unsupported capture")
+	}
+}
+
+// SpecialCaptureBasic returns a special capture factory that parses the capture
+// value for a count to be used with the Template constructor. If the capture is
+// empty, the constructor is called with a count of 1.
+func SpecialCaptureWithCount(tmpl func(count int) Template) SpecialCaptureFactory {
+	return func(sr *syntax.Regexp) (Template, error) {
+		switch sr.Sub[0].Op {
+		case syntax.OpEmptyMatch:
+			return tmpl(1), nil
+		case syntax.OpLiteral:
+			count, err := strconv.ParseInt(string(sr.Sub[0].Rune), 10, bits.UintSize)
+			if err != nil {
+				return nil, fmt.Errorf("passit: failed to parse capture: %w", err)
+			}
+
+			return tmpl(int(count)), nil
+		default:
+			return nil, errors.New("passit: unsupported capture")
+		}
+	}
 }
