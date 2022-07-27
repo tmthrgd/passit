@@ -24,8 +24,8 @@ func TestJoinTemplates(t *testing.T) {
 	tmpl := JoinTemplates(
 		EFFLargeWordlist(5),
 		Space,
-		mustCharset(t, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")(1),
-		mustCharset(t, "0123456789")(1),
+		LatinUpper(1),
+		Number(1),
 		mustCharset(t, "~!@#$%^&*()")(1),
 		Space,
 		FixedString("+abc"),
