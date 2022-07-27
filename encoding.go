@@ -60,7 +60,7 @@ func (e *encoding) Password(r io.Reader) (string, error) {
 	}
 
 	buf := make([]byte, e.count)
-	if _, err := io.ReadFull(r, buf); err != nil {
+	if _, err := readBytes(r, buf); err != nil {
 		return "", err
 	}
 

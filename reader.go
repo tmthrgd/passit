@@ -2,15 +2,24 @@ package passit
 
 import (
 	"encoding/binary"
+	"fmt"
 	"io"
 	"unicode"
 )
 
 const maxUint32 = (1 << 32) - 1
 
+func readBytes(r io.Reader, buf []byte) (int, error) {
+	n, err := io.ReadFull(r, buf)
+	if err != nil {
+		return n, fmt.Errorf("passit: failed to read entropy: %w", err)
+	}
+	return n, nil
+}
+
 func readUint32(r io.Reader) (uint32, error) {
 	var buf [4]byte
-	_, err := io.ReadFull(r, buf[:])
+	_, err := readBytes(r, buf[:])
 	return binary.LittleEndian.Uint32(buf[:]), err
 }
 
