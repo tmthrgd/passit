@@ -19,7 +19,7 @@ func mustCharset(t *testing.T, template string) func(int) Template {
 }
 
 func TestJoinTemplates(t *testing.T) {
-	pattern := regexp.MustCompile(`^([a-z]+ ){5}[A-Z][0-9][~!@#$%^&*()] \+abc[de]$`)
+	pattern := regexp.MustCompile(`^([a-z]+ ){5}[A-Z][0-9][~!@#$%^&*()] \+abc-[de]$`)
 
 	tmpl := JoinTemplates(
 		EFFLargeWordlist(5),
@@ -29,6 +29,7 @@ func TestJoinTemplates(t *testing.T) {
 		mustCharset(t, "~!@#$%^&*()")(1),
 		Space,
 		FixedString("+abc"),
+		Hyphen,
 		mustCharset(t, "de")(1),
 	)
 
@@ -37,7 +38,7 @@ func TestJoinTemplates(t *testing.T) {
 	pass, err := tmpl.Password(testRand)
 	require.NoError(t, err)
 
-	assert.Equal(t, "native remover dismay vocation sepia C2@ +abce", pass)
+	assert.Equal(t, "native remover dismay vocation sepia C2@ +abc-e", pass)
 	assert.Truef(t, pattern.MatchString(pass),
 		"regexp.MustCompile(%q).MatchString(%q)", pattern, pass)
 	assert.Truef(t, utf8.ValidString(pass),

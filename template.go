@@ -45,6 +45,10 @@ func (j *joined) Password(r io.Reader) (string, error) {
 const Space = space
 const space = fixedString(" ")
 
+// Hyphen is a Template that always returns a fixed ASCII hyphen-minus.
+const Hyphen = hyphen
+const hyphen = fixedString("-")
+
 // FixedString returns a Template that always returns the given string.
 func FixedString(s string) Template { return fixedString(s) }
 
