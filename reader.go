@@ -24,7 +24,7 @@ func readUint32(r io.Reader) (uint32, error) {
 }
 
 func readUint32n(r io.Reader, n uint32) (uint32, error) {
-	// This was modeled on golang.org/x/exp/rand:
+	// This is based on golang.org/x/exp/rand:
 	// https://github.com/golang/exp/blob/ec7cb31e5a562f5e9e31b300128d2f530f55d127/rand/rand.go#L91-L109.
 
 	// If n is 1, meaning the result will always be 0, avoid reading anything
@@ -36,6 +36,13 @@ func readUint32n(r io.Reader, n uint32) (uint32, error) {
 	v, err := readUint32(r)
 	if err != nil {
 		return 0, err
+	}
+
+	if n&(n-1) == 0 { // n is power of two, can mask
+		if n == 0 {
+			panic("passit: invalid argument to readUint32n")
+		}
+		return v & (n - 1), nil
 	}
 
 	// If n does not divide v, to avoid bias we must not use
