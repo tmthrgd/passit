@@ -30,17 +30,17 @@ const (
 
 // Password implements Template.
 func (st SpectreTemplate) Password(r io.Reader) (string, error) {
-	buf := make([]byte, 1)
-	if _, err := readBytes(r, buf); err != nil {
+	idx, err := readUint8(r)
+	if err != nil {
 		return "", err
 	}
 
 	// This call to strings.Split doesn't allocate, presumably as Go understands
 	// the slice doesn't escape.
 	templates := strings.Split(string(st), ":")
-	template := templates[int(buf[0])%len(templates)]
+	template := templates[int(idx)%len(templates)]
 
-	buf = make([]byte, len(template))
+	buf := make([]byte, len(template))
 	if _, err := readBytes(r, buf); err != nil {
 		return "", err
 	}

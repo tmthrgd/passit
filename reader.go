@@ -17,6 +17,12 @@ func readBytes(r io.Reader, buf []byte) (int, error) {
 	return n, nil
 }
 
+func readUint8(r io.Reader) (uint8, error) {
+	var buf [1]byte
+	_, err := readBytes(r, buf[:])
+	return buf[0], err
+}
+
 func readUint32(r io.Reader) (uint32, error) {
 	var buf [4]byte
 	_, err := readBytes(r, buf[:])
