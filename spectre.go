@@ -1,5 +1,6 @@
 // This implements part of the Spectre / Master Password algorithm by
 // Maarten Billemont.
+
 package passit
 
 import (
