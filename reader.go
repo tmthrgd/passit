@@ -2,6 +2,7 @@ package passit
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"io"
 	"unicode"
@@ -93,7 +94,7 @@ func countTableRunes(tab *unicode.RangeTable) int {
 
 func readRune(r io.Reader, tab *unicode.RangeTable, count int) (rune, error) {
 	if count > maxReadIntN {
-		panic("passit: unicode.RangeTable is too large")
+		return 0, errors.New("passit: unicode.RangeTable is too large")
 	}
 
 	v, err := readIntN(r, count)
