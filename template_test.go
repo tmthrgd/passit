@@ -94,10 +94,6 @@ func TestRandomCount(t *testing.T) {
 		{2, 5, "remover dismay vocation"},
 		{4, 7, "remover dismay vocation sepia backtalk"},
 		{10, 20, "remover dismay vocation sepia backtalk think conjure autograph hemlock exit finance obscure dusk rigor hemlock dusk blouse"},
-		{-2, -1, "remover"},
-		{-5, -2, "remover-dismay-vocation-sepia"},
-		{-7, -4, "remover-dismay-vocation-sepia-backtalk-think"},
-		{-20, -10, "remover-dismay-vocation-sepia-backtalk-think-conjure-autograph-hemlock-exit-finance-obscure-dusk"},
 	} {
 		tmpl, err := RandomCount(EFFLargeWordlist, tc.min, tc.max)
 		if !assert.NoErrorf(t, err, "valid range should not error: %v", tc) {
