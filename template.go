@@ -2,6 +2,7 @@
 package passit
 
 import (
+	"errors"
 	"io"
 	"strings"
 )
@@ -39,6 +40,45 @@ func (j *joined) Password(r io.Reader) (string, error) {
 	}
 
 	return strings.Join(parts, ""), nil
+}
+
+type randomCount struct {
+	tmpl func(count int) Template
+	min  int
+	n    int
+}
+
+// RandomCount returns a Template that invokes tmpl with a random count read from r
+// in [min,max].
+//
+// If min is equal to max, tmpl is invoked once and the Template returned directly.
+//
+// An error is returned if either min or max are invalid or outside the suppoted
+// range.
+func RandomCount(tmpl func(count int) Template, min, max int) (Template, error) {
+	if min > max {
+		return nil, errors.New("passit: min argument cannot be greater than max argument")
+	}
+
+	n := max - min + 1
+	if n < 1 || n > maxReadIntN {
+		return nil, errors.New("passit: [min,max] range too large")
+	}
+
+	if min == max {
+		return tmpl(min), nil
+	}
+
+	return &randomCount{tmpl, min, n}, nil
+}
+
+func (c *randomCount) Password(r io.Reader) (string, error) {
+	n, err := readIntN(r, c.n)
+	if err != nil {
+		return "", err
+	}
+
+	return c.tmpl(c.min + n).Password(r)
 }
 
 // Space is a Template that always returns a fixed ASCII space.
