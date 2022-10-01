@@ -261,12 +261,12 @@ func (p *RegexpParser) repeatInternal(sr *syntax.Regexp, min, max int) (regexpGe
 	}
 
 	return func(b *strings.Builder, r io.Reader) error {
-		n, err := readUint32n(r, uint32(max-min+1))
+		n, err := readIntN(r, max-min+1)
 		if err != nil {
 			return err
 		}
 
-		for n += uint32(min); n > 0; n-- {
+		for n += min; n > 0; n-- {
 			if err := gen(b, r); err != nil {
 				return err
 			}
@@ -300,7 +300,7 @@ func (p *RegexpParser) alternate(sr *syntax.Regexp) (regexpGenerator, error) {
 	}
 
 	return func(b *strings.Builder, r io.Reader) error {
-		idx, err := readUint32n(r, uint32(len(gens)))
+		idx, err := readIntN(r, len(gens))
 		if err != nil {
 			return err
 		}

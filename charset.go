@@ -21,7 +21,7 @@ func FromCharset(template string) (func(count int) Template, error) {
 	runes := []rune(template)
 	if len(runes) < 2 {
 		return nil, errors.New("passit: template too short")
-	} else if len(runes) > maxUint32 {
+	} else if len(runes) > maxReadIntN {
 		return nil, errors.New("passit: template too long")
 	} else if !utf8.ValidString(template) {
 		return nil, errors.New("passit: template contains invalid unicode rune")
@@ -71,7 +71,7 @@ func (c *charset) Password(r io.Reader) (string, error) {
 
 	runes := make([]rune, c.count)
 	for i := range runes {
-		idx, err := readUint32n(r, uint32(len(c.runes)))
+		idx, err := readIntN(r, len(c.runes))
 		if err != nil {
 			return "", err
 		}
@@ -138,7 +138,7 @@ func (e *emoji) Password(r io.Reader) (string, error) {
 
 	emoji := make([]string, e.count)
 	for i := range emoji {
-		idx, err := readUint32n(r, uint32(len(e.list)))
+		idx, err := readIntN(r, len(e.list))
 		if err != nil {
 			return "", err
 		}

@@ -7,7 +7,10 @@ import (
 	"unicode"
 )
 
-const maxUint32 = (1 << 32) - 1
+const (
+	maxUint32 = (1 << 32) - 1
+	maxInt32  = (1 << 31) - 1
+)
 
 func readBytes(r io.Reader, buf []byte) (int, error) {
 	n, err := io.ReadFull(r, buf)
@@ -29,15 +32,10 @@ func readUint32(r io.Reader) (uint32, error) {
 	return binary.LittleEndian.Uint32(buf[:]), err
 }
 
+// readUint32n is a helper function that should only be called by readIntN.
 func readUint32n(r io.Reader, n uint32) (uint32, error) {
 	// This is based on golang.org/x/exp/rand:
 	// https://github.com/golang/exp/blob/ec7cb31e5a562f5e9e31b300128d2f530f55d127/rand/rand.go#L91-L109.
-
-	// If n is 1, meaning the result will always be 0, avoid reading anything
-	// from r and immediately return 0.
-	if n == 1 {
-		return 0, nil
-	}
 
 	v, err := readUint32(r)
 	if err != nil {
@@ -45,9 +43,6 @@ func readUint32n(r io.Reader, n uint32) (uint32, error) {
 	}
 
 	if n&(n-1) == 0 { // n is power of two, can mask
-		if n == 0 {
-			panic("passit: invalid argument to readUint32n")
-		}
 		return v & (n - 1), nil
 	}
 
@@ -66,6 +61,24 @@ func readUint32n(r io.Reader, n uint32) (uint32, error) {
 	return v % n, nil
 }
 
+const maxReadIntN = maxInt32
+
+func readIntN(r io.Reader, n int) (int, error) {
+	switch {
+	case n <= 0:
+		panic("passit: invalid argument to readIntN")
+	case n == 1:
+		// If n is 1, meaning the result will always be 0, avoid reading
+		// anything from r and immediately return 0.
+		return 0, nil
+	case n <= maxInt32:
+		v, err := readUint32n(r, uint32(n))
+		return int(v), err
+	default:
+		panic("passit: invalid argument to readIntN")
+	}
+}
+
 func countTableRunes(tab *unicode.RangeTable) int {
 	var c int
 	for _, r16 := range tab.R16 {
@@ -79,17 +92,17 @@ func countTableRunes(tab *unicode.RangeTable) int {
 }
 
 func readRune(r io.Reader, tab *unicode.RangeTable, count int) (rune, error) {
-	if int(uint32(count)) != count {
+	if count > maxReadIntN {
 		panic("passit: unicode.RangeTable is too large")
 	}
 
-	v, err := readUint32n(r, uint32(count))
+	v, err := readIntN(r, count)
 	if err != nil {
 		return 0, err
 	}
 
 	for _, r16 := range tab.R16 {
-		size := uint32((r16.Hi-r16.Lo)/r16.Stride) + 1
+		size := int((r16.Hi-r16.Lo)/r16.Stride) + 1
 		if v < size {
 			return rune(r16.Lo + uint16(v)*r16.Stride), nil
 		}
@@ -97,9 +110,9 @@ func readRune(r io.Reader, tab *unicode.RangeTable, count int) (rune, error) {
 	}
 
 	for _, r32 := range tab.R32 {
-		size := (r32.Hi-r32.Lo)/r32.Stride + 1
+		size := int((r32.Hi-r32.Lo)/r32.Stride) + 1
 		if v < size {
-			return rune(r32.Lo + v*r32.Stride), nil
+			return rune(r32.Lo + uint32(v)*r32.Stride), nil
 		}
 		v -= size
 	}

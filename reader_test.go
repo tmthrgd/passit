@@ -31,7 +31,7 @@ func (m *modReader) Read(p []byte) (int, error) {
 	return 4, nil
 }
 
-func TestReadUint64n(t *testing.T) {
+func TestReadUint32n(t *testing.T) {
 	// This test validates that the calculation in readUint32n corrects for
 	// possible bias.
 	//

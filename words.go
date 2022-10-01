@@ -22,7 +22,7 @@ type words struct {
 func FromWords(list ...string) (func(count int) Template, error) {
 	if len(list) < 2 {
 		return nil, errors.New("passit: list too short")
-	} else if len(list) > maxUint32 {
+	} else if len(list) > maxReadIntN {
 		return nil, errors.New("passit: list too long")
 	}
 
@@ -56,7 +56,7 @@ func (w *words) Password(r io.Reader) (string, error) {
 
 	words := make([]string, w.count)
 	for i := range words {
-		idx, err := readUint32n(r, uint32(len(w.list)))
+		idx, err := readIntN(r, len(w.list))
 		if err != nil {
 			return "", err
 		}
