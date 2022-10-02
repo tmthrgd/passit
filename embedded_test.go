@@ -28,6 +28,42 @@ func TestEFFLargeWordlist(t *testing.T) {
 	assert.NoError(t, err, "wordlist valid")
 }
 
+func TestEFFShortWordlist1(t *testing.T) {
+	const size = 8
+
+	testRand := rand.New(rand.NewSource(0))
+
+	pass, err := Repeat(EFFShortWordlist1, " ", size).Password(testRand)
+	require.NoError(t, err)
+
+	assert.Equal(t, "cloth blot hunt stick jolt flock cried wipe", pass)
+	assert.Equal(t, size-1, strings.Count(pass, " "),
+		`strings.Count(%q, " ")`, pass)
+	assert.Truef(t, utf8.ValidString(pass),
+		"utf8.ValidString(%q)", pass)
+
+	_, err = FromWords(EFFShortWordlist1.(*embeddedList).list...)
+	assert.NoError(t, err, "wordlist valid")
+}
+
+func TestEFFShortWordlist2(t *testing.T) {
+	const size = 8
+
+	testRand := rand.New(rand.NewSource(0))
+
+	pass, err := Repeat(EFFShortWordlist2, " ", size).Password(testRand)
+	require.NoError(t, err)
+
+	assert.Equal(t, "coathanger arrowhead hunter stopwatch irksome ferret cynicism wired", pass)
+	assert.Equal(t, size-1, strings.Count(pass, " "),
+		`strings.Count(%q, " ")`, pass)
+	assert.Truef(t, utf8.ValidString(pass),
+		"utf8.ValidString(%q)", pass)
+
+	_, err = FromWords(EFFShortWordlist2.(*embeddedList).list...)
+	assert.NoError(t, err, "wordlist valid")
+}
+
 func TestEmoji13(t *testing.T) {
 	const size = 25
 
