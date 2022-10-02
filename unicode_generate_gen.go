@@ -519,7 +519,7 @@ var (
 const gen_permissions = 0755
 
 func gen_localReadmeFile() (string, error) {
-	return filepath.Join(os.TempDir(), "strongroom_password_unicode_gen", "DATA", "README"), nil
+	return filepath.Join(os.TempDir(), "passit_unicode_gen", "DATA", "README"), nil
 }
 
 func gen_getLocalDir() string {
