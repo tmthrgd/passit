@@ -96,8 +96,8 @@ func TestRangeTable(t *testing.T) {
 		{"7032aEC2b213F2f2eaCecdFc4", unicode.ASCII_Hex_Digit},
 	}
 	testCasesUni := []testCase{
-		{"ƵỖẝȶỶẂᵽɥếⅮḭƒᴥʆṞṕÓꭔǤȪｌⱶꜷṂﬄ", unicode.Latin},
-		{"ὦ𐆋𐅼ᾡ𝈉𝈓𐆇ᾶ𐅨Ὺ𝈶ἠῑϸϽῪϸϘΏ𐅵𐅡𝈾ῆϊβ", unicode.Greek},
+		{"ᴓĜPḄŚḸꝊẺꝉḂKṙṿƒćʢꝤᶧꜢＹĊʝḣꟇÔ", unicode.Latin},
+		{"𝈡ΧὐΘῑ𝈂ἇώὰ𐅐ῆ᾿ΰΐ𐅛ᾇᾅυᾅ𐅦ͻ𝈱Άᾗΐ", unicode.Greek},
 		{"₥꠸৲߿₰₦฿₲₽₶₫₹₧₮₵₠₠₸₼₼₢₧﷼₨₮", unicode.Sc},
 	}
 
@@ -112,12 +112,7 @@ func TestRangeTable(t *testing.T) {
 
 		testRand := rand.New(rand.NewSource(0))
 
-		tmpl, err := FromRangeTable(tc.tab)
-		if !assert.NoError(t, err) {
-			continue
-		}
-
-		pass, err := tmpl(size).Password(testRand)
+		pass, err := FromRangeTable(tc.tab)(size).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue
 		}

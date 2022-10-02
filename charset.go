@@ -2,7 +2,6 @@ package passit
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"strings"
 	"unicode"
@@ -25,9 +24,6 @@ func FromCharset(template string) (func(count int) Template, error) {
 		return nil, errors.New("passit: template too long")
 	} else if !utf8.ValidString(template) {
 		return nil, errors.New("passit: template contains invalid unicode rune")
-	} else if idx := strings.IndexFunc(template, notAllowed); idx >= 0 {
-		r, _ := utf8.DecodeRuneInString(template[idx:])
-		return nil, fmt.Errorf("passit: template contains prohibited rune %U", r)
 	}
 
 	seen := make(map[rune]struct{}, len(runes))
@@ -89,25 +85,19 @@ type rangeTable struct {
 }
 
 // FromRangeTable returns a Template factory that generates passwords of count
-// runes length by joining random runes from the given unicode.RangeTable. It
-// returns an error if the table has zero allowed runes. The table will be filtered
-// by internally allowed runes.
-func FromRangeTable(tab *unicode.RangeTable) (func(count int) Template, error) {
-	tab = intersectRangeTables(allowedRangeTableStride1, tab)
+// runes length by joining random runes from the given unicode.RangeTable.
+func FromRangeTable(tab *unicode.RangeTable) func(count int) Template {
 	runes := countTableRunes(tab)
-	if runes == 0 {
-		return nil, errors.New("passit: unicode.RangeTable contains zero allowed runes")
-	}
-
-	return func(count int) Template { return &rangeTable{tab, runes, count} }, nil
+	return func(count int) Template { return &rangeTable{tab, runes, count} }
 }
 
 func (rt *rangeTable) Password(r io.Reader) (string, error) {
+	if rt.runes == 0 {
+		return "", errors.New("passit: unicode.RangeTable must be non-empty")
+	}
 	if rt.count <= 0 {
 		return "", errors.New("passit: count must be greater than zero")
 	}
-
-	maybeUnicodeReadByte(r)
 
 	runes := make([]rune, rt.count)
 	for i := range runes {
