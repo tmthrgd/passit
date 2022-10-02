@@ -26,7 +26,7 @@ func Base32Std(count int) Template {
 	return &encoding{rawStd.EncodeToString, count}
 }
 
-// Base32Std returns a Template that encodes count-bytes with
+// Base32Hex returns a Template that encodes count-bytes with
 // encoding/base32.HexEncoding without padding.
 func Base32Hex(count int) Template {
 	rawHex := base32.HexEncoding.WithPadding(base32.NoPadding)
