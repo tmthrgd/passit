@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-//go:generate go run emoji_generate.go unicode_generate_gen.go unicode_generate_ucd.go -unicode 13.0.0
+//go:generate go run emoji_generate.go emoji_generate_gen.go emoji_generate_ucd.go -unicode 13.0.0
 
 type embeddedList struct {
 	once sync.Once

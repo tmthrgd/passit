@@ -2,7 +2,7 @@
 //
 // This file was generated with the following command and then edited by hand to add
 // a build constraint:
-//   bundle -o unicode_generate_ucd.go -pkg main golang.org/x/text/internal/ucd
+//   bundle -o emoji_generate_ucd.go -pkg main golang.org/x/text/internal/ucd
 
 //go:build ignore
 // +build ignore

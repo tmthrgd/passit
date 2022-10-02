@@ -2,7 +2,7 @@
 //
 // This file was generated with the following command and then edited by hand to add
 // a build constraint, modify gen_header and change gen_localReadmeFile:
-//   bundle -o unicode_generate_gen.go -pkg main golang.org/x/text/internal/gen
+//   bundle -o emoji_generate_gen.go -pkg main golang.org/x/text/internal/gen
 
 //go:build ignore
 // +build ignore
