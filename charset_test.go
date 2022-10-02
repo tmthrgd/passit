@@ -31,7 +31,7 @@ func TestCharset(t *testing.T) {
 			continue
 		}
 
-		pass, err := tmpl(size).Password(testRand)
+		pass, err := Repeat(tmpl, "", size).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue
 		}
@@ -48,7 +48,7 @@ func TestCharset(t *testing.T) {
 func TestFixedCharset(t *testing.T) {
 	for _, tc := range []struct {
 		expect   string
-		template func(int) Template
+		template Template
 	}{
 		{"lwrqmcesfypbvqzagueycldeq", LatinLower},
 		{"LWRQMCESFYPBVQZAGUEYCLDEQ", LatinUpper},
@@ -59,7 +59,7 @@ func TestFixedCharset(t *testing.T) {
 
 		testRand := rand.New(rand.NewSource(0))
 
-		pass, err := tc.template(size).Password(testRand)
+		pass, err := Repeat(tc.template, "", size).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue
 		}
@@ -69,7 +69,7 @@ func TestFixedCharset(t *testing.T) {
 			"utf8.RuneCountInString(%q)", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
-		allRunesAllowed(t, string(tc.template(0).(*charset).runes), pass)
+		allRunesAllowed(t, tc.template.(*asciiCharset).s, pass)
 	}
 }
 
@@ -112,7 +112,7 @@ func TestRangeTable(t *testing.T) {
 
 		testRand := rand.New(rand.NewSource(0))
 
-		pass, err := FromRangeTable(tc.tab)(size).Password(testRand)
+		pass, err := Repeat(FromRangeTable(tc.tab), "", size).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue
 		}

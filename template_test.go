@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func mustCharset(t *testing.T, template string) func(int) Template {
+func mustCharset(t *testing.T, template string) Template {
 	t.Helper()
 
 	tmpl, err := FromCharset(template)
@@ -26,13 +26,13 @@ func TestJoin(t *testing.T) {
 		tmpl := Join("",
 			Repeat(EFFLargeWordlist, " ", 5),
 			Space,
-			LatinUpper(1),
-			Number(1),
-			mustCharset(t, "~!@#$%^&*()")(1),
+			LatinUpper,
+			Number,
+			mustCharset(t, "~!@#$%^&*()"),
 			Space,
 			FixedString("+abc"),
 			Hyphen,
-			mustCharset(t, "de")(1),
+			mustCharset(t, "de"),
 		)
 
 		testRand := rand.New(rand.NewSource(0))
@@ -49,7 +49,7 @@ func TestJoin(t *testing.T) {
 	}
 
 	{
-		tmpl := Join("@$", LatinUpper(1), LatinLower(1), LatinMixed(1))
+		tmpl := Join("@$", LatinUpper, LatinLower, LatinMixed)
 
 		testRand := rand.New(rand.NewSource(0))
 

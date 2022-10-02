@@ -7,15 +7,37 @@ import (
 	"unicode/utf8"
 )
 
-type charset struct {
-	runes []rune
-	count int
+type asciiCharset struct{ s string }
+
+// LatinLower is a Template that returns a random lowercase character from the latin
+// alphabet.
+var LatinLower Template = &asciiCharset{"abcdefghijklmnopqrstuvwxyz"}
+
+// LatinUpper is a Template that returns a random uppercase character from the latin
+// alphabet.
+var LatinUpper Template = &asciiCharset{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
+
+// LatinMixed is a Template that returns a random mixed-case characters from the
+// latin alphabet.
+var LatinMixed Template = &asciiCharset{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"}
+
+// Number is a Template that returns a random numeric digit.
+var Number Template = &asciiCharset{"0123456789"}
+
+func (ac *asciiCharset) Password(r io.Reader) (string, error) {
+	idx, err := readIntN(r, len(ac.s))
+	if err != nil {
+		return "", err
+	}
+
+	return ac.s[idx : idx+1], nil
 }
 
-// FromCharset returns a Template factory that generates passwords of count runes
-// length by joining random runes from template. It returns an error if the template
-// is invalid.
-func FromCharset(template string) (func(count int) Template, error) {
+type charset struct{ runes []rune }
+
+// FromCharset returns a Template that returns a random rune from template. It
+// returns an error if the template is invalid.
+func FromCharset(template string) (Template, error) {
 	runes := []rune(template)
 	if len(runes) < 2 {
 		return nil, errors.New("passit: template too short")
@@ -33,80 +55,39 @@ func FromCharset(template string) (func(count int) Template, error) {
 		seen[r] = struct{}{}
 	}
 
-	return func(count int) Template { return &charset{runes, count} }, nil
-}
-
-// LatinLower returns a Template that generates count lowercase characters from the
-// latin alphabet.
-func LatinLower(count int) Template {
-	return &charset{[]rune("abcdefghijklmnopqrstuvwxyz"), count}
-}
-
-// LatinUpper returns a Template that generates count uppercase characters from the
-// latin alphabet.
-func LatinUpper(count int) Template {
-	return &charset{[]rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), count}
-}
-
-// LatinMixed returns a Template that generates count mixed-case characters from the
-// latin alphabet.
-func LatinMixed(count int) Template {
-	return &charset{[]rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), count}
-}
-
-// Number returns a Template that generates count numeric digits.
-func Number(count int) Template {
-	return &charset{[]rune("0123456789"), count}
+	return &charset{runes}, nil
 }
 
 func (c *charset) Password(r io.Reader) (string, error) {
-	if c.count <= 0 {
-		return "", errors.New("passit: count must be greater than zero")
+	idx, err := readIntN(r, len(c.runes))
+	if err != nil {
+		return "", err
 	}
 
-	runes := make([]rune, c.count)
-	for i := range runes {
-		idx, err := readIntN(r, len(c.runes))
-		if err != nil {
-			return "", err
-		}
-
-		runes[i] = c.runes[idx]
-	}
-
-	return string(runes), nil
+	return string(c.runes[idx : idx+1]), nil
 }
 
 type rangeTable struct {
 	tab   *unicode.RangeTable
 	runes int
-	count int
 }
 
 // FromRangeTable returns a Template factory that generates passwords of count
 // runes length by joining random runes from the given unicode.RangeTable.
-func FromRangeTable(tab *unicode.RangeTable) func(count int) Template {
+func FromRangeTable(tab *unicode.RangeTable) Template {
 	runes := countTableRunes(tab)
-	return func(count int) Template { return &rangeTable{tab, runes, count} }
+	return &rangeTable{tab, runes}
 }
 
 func (rt *rangeTable) Password(r io.Reader) (string, error) {
 	if rt.runes == 0 {
 		return "", errors.New("passit: unicode.RangeTable must be non-empty")
 	}
-	if rt.count <= 0 {
-		return "", errors.New("passit: count must be greater than zero")
+
+	v, err := readRune(r, rt.tab, rt.runes)
+	if err != nil {
+		return "", err
 	}
 
-	runes := make([]rune, rt.count)
-	for i := range runes {
-		v, err := readRune(r, rt.tab, rt.runes)
-		if err != nil {
-			return "", err
-		}
-
-		runes[i] = v
-	}
-
-	return string(runes), nil
+	return string(v), nil
 }
