@@ -334,21 +334,21 @@ func SpecialCaptureBasic(tmpl Template) SpecialCaptureFactory {
 	}
 }
 
-// SpecialCaptureBasic returns a special capture factory that parses the capture
-// value for a count to be used with the Template constructor. If the capture is
-// empty, the constructor is called with a count of 1.
-func SpecialCaptureWithCount(tmpl func(count int) Template) SpecialCaptureFactory {
+// SpecialCaptureWithRepeat returns a special capture factory that parses the
+// capture value for a count to be used with Repeat(tmpl, sep, count). If the
+// capture is empty, the Template is returned directly.
+func SpecialCaptureWithRepeat(tmpl Template, sep string) SpecialCaptureFactory {
 	return func(sr *syntax.Regexp) (Template, error) {
 		switch sr.Sub[0].Op {
 		case syntax.OpEmptyMatch:
-			return tmpl(1), nil
+			return tmpl, nil
 		case syntax.OpLiteral:
-			count, err := strconv.ParseInt(string(sr.Sub[0].Rune), 10, bits.UintSize)
+			count, err := strconv.ParseUint(string(sr.Sub[0].Rune), 10, bits.UintSize-1)
 			if err != nil {
 				return nil, fmt.Errorf("passit: failed to parse capture: %w", err)
 			}
 
-			return tmpl(int(count)), nil
+			return Repeat(tmpl, sep, int(count)), nil
 		default:
 			return nil, errors.New("passit: unsupported capture")
 		}

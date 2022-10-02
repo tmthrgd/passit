@@ -154,7 +154,7 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 func TestRegexpSpecialCaptureFactories(t *testing.T) {
 	var p RegexpParser
 	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist(1)))
-	p.SetSpecialCapture("words", SpecialCaptureWithCount(EFFLargeWordlist))
+	p.SetSpecialCapture("words", SpecialCaptureWithRepeat(EFFLargeWordlist(1), " "))
 
 	for _, tc := range []struct {
 		pattern, expect string
@@ -164,7 +164,6 @@ func TestRegexpSpecialCaptureFactories(t *testing.T) {
 		{"(?P<words>1)", "clanking"},
 		{"(?P<words>2)", "clanking avalanche"},
 		{"(?P<words>03)", "clanking avalanche cursor"},
-		{`(?P<words>\+2)`, "clanking avalanche"},
 	} {
 		testRand := rand.New(rand.NewSource(1))
 
@@ -187,8 +186,11 @@ func TestRegexpSpecialCaptureFactories(t *testing.T) {
 		{"(?P<word> )", "passit: unsupported capture"},
 		{"(?P<word>[0-9])", "passit: unsupported capture"},
 		{"(?P<words>[0-9])", "passit: unsupported capture"},
-		{"(?P<words>0x12)", "passit: failed to parse capture: strconv.ParseInt: parsing \"0x12\": invalid syntax"},
-		{"(?P<words>4a)", "passit: failed to parse capture: strconv.ParseInt: parsing \"4a\": invalid syntax"},
+		{`(?P<words>\+2)`, "passit: failed to parse capture: strconv.ParseUint: parsing \"+2\": invalid syntax"},
+		{"(?P<words>-3)", "passit: failed to parse capture: strconv.ParseUint: parsing \"-3\": invalid syntax"},
+		{"(?P<words>0x12)", "passit: failed to parse capture: strconv.ParseUint: parsing \"0x12\": invalid syntax"},
+		{"(?P<words>-0x12)", "passit: failed to parse capture: strconv.ParseUint: parsing \"-0x12\": invalid syntax"},
+		{"(?P<words>4a)", "passit: failed to parse capture: strconv.ParseUint: parsing \"4a\": invalid syntax"},
 	} {
 		_, err := p.Parse(tc.pattern, syntax.PerlX)
 		assert.EqualError(t, err, tc.errString, tc.pattern)
