@@ -58,14 +58,12 @@ func TestEmoji13(t *testing.T) {
 }
 
 func TestEmojiValid(t *testing.T) {
-	Emoji11(1) // Initialise emoji11ListVal.list.
-	for _, emoji := range emoji11ListVal.list {
+	for _, emoji := range strings.Split(emoji11List, "\n") {
 		assert.Truef(t, utf8.ValidString(emoji),
 			"utf8.ValidString(%q)", emoji)
 	}
 
-	Emoji13(1) // Initialise emoji13ListVal.list.
-	for _, emoji := range emoji13ListVal.list {
+	for _, emoji := range strings.Split(emoji13List, "\n") {
 		assert.Truef(t, utf8.ValidString(emoji),
 			"utf8.ValidString(%q)", emoji)
 	}
