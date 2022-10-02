@@ -11,6 +11,11 @@ import (
 type Template interface {
 	// Password returns a randomly generated password using r as the source of
 	// randomness.
+	//
+	// The returned password may or may not be deterministic with respect to r.
+	//
+	// r should be a uniformly random stream. The numbers of bytes read from r
+	// may exceed the number of characters in the returned password.
 	Password(r io.Reader) (string, error)
 }
 
