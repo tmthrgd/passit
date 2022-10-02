@@ -26,26 +26,28 @@ func TestEmoji13(t *testing.T) {
 		}
 
 		assert.Equal(t, expect, pass)
-		assert.Equal(t, size, countEmojiInString(pass),
+		assert.Equal(t, size, countEmojiInString(emoji13ListVal.list, pass),
 			"countEmojiInString(%q)", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
 	}
 }
 
-func TestEmojiValid(t *testing.T) {
-	for _, emoji := range unicodeEmoji {
+func TestEmoji13Valid(t *testing.T) {
+	Emoji13(1) // Initialise emoji13ListVal.list.
+
+	for _, emoji := range emoji13ListVal.list {
 		assert.Truef(t, utf8.ValidString(emoji),
 			"utf8.ValidString(%q)", emoji)
 	}
 }
 
-func countEmojiInString(s string) int {
+func countEmojiInString(list []string, s string) int {
 	var count int
 outer:
 	for len(s) > 0 {
-		for i := len(unicodeEmoji) - 1; i >= 0; i-- {
-			emoji := unicodeEmoji[i]
+		for i := len(list) - 1; i >= 0; i-- {
+			emoji := list[i]
 			if strings.HasPrefix(s, emoji) {
 				count++
 				s = s[len(emoji):]
