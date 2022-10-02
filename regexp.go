@@ -299,6 +299,13 @@ func (p *RegexpParser) alternate(sr *syntax.Regexp) (regexpGenerator, error) {
 	}, nil
 }
 
+var rangeTableASCII = &unicode.RangeTable{
+	R16: []unicode.Range16{
+		{Lo: 0x0020, Hi: 0x007e, Stride: 1},
+	},
+	LatinOffset: 1,
+}
+
 func (p *RegexpParser) anyRangeTable() *unicode.RangeTable {
 	if p.anyTab != nil {
 		return p.anyTab

@@ -124,10 +124,6 @@ func printCategories() {
 		0x0fd5, 0x0fd6,
 	)
 
-	dumpRange("rangeTableASCII", func(code rune) bool {
-		return code >= 0x20 && code <= 0x7e
-	}, false)
-
 	allowed := func(code rune) bool {
 		if code <= 0x7e { // Special case ASCII.
 			return code >= 0x20

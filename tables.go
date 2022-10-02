@@ -7,13 +7,6 @@ import "unicode"
 // unicodeVersion is the Unicode edition from which the tables are derived.
 const unicodeVersion = "13.0.0"
 
-var rangeTableASCII = &unicode.RangeTable{
-	R16: []unicode.Range16{
-		{Lo: 0x0020, Hi: 0x007e, Stride: 1},
-	},
-	LatinOffset: 1,
-}
-
 var allowedRangeTable = &unicode.RangeTable{
 	R16: []unicode.Range16{
 		{Lo: 0x0020, Hi: 0x007e, Stride: 1},
@@ -4920,7 +4913,7 @@ var unicodeEmoji = []string{
 	"🏴\U000e0067\U000e0062\U000e0077\U000e006c\U000e0073\U000e007f",
 }
 
-// Range entries: 889 16-bit, 695 32-bit, 1584 total.
-// Range bytes: 5334 16-bit, 8340 32-bit, 13674 total.
+// Range entries: 888 16-bit, 695 32-bit, 1583 total.
+// Range bytes: 5328 16-bit, 8340 32-bit, 13668 total.
 // Emoji entries: 3304 total.
 // Emoji bytes: 31073 total.
