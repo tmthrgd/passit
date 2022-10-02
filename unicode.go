@@ -2,8 +2,6 @@ package passit
 
 import "unicode"
 
-//go:generate go run unicode_generate.go unicode_generate_gen.go unicode_generate_ucd.go -unicode 13.0.0
-
 // AppendToRangeTable appends the runes in [lo, hi] to the unicode.RangeTable.
 func AppendToRangeTable(tab *unicode.RangeTable, lo, hi rune) {
 	const maxR16 = 1<<16 - 1
