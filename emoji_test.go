@@ -9,6 +9,30 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestEmoji11(t *testing.T) {
+	const size = 25
+
+	for i, expect := range []string{
+		"🇳🇱🧚🏼\u200d♂️🚵🏼\u200d♂️🇱🇮🙅🏼👨\u200d⚕️🧚🏿\u200d♀️🙇🏻👦🏾🇧🇻🚴🏿🏊\u200d♀️🏌🏿\u200d♂️💂🏽\u200d♂️👨🏽\u200d🚀🎅🏽🇮🇸🙎🏻\u200d♀️🤴🏻🤸🏼\u200d♀️🤦🏿\u200d♂️🧛🏿👷🏾\u200d♀️🧜🏻\u200d♂️🛀🏿",
+		"🤲🏼✍🏼🚴\u200d♂️🧛🏾\u200d♀️💂🏽\u200d♂️🙇🏿\u200d♂️🧜🏽👨🏿\u200d🔬🇳🇫👨🏿\u200d🔧👩🏾\u200d🎤🏌🏿\u200d♀️👨🏽\u200d🎨👩\u200d👦🧘🏻🧗🏽\u200d♀️🙎🏿👨\u200d👨\u200d👦👨🏼\u200d🎤💂\u200d♂️👌🏼🛀🏾👇🏾🧖🏼💆🏼\u200d♀️",
+		"🤹🏿\u200d♂️🕵🏼\u200d♂️👨🏻\u200d🌾🙆🏾\u200d♀️🇲🇿🤾🏾\u200d♂️💆🏽\u200d♀️🇽🇰👩🏾\u200d🎨🏃🏻\u200d♀️🇵🇳🇬🇳🦹🏿\u200d♀️🕵🏿🇪🇭🏃🏾\u200d♂️👸🏾🧙🏼\u200d♀️🚴🏼\u200d♂️🧚🏾👁️\u200d🗨️🧛🏿🤾🏿\u200d♂️5️⃣👦🏼",
+		"💂🏻🇲🇭🏇🏾👊🏿🚶🏻\u200d♀️💂🏾\u200d♀️🚵🏿\u200d♂️🙋🏼\u200d♂️👳🏻👩🏼\u200d🎤👱🏾\u200d♂️👨🏽\u200d🏭👩🏻\u200d🍳⛹🏼\u200d♀️🧑🏽👮🏻\u200d♀️🙍🏽🇸🇦🙆🏻\u200d♂️👩🏾\u200d🦳💇🏽\u200d♂️🇱🇧👩🏼\u200d🏭👱🏻🚴🏼\u200d♂️",
+	} {
+		testRand := rand.New(rand.NewSource(int64(i)))
+
+		pass, err := Emoji11(size).Password(testRand)
+		if !assert.NoError(t, err) {
+			continue
+		}
+
+		assert.Equal(t, expect, pass)
+		assert.Equal(t, size, countEmojiInString(emoji11ListVal.list, pass),
+			"countEmojiInString(%q)", pass)
+		assert.Truef(t, utf8.ValidString(pass),
+			"utf8.ValidString(%q)", pass)
+	}
+}
+
 func TestEmoji13(t *testing.T) {
 	const size = 25
 
@@ -33,9 +57,14 @@ func TestEmoji13(t *testing.T) {
 	}
 }
 
-func TestEmoji13Valid(t *testing.T) {
-	Emoji13(1) // Initialise emoji13ListVal.list.
+func TestEmojiValid(t *testing.T) {
+	Emoji11(1) // Initialise emoji11ListVal.list.
+	for _, emoji := range emoji11ListVal.list {
+		assert.Truef(t, utf8.ValidString(emoji),
+			"utf8.ValidString(%q)", emoji)
+	}
 
+	Emoji13(1) // Initialise emoji13ListVal.list.
 	for _, emoji := range emoji13ListVal.list {
 		assert.Truef(t, utf8.ValidString(emoji),
 			"utf8.ValidString(%q)", emoji)
