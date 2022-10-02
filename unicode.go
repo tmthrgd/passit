@@ -1,29 +1,8 @@
 package passit
 
-import (
-	"io"
-	"unicode"
-)
+import "unicode"
 
 //go:generate go run unicode_generate.go unicode_generate_gen.go unicode_generate_ucd.go -unicode 13.0.0
-
-func notAllowed(r rune) bool {
-	if r <= 0x7e { // Fast path for ASCII.
-		return r < 0x20
-	}
-
-	return !unicode.Is(allowedRangeTable, r)
-}
-
-var isTestBinary bool // This is set to true in test init functions.
-
-func maybeUnicodeReadByte(r io.Reader) {
-	// TODO(tmthrgd): Remove once allowedRangeTable has stabalized.
-
-	if !isTestBinary {
-		maybeReadByte(r)
-	}
-}
 
 // AppendToRangeTable appends the runes in [lo, hi] to the unicode.RangeTable.
 func AppendToRangeTable(tab *unicode.RangeTable, lo, hi rune) {

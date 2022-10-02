@@ -11,8 +11,6 @@ import (
 	"golang.org/x/text/unicode/rangetable"
 )
 
-func init() { isTestBinary = true }
-
 func allRunesAllowed(t *testing.T, allowed any, str string) {
 	var notAllowed func(r rune) bool
 	switch allowed := allowed.(type) {
