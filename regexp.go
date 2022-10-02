@@ -168,7 +168,11 @@ func (p *RegexpParser) charClass(sr *syntax.Regexp) (regexpGenerator, error) {
 		AppendToRangeTable(tab, sr.Rune[i], sr.Rune[i+1])
 	}
 
+	// intersectRangeTables requires that the first RangeTable have a Stride of
+	// 1. This is safe as AppendToRangeTable only ever adds ranges with Stride
+	// set to 1.
 	tab = intersectRangeTables(tab, p.anyRangeTable())
+
 	return p.charClassInternal(sr, tab)
 }
 
