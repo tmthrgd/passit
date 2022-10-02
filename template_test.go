@@ -44,7 +44,7 @@ func TestJoinTemplates(t *testing.T) {
 		"regexp.MustCompile(%q).MatchString(%q)", pattern, pass)
 	assert.Truef(t, utf8.ValidString(pass),
 		"utf8.ValidString(%q)", pass)
-	allRunesAllowed(t, pass)
+	allRunesAllowed(t, rangeTableASCII, pass)
 }
 
 func TestRandomCount(t *testing.T) {

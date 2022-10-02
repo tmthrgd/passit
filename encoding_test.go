@@ -43,6 +43,5 @@ func TestEncoding(t *testing.T) {
 		assert.Equal(t, tc.expect, pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
-		allRunesAllowed(t, pass)
 	}
 }

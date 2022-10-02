@@ -41,7 +41,7 @@ func TestRegexp(t *testing.T) {
 		matchPattern := "^(?:" + pattern + ")$"
 		assert.Truef(t, regexp.MustCompile(matchPattern).MatchString(pass),
 			"regexp.MustCompile(%q).MatchString(%q)", matchPattern, pass)
-		allRunesAllowed(t, pass)
+		allRunesAllowed(t, rangeTableASCII, pass)
 	}
 }
 
@@ -81,7 +81,7 @@ func TestRegexpUnicodeAny(t *testing.T) {
 		matchPattern := "^(?:" + pattern + ")$"
 		assert.Truef(t, regexp.MustCompile(matchPattern).MatchString(pass),
 			"regexp.MustCompile(%q).MatchString(%+q)", matchPattern, pass)
-		allRunesAllowed(t, pass)
+		allRunesAllowed(t, allowedRangeTable, pass)
 	}
 }
 
@@ -104,7 +104,7 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, expect, pass)
-		allRunesAllowed(t, pass)
+		allRunesAllowed(t, rangeTableASCII, pass)
 	}
 }
 
@@ -133,7 +133,7 @@ func TestRegexpSpecialCaptureFactories(t *testing.T) {
 		pass, err := tmpl.Password(testRand)
 		if assert.NoError(t, err, tc.pattern) {
 			assert.Equal(t, tc.expect, pass, tc.pattern)
-			allRunesAllowed(t, pass)
+			allRunesAllowed(t, rangeTableASCII, pass)
 		}
 	}
 

@@ -13,7 +13,21 @@ import (
 
 func init() { isTestBinary = true }
 
-func allRunesAllowed(t *testing.T, str string) {
+func allRunesAllowed(t *testing.T, allowed any, str string) {
+	var notAllowed func(r rune) bool
+	switch allowed := allowed.(type) {
+	case string:
+		notAllowed = func(r rune) bool {
+			return !strings.ContainsRune(allowed, r)
+		}
+	case *unicode.RangeTable:
+		notAllowed = func(r rune) bool {
+			return !unicode.Is(allowed, r)
+		}
+	default:
+		panic("passit: unsupported allowed argument type")
+	}
+
 	if idx := strings.IndexFunc(str, notAllowed); idx >= 0 {
 		t.Helper()
 
