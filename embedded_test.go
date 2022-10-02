@@ -28,30 +28,6 @@ func TestEFFLargeWordlist(t *testing.T) {
 	assert.NoError(t, err, "wordlist valid")
 }
 
-func TestEmoji11(t *testing.T) {
-	const size = 25
-
-	for i, expect := range []string{
-		"🇳🇱🧚🏼\u200d♂️🚵🏼\u200d♂️🇱🇮🙅🏼👨\u200d⚕️🧚🏿\u200d♀️🙇🏻👦🏾🇧🇻🚴🏿🏊\u200d♀️🏌🏿\u200d♂️💂🏽\u200d♂️👨🏽\u200d🚀🎅🏽🇮🇸🙎🏻\u200d♀️🤴🏻🤸🏼\u200d♀️🤦🏿\u200d♂️🧛🏿👷🏾\u200d♀️🧜🏻\u200d♂️🛀🏿",
-		"🤲🏼✍🏼🚴\u200d♂️🧛🏾\u200d♀️💂🏽\u200d♂️🙇🏿\u200d♂️🧜🏽👨🏿\u200d🔬🇳🇫👨🏿\u200d🔧👩🏾\u200d🎤🏌🏿\u200d♀️👨🏽\u200d🎨👩\u200d👦🧘🏻🧗🏽\u200d♀️🙎🏿👨\u200d👨\u200d👦👨🏼\u200d🎤💂\u200d♂️👌🏼🛀🏾👇🏾🧖🏼💆🏼\u200d♀️",
-		"🤹🏿\u200d♂️🕵🏼\u200d♂️👨🏻\u200d🌾🙆🏾\u200d♀️🇲🇿🤾🏾\u200d♂️💆🏽\u200d♀️🇽🇰👩🏾\u200d🎨🏃🏻\u200d♀️🇵🇳🇬🇳🦹🏿\u200d♀️🕵🏿🇪🇭🏃🏾\u200d♂️👸🏾🧙🏼\u200d♀️🚴🏼\u200d♂️🧚🏾👁️\u200d🗨️🧛🏿🤾🏿\u200d♂️5️⃣👦🏼",
-		"💂🏻🇲🇭🏇🏾👊🏿🚶🏻\u200d♀️💂🏾\u200d♀️🚵🏿\u200d♂️🙋🏼\u200d♂️👳🏻👩🏼\u200d🎤👱🏾\u200d♂️👨🏽\u200d🏭👩🏻\u200d🍳⛹🏼\u200d♀️🧑🏽👮🏻\u200d♀️🙍🏽🇸🇦🙆🏻\u200d♂️👩🏾\u200d🦳💇🏽\u200d♂️🇱🇧👩🏼\u200d🏭👱🏻🚴🏼\u200d♂️",
-	} {
-		testRand := rand.New(rand.NewSource(int64(i)))
-
-		pass, err := Repeat(Emoji11, "", size).Password(testRand)
-		if !assert.NoError(t, err) {
-			continue
-		}
-
-		assert.Equal(t, expect, pass)
-		assert.Equal(t, size, countEmojiInString(Emoji11.(*embeddedList).list, pass),
-			"countEmojiInString(%q)", pass)
-		assert.Truef(t, utf8.ValidString(pass),
-			"utf8.ValidString(%q)", pass)
-	}
-}
-
 func TestEmoji13(t *testing.T) {
 	const size = 25
 
@@ -77,11 +53,6 @@ func TestEmoji13(t *testing.T) {
 }
 
 func TestEmojiValid(t *testing.T) {
-	for _, emoji := range strings.Split(emoji11List, "\n") {
-		assert.Truef(t, utf8.ValidString(emoji),
-			"utf8.ValidString(%q)", emoji)
-	}
-
 	for _, emoji := range strings.Split(emoji13List, "\n") {
 		assert.Truef(t, utf8.ValidString(emoji),
 			"utf8.ValidString(%q)", emoji)
@@ -90,7 +61,6 @@ func TestEmojiValid(t *testing.T) {
 
 func TestEmojiCounts(t *testing.T) {
 	// Expected count is taken from https://www.unicode.org/emoji/charts-M.N/emoji-counts.html.
-	assert.Equal(t, 2789, strings.Count(emoji11List, "\n")+1, "Unicode 11.0")
 	assert.Equal(t, 3304, strings.Count(emoji13List, "\n")+1, "Unicode 13.0")
 }
 
