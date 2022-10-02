@@ -38,7 +38,7 @@ func setupOutput() {
 }
 
 func flushOutput() {
-	output.WriteGoFile("tables.go", "passit")
+	output.WriteGoFile("tables_test.go", "passit")
 }
 
 func printf(format string, args ...interface{}) {
