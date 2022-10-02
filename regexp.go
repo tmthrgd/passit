@@ -17,9 +17,10 @@ const maxUnboundedRepeatCount = 15
 type regexpGenerator func(*strings.Builder, io.Reader) error
 
 // RegexpParser is a regular expressions parser that parses patterns into a Template
-// that generates passwords matching the parsed regexp.
+// that generates passwords matching the parsed regexp. The zero-value is a usable
+// parser.
 type RegexpParser struct {
-	unicodeAny      bool
+	anyTab          *unicode.RangeTable
 	specialCaptures map[string]SpecialCaptureFactory
 }
 
@@ -28,11 +29,10 @@ func ParseRegexp(pattern string, flags syntax.Flags) (Template, error) {
 	return new(RegexpParser).Parse(pattern, flags)
 }
 
-// SetUnicodeAny puts the regexp parser into a unicode mode where character classes
-// and the any character will produce unicode characters not only ASCII printable
-// characters. The unicode characters are limited to an internal allowed list of
-// unicode runes.
-func (p *RegexpParser) SetUnicodeAny() { p.unicodeAny = true }
+// SetAnyRangeTable sets the unicode.RangeTable used when generating any (.)
+// characters or when restricting character classes ([a-z]) with a user provided
+// one. By default a subset of ASCII is used.
+func (p *RegexpParser) SetAnyRangeTable(tab *unicode.RangeTable) { p.anyTab = tab }
 
 // SetSpecialCapture adds a special capture factory to use for matching named
 // captures. A regexp pattern such as "(?P<name>)" will invoke the factory and use
@@ -46,7 +46,6 @@ func (p *RegexpParser) SetSpecialCapture(name string, factory SpecialCaptureFact
 }
 
 type regexpTemplate struct{ gen regexpGenerator }
-type regexpUnicodeTemplate struct{ regexpTemplate }
 
 // Parse parses the regexp pattern according to the flags and returns a Template. It
 // returns an error if the regexp is invalid. It uses regexp/syntax to parse the
@@ -90,10 +89,6 @@ func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Template, erro
 		return nil, err
 	}
 
-	if p.unicodeAny {
-		return regexpUnicodeTemplate{regexpTemplate{gen}}, nil
-	}
-
 	return regexpTemplate{gen}, nil
 }
 
@@ -104,11 +99,6 @@ func (rt regexpTemplate) Password(r io.Reader) (string, error) {
 	}
 
 	return b.String(), nil
-}
-
-func (rt regexpUnicodeTemplate) Password(r io.Reader) (string, error) {
-	maybeUnicodeReadByte(r)
-	return rt.regexpTemplate.Password(r)
 }
 
 func (p *RegexpParser) parse(r *syntax.Regexp) (regexpGenerator, error) {
@@ -310,8 +300,8 @@ func (p *RegexpParser) alternate(sr *syntax.Regexp) (regexpGenerator, error) {
 }
 
 func (p *RegexpParser) anyRangeTable() *unicode.RangeTable {
-	if p.unicodeAny {
-		return allowedRangeTable
+	if p.anyTab != nil {
+		return p.anyTab
 	}
 
 	return rangeTableASCII

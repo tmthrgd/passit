@@ -49,7 +49,7 @@ func TestRegexpUnicodeAny(t *testing.T) {
 	pattern := `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+(?P<punct>[[:punct:]])`
 
 	var p RegexpParser
-	p.SetUnicodeAny()
+	p.SetAnyRangeTable(allowedRangeTable)
 
 	tmpl, err := p.Parse(pattern, syntax.Perl)
 	require.NoError(t, err)
