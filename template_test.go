@@ -19,32 +19,48 @@ func mustCharset(t *testing.T, template string) func(int) Template {
 	return tmpl
 }
 
-func TestJoinTemplates(t *testing.T) {
-	pattern := regexp.MustCompile(`^([a-z]+ ){5}[A-Z][0-9][~!@#$%^&*()] \+abc-[de]$`)
+func TestJoin(t *testing.T) {
+	{
+		pattern := regexp.MustCompile(`^([a-z]+ ){5}[A-Z][0-9][~!@#$%^&*()] \+abc-[de]$`)
 
-	tmpl := JoinTemplates(
-		EFFLargeWordlist(5),
-		Space,
-		LatinUpper(1),
-		Number(1),
-		mustCharset(t, "~!@#$%^&*()")(1),
-		Space,
-		FixedString("+abc"),
-		Hyphen,
-		mustCharset(t, "de")(1),
-	)
+		tmpl := Join("",
+			EFFLargeWordlist(5),
+			Space,
+			LatinUpper(1),
+			Number(1),
+			mustCharset(t, "~!@#$%^&*()")(1),
+			Space,
+			FixedString("+abc"),
+			Hyphen,
+			mustCharset(t, "de")(1),
+		)
 
-	testRand := rand.New(rand.NewSource(0))
+		testRand := rand.New(rand.NewSource(0))
 
-	pass, err := tmpl.Password(testRand)
-	require.NoError(t, err)
+		pass, err := tmpl.Password(testRand)
+		require.NoError(t, err)
 
-	assert.Equal(t, "native remover dismay vocation sepia C2@ +abc-e", pass)
-	assert.Truef(t, pattern.MatchString(pass),
-		"regexp.MustCompile(%q).MatchString(%q)", pattern, pass)
-	assert.Truef(t, utf8.ValidString(pass),
-		"utf8.ValidString(%q)", pass)
-	allRunesAllowed(t, rangeTableASCII, pass)
+		assert.Equal(t, "native remover dismay vocation sepia C2@ +abc-e", pass)
+		assert.Truef(t, pattern.MatchString(pass),
+			"regexp.MustCompile(%q).MatchString(%q)", pattern, pass)
+		assert.Truef(t, utf8.ValidString(pass),
+			"utf8.ValidString(%q)", pass)
+		allRunesAllowed(t, rangeTableASCII, pass)
+	}
+
+	{
+		tmpl := Join("@$", LatinUpper(1), LatinLower(1), LatinMixed(1))
+
+		testRand := rand.New(rand.NewSource(0))
+
+		pass, err := tmpl.Password(testRand)
+		require.NoError(t, err)
+
+		assert.Equal(t, "L@$w@$r", pass)
+		assert.Truef(t, utf8.ValidString(pass),
+			"utf8.ValidString(%q)", pass)
+		allRunesAllowed(t, rangeTableASCII, pass)
+	}
 }
 
 func TestRandomCount(t *testing.T) {

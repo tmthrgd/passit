@@ -20,17 +20,21 @@ type Template interface {
 }
 
 type joined struct {
-	ts []Template
+	ts  []Template
+	sep string
 }
 
-// JoinTemplates returns a Template that returns a password that is the
-// concatenation of all the given Templates.
-func JoinTemplates(t ...Template) Template {
-	if len(t) == 1 {
+// Join returns a Template that generates a password that is the concatenation of
+// all the given Templates.
+func Join(sep string, t ...Template) Template {
+	switch len(t) {
+	case 0:
+		return FixedString("")
+	case 1:
 		return t[0]
+	default:
+		return &joined{append([]Template(nil), t...), sep}
 	}
-
-	return &joined{append([]Template(nil), t...)}
 }
 
 func (j *joined) Password(r io.Reader) (string, error) {
@@ -44,7 +48,7 @@ func (j *joined) Password(r io.Reader) (string, error) {
 		parts[i] = part
 	}
 
-	return strings.Join(parts, ""), nil
+	return strings.Join(parts, j.sep), nil
 }
 
 type randomCount struct {
