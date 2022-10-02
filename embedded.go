@@ -10,13 +10,13 @@ import (
 //go:generate go run emoji_generate.go unicode_generate_gen.go unicode_generate_ucd.go -unicode 11.0.0
 //go:generate go run emoji_generate.go unicode_generate_gen.go unicode_generate_ucd.go -unicode 13.0.0
 
-type embededList struct {
+type embeddedList struct {
 	once sync.Once
 	raw  string
 	list []string
 }
 
-func (e *embededList) Password(r io.Reader) (string, error) {
+func (e *embeddedList) Password(r io.Reader) (string, error) {
 	e.once.Do(func() {
 		e.list = strings.Split(e.raw, "\n")
 		e.raw = ""
@@ -50,10 +50,10 @@ var (
 
 // EFFLargeWordlist is a Template that returns a random word from the
 // EFF Large Wordlist for Passphrases (eff_large_wordlist.txt).
-var EFFLargeWordlist Template = &embededList{raw: effLargeWordlist}
+var EFFLargeWordlist Template = &embeddedList{raw: effLargeWordlist}
 
 // Emoji11 is a Template that returns a random emoji from the Unicode 11.0 emoji list.
-var Emoji11 Template = &embededList{raw: emoji11List}
+var Emoji11 Template = &embeddedList{raw: emoji11List}
 
 // Emoji13 is a Template that returns a random emoji from the Unicode 13.0 emoji list.
-var Emoji13 Template = &embededList{raw: emoji13List}
+var Emoji13 Template = &embeddedList{raw: emoji13List}

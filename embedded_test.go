@@ -24,7 +24,7 @@ func TestEFFLargeWordlist(t *testing.T) {
 	assert.Truef(t, utf8.ValidString(pass),
 		"utf8.ValidString(%q)", pass)
 
-	_, err = FromWords(EFFLargeWordlist.(*embededList).list...)
+	_, err = FromWords(EFFLargeWordlist.(*embeddedList).list...)
 	assert.NoError(t, err, "wordlist valid")
 }
 
@@ -45,7 +45,7 @@ func TestEmoji11(t *testing.T) {
 		}
 
 		assert.Equal(t, expect, pass)
-		assert.Equal(t, size, countEmojiInString(Emoji11.(*embededList).list, pass),
+		assert.Equal(t, size, countEmojiInString(Emoji11.(*embeddedList).list, pass),
 			"countEmojiInString(%q)", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
@@ -69,7 +69,7 @@ func TestEmoji13(t *testing.T) {
 		}
 
 		assert.Equal(t, expect, pass)
-		assert.Equal(t, size, countEmojiInString(Emoji13.(*embededList).list, pass),
+		assert.Equal(t, size, countEmojiInString(Emoji13.(*embeddedList).list, pass),
 			"countEmojiInString(%q)", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
