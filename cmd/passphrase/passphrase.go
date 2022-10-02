@@ -25,9 +25,10 @@ func init() {
 
 func main() {
 	count := flag.Int("n", 6, "the number of words in the generated password")
+	sep := flag.String("s", " ", "the separator to use between words")
 	flag.Parse()
 
-	pass, err := passit.EFFLargeWordlist(*count).Password(rand.Reader)
+	pass, err := passit.Repeat(passit.EFFLargeWordlist(1), *sep, *count).Password(rand.Reader)
 	if err != nil {
 		log.SetFlags(0)
 		log.Fatal(err)
