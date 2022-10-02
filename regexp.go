@@ -254,8 +254,13 @@ func (p *RegexpParser) repeatInternal(sr *syntax.Regexp, min, max int) (regexpGe
 		return nil, err
 	}
 
+	n := max - min + 1
+	if n < 1 || n > maxReadIntN {
+		return nil, errors.New("passit: [min,max] range too large")
+	}
+
 	return func(b *strings.Builder, r io.Reader) error {
-		n, err := readIntN(r, max-min+1)
+		n, err := readIntN(r, n)
 		if err != nil {
 			return err
 		}
