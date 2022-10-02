@@ -91,12 +91,10 @@ func (c *randomCount) Password(r io.Reader) (string, error) {
 }
 
 // Space is a Template that always returns a fixed ASCII space.
-const Space = space
-const space = fixedString(" ")
+var Space Template = fixedString(" ")
 
 // Hyphen is a Template that always returns a fixed ASCII hyphen-minus.
-const Hyphen = hyphen
-const hyphen = fixedString("-")
+var Hyphen Template = fixedString("-")
 
 // FixedString returns a Template that always returns the given string.
 func FixedString(s string) Template { return fixedString(s) }
