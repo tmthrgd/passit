@@ -144,7 +144,6 @@ func printCategories() {
 		}
 	}
 	dumpRange("allowedRangeTable", allowed, false)
-	dumpRange("allowedRangeTableStride1", allowed, true)
 }
 
 type Op func(code rune) bool
