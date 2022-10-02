@@ -24,8 +24,9 @@ type joined struct {
 	sep string
 }
 
-// Join returns a Template that generates a password that is the concatenation of
-// all the given Templates.
+// Join returns a Template that concatenates the outputs of each Template to create
+// a single string. The separator string sep is placed between the outputs in the
+// resulting string.
 func Join(sep string, t ...Template) Template {
 	switch len(t) {
 	case 0:
@@ -49,6 +50,42 @@ func (j *joined) Password(r io.Reader) (string, error) {
 	}
 
 	return strings.Join(parts, j.sep), nil
+}
+
+type repeated struct {
+	tmpl  Template
+	sep   string
+	count int
+}
+
+// Repeat returns a Template that concatenates the output of invoking the Template
+// count times to create a single string. The separator string sep is placed between
+// the outputs in the resulting string.
+func Repeat(t Template, sep string, count int) Template {
+	switch {
+	case count < 0:
+		panic("passit: count must be positive")
+	case count == 0:
+		return FixedString("")
+	case count == 1:
+		return t
+	default:
+		return &repeated{t, sep, count}
+	}
+}
+
+func (rt *repeated) Password(r io.Reader) (string, error) {
+	parts := make([]string, rt.count)
+	for i := range parts {
+		part, err := rt.tmpl.Password(r)
+		if err != nil {
+			return "", err
+		}
+
+		parts[i] = part
+	}
+
+	return strings.Join(parts, rt.sep), nil
 }
 
 type randomCount struct {

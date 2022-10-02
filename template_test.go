@@ -63,6 +63,37 @@ func TestJoin(t *testing.T) {
 	}
 }
 
+func TestRepeat(t *testing.T) {
+	assert.PanicsWithValue(t, "passit: count must be positive", func() {
+		Repeat(Hyphen, " ", -1)
+	})
+
+	assert.Equal(t, FixedString(""), Repeat(Hyphen, " ", 0),
+		"Repeat with count zero should return empty FixedString")
+
+	assert.Equal(t, Hyphen, Repeat(Hyphen, " ", 1),
+		"Repeat with count one should return Template")
+
+	for _, tc := range []struct {
+		count  int
+		sep    string
+		expect string
+	}{
+		{2, " ", "native remover"},
+		{4, "", "nativeremoverdismayvocation"},
+		{15, "-", "native-remover-dismay-vocation-sepia-backtalk-think-conjure-autograph-hemlock-exit-finance-obscure-dusk-rigor"},
+	} {
+		testRand := rand.New(rand.NewSource(0))
+
+		pass, err := Repeat(EFFLargeWordlist(1), tc.sep, tc.count).Password(testRand)
+		if !assert.NoErrorf(t, err, "valid range should not error when generating: %v", tc) {
+			continue
+		}
+
+		assert.Equal(t, tc.expect, pass, "valid range expected password: %v", tc)
+	}
+}
+
 func TestRandomCount(t *testing.T) {
 	_, err := RandomCount(EFFLargeWordlist, 10, 7)
 	assert.EqualError(t, err, "passit: min argument cannot be greater than max argument",
