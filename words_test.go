@@ -25,7 +25,6 @@ func TestWords(t *testing.T) {
 	}{
 		{"or and or and and and and and", mustWords(t, "and", "or")},
 		{"υγεία ευτυχία υγεία ελπίδα ευτυχία ευτυχία ελπίδα ευτυχία", mustWords(t, "ελπίδα", "υγεία", "ευτυχία", "αιώνια")},
-		{"native remover dismay vocation sepia backtalk think conjure", EFFLargeWordlist},
 	} {
 		const size = 8
 
@@ -42,11 +41,4 @@ func TestWords(t *testing.T) {
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
 	}
-}
-
-func TestDefaultWordsValid(t *testing.T) {
-	EFFLargeWordlist(1) // Initialise effLargeWordlistVal.list.
-
-	_, err := FromWords(effLargeWordlistVal.list...)
-	assert.NoError(t, err)
 }

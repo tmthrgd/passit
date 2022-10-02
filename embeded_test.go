@@ -7,7 +7,26 @@ import (
 	"unicode/utf8"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func TestEFFLargeWordlist(t *testing.T) {
+	const size = 8
+
+	testRand := rand.New(rand.NewSource(0))
+
+	pass, err := EFFLargeWordlist(size).Password(testRand)
+	require.NoError(t, err)
+
+	assert.Equal(t, "native remover dismay vocation sepia backtalk think conjure", pass)
+	assert.Equal(t, size-1, strings.Count(pass, " "),
+		`strings.Count(%q, " ")`, pass)
+	assert.Truef(t, utf8.ValidString(pass),
+		"utf8.ValidString(%q)", pass)
+
+	_, err = FromWords(effLargeWordlistVal.list...)
+	assert.NoError(t, err, "wordlist valid")
+}
 
 func TestEmoji11(t *testing.T) {
 	const size = 25

@@ -1,11 +1,9 @@
 package passit
 
 import (
-	_ "embed" // for go:embed
 	"errors"
 	"io"
 	"strings"
-	"sync"
 	"unicode"
 	"unicode/utf8"
 )
@@ -61,28 +59,4 @@ func (w *words) Password(r io.Reader) (string, error) {
 	}
 
 	return strings.Join(words, " "), nil
-}
-
-// This wordlist was taken from:
-// https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt.
-//
-// eff_large_wordlist.txt is licensed by the Electronic Frontier Foundation under a
-// CC BY 3.0 US license (https://creativecommons.org/licenses/by/3.0/us/).
-//
-//go:embed eff_large_wordlist.txt
-var effLargeWordlist string
-
-var effLargeWordlistVal struct {
-	sync.Once
-	list []string
-}
-
-// EFFLargeWordlist returns a Template that generates passwords of count words
-// length by joining random words from the EFF Large Wordlist for Passphrases
-// (eff_large_wordlist.txt).
-func EFFLargeWordlist(count int) Template {
-	effLargeWordlistVal.Do(func() {
-		effLargeWordlistVal.list = strings.Split(effLargeWordlist, "\n")
-	})
-	return &words{effLargeWordlistVal.list, count}
 }

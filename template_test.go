@@ -98,7 +98,7 @@ func TestRandomCount(t *testing.T) {
 		if !assert.NoErrorf(t, err, "equal min and max should not error: %v", tc) {
 			continue
 		}
-		assert.IsTypef(t, (*words)(nil), tmpl,
+		assert.IsTypef(t, (*embededList)(nil), tmpl,
 			"equal min and max should return template: %v", tc)
 	}
 
