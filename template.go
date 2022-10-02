@@ -20,28 +20,28 @@ type Template interface {
 }
 
 type joined struct {
-	ts  []Template
-	sep string
+	tmpls []Template
+	sep   string
 }
 
 // Join returns a Template that concatenates the outputs of each Template to create
 // a single string. The separator string sep is placed between the outputs in the
 // resulting string.
-func Join(sep string, t ...Template) Template {
-	switch len(t) {
+func Join(sep string, tmpls ...Template) Template {
+	switch len(tmpls) {
 	case 0:
 		return FixedString("")
 	case 1:
-		return t[0]
+		return tmpls[0]
 	default:
-		return &joined{append([]Template(nil), t...), sep}
+		return &joined{append([]Template(nil), tmpls...), sep}
 	}
 }
 
 func (j *joined) Password(r io.Reader) (string, error) {
-	parts := make([]string, len(j.ts))
-	for i, t := range j.ts {
-		part, err := t.Password(r)
+	parts := make([]string, len(j.tmpls))
+	for i, tmpl := range j.tmpls {
+		part, err := tmpl.Password(r)
 		if err != nil {
 			return "", err
 		}
@@ -61,16 +61,16 @@ type repeated struct {
 // Repeat returns a Template that concatenates the output of invoking the Template
 // count times to create a single string. The separator string sep is placed between
 // the outputs in the resulting string.
-func Repeat(t Template, sep string, count int) Template {
+func Repeat(tmpl Template, sep string, count int) Template {
 	switch {
 	case count < 0:
 		panic("passit: count must be positive")
 	case count == 0:
 		return FixedString("")
 	case count == 1:
-		return t
+		return tmpl
 	default:
-		return &repeated{t, sep, count}
+		return &repeated{tmpl, sep, count}
 	}
 }
 
