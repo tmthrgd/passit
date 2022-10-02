@@ -24,7 +24,7 @@ func TestJoin(t *testing.T) {
 		pattern := regexp.MustCompile(`^([a-z]+ ){5}[A-Z][0-9][~!@#$%^&*()] \+abc-[de]$`)
 
 		tmpl := Join("",
-			EFFLargeWordlist(5),
+			Repeat(EFFLargeWordlist, " ", 5),
 			Space,
 			LatinUpper(1),
 			Number(1),
@@ -85,7 +85,7 @@ func TestRepeat(t *testing.T) {
 	} {
 		testRand := rand.New(rand.NewSource(0))
 
-		pass, err := Repeat(EFFLargeWordlist(1), tc.sep, tc.count).Password(testRand)
+		pass, err := Repeat(EFFLargeWordlist, tc.sep, tc.count).Password(testRand)
 		if !assert.NoErrorf(t, err, "valid range should not error when generating: %v", tc) {
 			continue
 		}
@@ -151,7 +151,7 @@ func TestRandomRepeat(t *testing.T) {
 		{4, 7, "-", "remover-dismay-vocation-sepia-backtalk"},
 		{10, 20, " ", "remover dismay vocation sepia backtalk think conjure autograph hemlock exit finance obscure dusk rigor hemlock dusk blouse"},
 	} {
-		tmpl, err := RandomRepeat(EFFLargeWordlist(1), tc.sep, tc.min, tc.max)
+		tmpl, err := RandomRepeat(EFFLargeWordlist, tc.sep, tc.min, tc.max)
 		if !assert.NoErrorf(t, err, "valid range should not error: %v", tc) {
 			continue
 		}

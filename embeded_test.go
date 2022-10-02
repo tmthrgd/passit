@@ -15,7 +15,7 @@ func TestEFFLargeWordlist(t *testing.T) {
 
 	testRand := rand.New(rand.NewSource(0))
 
-	pass, err := EFFLargeWordlist(size).Password(testRand)
+	pass, err := Repeat(EFFLargeWordlist, " ", size).Password(testRand)
 	require.NoError(t, err)
 
 	assert.Equal(t, "native remover dismay vocation sepia backtalk think conjure", pass)
@@ -24,7 +24,7 @@ func TestEFFLargeWordlist(t *testing.T) {
 	assert.Truef(t, utf8.ValidString(pass),
 		"utf8.ValidString(%q)", pass)
 
-	_, err = FromWords(effLargeWordlistVal.list...)
+	_, err = FromWords(EFFLargeWordlist.(*embededList).list...)
 	assert.NoError(t, err, "wordlist valid")
 }
 
@@ -39,13 +39,13 @@ func TestEmoji11(t *testing.T) {
 	} {
 		testRand := rand.New(rand.NewSource(int64(i)))
 
-		pass, err := Emoji11(size).Password(testRand)
+		pass, err := Repeat(Emoji11, "", size).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue
 		}
 
 		assert.Equal(t, expect, pass)
-		assert.Equal(t, size, countEmojiInString(emoji11ListVal.list, pass),
+		assert.Equal(t, size, countEmojiInString(Emoji11.(*embededList).list, pass),
 			"countEmojiInString(%q)", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
@@ -63,13 +63,13 @@ func TestEmoji13(t *testing.T) {
 	} {
 		testRand := rand.New(rand.NewSource(int64(i)))
 
-		pass, err := Emoji13(size).Password(testRand)
+		pass, err := Repeat(Emoji13, "", size).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue
 		}
 
 		assert.Equal(t, expect, pass)
-		assert.Equal(t, size, countEmojiInString(emoji13ListVal.list, pass),
+		assert.Equal(t, size, countEmojiInString(Emoji13.(*embededList).list, pass),
 			"countEmojiInString(%q)", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)

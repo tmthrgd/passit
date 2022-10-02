@@ -2,7 +2,6 @@ package passit
 
 import (
 	_ "embed" // for go:embed
-	"errors"
 	"io"
 	"strings"
 	"sync"
@@ -11,39 +10,24 @@ import (
 //go:generate go run emoji_generate.go unicode_generate_gen.go unicode_generate_ucd.go -unicode 11.0.0
 //go:generate go run emoji_generate.go unicode_generate_gen.go unicode_generate_ucd.go -unicode 13.0.0
 
-type embededListVal struct {
-	sync.Once
+type embededList struct {
+	once sync.Once
+	raw  string
 	list []string
 }
 
-type embededList struct {
-	rawList string
-	listVal *embededListVal
-	sep     string
-	count   int
-}
-
-func (l *embededList) Password(r io.Reader) (string, error) {
-	if l.count <= 0 {
-		return "", errors.New("passit: count must be greater than zero")
-	}
-
-	l.listVal.Do(func() {
-		l.listVal.list = strings.Split(l.rawList, "\n")
+func (e *embededList) Password(r io.Reader) (string, error) {
+	e.once.Do(func() {
+		e.list = strings.Split(e.raw, "\n")
+		e.raw = ""
 	})
-	list := l.listVal.list
 
-	parts := make([]string, l.count)
-	for i := range parts {
-		idx, err := readIntN(r, len(list))
-		if err != nil {
-			return "", err
-		}
-
-		parts[i] = list[idx]
+	idx, err := readIntN(r, len(e.list))
+	if err != nil {
+		return "", err
 	}
 
-	return strings.Join(parts, l.sep), nil
+	return e.list[idx], nil
 }
 
 var (
@@ -55,33 +39,21 @@ var (
 	// (https://creativecommons.org/licenses/by/3.0/us/).
 	//
 	//go:embed eff_large_wordlist.txt
-	effLargeWordlist    string
-	effLargeWordlistVal embededListVal
+	effLargeWordlist string
 
 	//go:embed emoji_11.0.txt
-	emoji11List    string
-	emoji11ListVal embededListVal
+	emoji11List string
 
 	//go:embed emoji_13.0.txt
-	emoji13List    string
-	emoji13ListVal embededListVal
+	emoji13List string
 )
 
-// EFFLargeWordlist returns a Template that generates passwords of count words
-// length by joining random words from the EFF Large Wordlist for Passphrases
-// (eff_large_wordlist.txt).
-func EFFLargeWordlist(count int) Template {
-	return &embededList{effLargeWordlist, &effLargeWordlistVal, " ", count}
-}
+// EFFLargeWordlist is a Template that returns a random word from the
+// EFF Large Wordlist for Passphrases (eff_large_wordlist.txt).
+var EFFLargeWordlist Template = &embededList{raw: effLargeWordlist}
 
-// Emoji11 returns a Template that generates passwords contain count number of emoji
-// from the Unicode 11.0 emoji list.
-func Emoji11(count int) Template {
-	return &embededList{emoji11List, &emoji11ListVal, "", count}
-}
+// Emoji11 is a Template that returns a random emoji from the Unicode 11.0 emoji list.
+var Emoji11 Template = &embededList{raw: emoji11List}
 
-// Emoji13 returns a Template that generates passwords contain count number of emoji
-// from the Unicode 13.0 emoji list.
-func Emoji13(count int) Template {
-	return &embededList{emoji13List, &emoji13ListVal, "", count}
-}
+// Emoji13 is a Template that returns a random emoji from the Unicode 13.0 emoji list.
+var Emoji13 Template = &embededList{raw: emoji13List}

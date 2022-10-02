@@ -130,7 +130,7 @@ func TestRegexpUnicodeAny(t *testing.T) {
 
 func TestRegexpSpecialCaptures(t *testing.T) {
 	var p RegexpParser
-	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist(1)))
+	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist))
 
 	tmpl, err := p.Parse(`((?P<word>) ){6}[[:upper:]][[:digit:]][[:punct:]]`, syntax.PerlX)
 	require.NoError(t, err)
@@ -153,8 +153,8 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 
 func TestRegexpSpecialCaptureFactories(t *testing.T) {
 	var p RegexpParser
-	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist(1)))
-	p.SetSpecialCapture("words", SpecialCaptureWithRepeat(EFFLargeWordlist(1), " "))
+	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist))
+	p.SetSpecialCapture("words", SpecialCaptureWithRepeat(EFFLargeWordlist, " "))
 
 	for _, tc := range []struct {
 		pattern, expect string

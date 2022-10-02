@@ -28,7 +28,7 @@ func main() {
 	sep := flag.String("s", " ", "the separator to use between words")
 	flag.Parse()
 
-	pass, err := passit.Repeat(passit.EFFLargeWordlist(1), *sep, *count).Password(rand.Reader)
+	pass, err := passit.Repeat(passit.EFFLargeWordlist, *sep, *count).Password(rand.Reader)
 	if err != nil {
 		log.SetFlags(0)
 		log.Fatal(err)
