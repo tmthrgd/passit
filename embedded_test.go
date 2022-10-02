@@ -88,6 +88,12 @@ func TestEmojiValid(t *testing.T) {
 	}
 }
 
+func TestEmojiCounts(t *testing.T) {
+	// Expected count is taken from https://www.unicode.org/emoji/charts-M.N/emoji-counts.html.
+	assert.Equal(t, 2789, strings.Count(emoji11List, "\n")+1, "Unicode 11.0")
+	assert.Equal(t, 3304, strings.Count(emoji13List, "\n")+1, "Unicode 13.0")
+}
+
 func countEmojiInString(list []string, s string) int {
 	var count int
 outer:
