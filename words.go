@@ -3,7 +3,6 @@ package passit
 import (
 	_ "embed" // for go:embed
 	"errors"
-	"fmt"
 	"io"
 	"strings"
 	"sync"
@@ -32,9 +31,6 @@ func FromWords(list ...string) (func(count int) Template, error) {
 			return nil, errors.New("passit: empty word in list")
 		} else if !utf8.ValidString(word) {
 			return nil, errors.New("passit: word contains invalid unicode rune")
-		} else if idx := strings.IndexFunc(word, notAllowed); idx >= 0 {
-			r, _ := utf8.DecodeRuneInString(word[idx:])
-			return nil, fmt.Errorf("passit: word contains prohibited rune %U", r)
 		} else if strings.IndexFunc(word, unicode.IsSpace) >= 0 {
 			return nil, errors.New("passit: word contains space")
 		}
