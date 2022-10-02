@@ -94,55 +94,64 @@ func TestRepeat(t *testing.T) {
 	}
 }
 
-func TestRandomCount(t *testing.T) {
-	_, err := RandomCount(EFFLargeWordlist, 10, 7)
+func TestRandomRepeat(t *testing.T) {
+	_, err := RandomRepeat(Hyphen, " ", 10, 7)
 	assert.EqualError(t, err, "passit: min argument cannot be greater than max argument",
 		"min greater than max")
 
+	_, err = RandomRepeat(Hyphen, " ", -5, 7)
+	assert.EqualError(t, err, "passit: min argument must be positive",
+		"min negative")
+
+	_, err = RandomRepeat(Hyphen, " ", 5, -7)
+	assert.EqualError(t, err, "passit: min argument cannot be greater than max argument",
+		"min greater than max; max negative")
+
 	for _, tc := range [][2]int{
 		{0, maxInt32},
-		{-1, maxInt32 - 1},
-		{-maxInt32, 0},
-		{math.MinInt, 0},
 		{0, math.MaxInt},
-		{math.MinInt, math.MaxInt},
-		{math.MinInt + 1, math.MaxInt},
-		{math.MinInt, math.MaxInt - 1},
-		{math.MinInt + 1, math.MaxInt - 1},
 	} {
-		_, err = RandomCount(EFFLargeWordlist, tc[0], tc[1])
+		_, err = RandomRepeat(Hyphen, " ", tc[0], tc[1])
 		assert.EqualErrorf(t, err, "passit: [min,max] range too large",
 			"out of range: %v", tc)
 	}
 
-	for _, tc := range [][2]int{
-		{0, 0},
-		{1, 1},
-		{70, 70},
-		{-70, -70},
-		{maxInt32, maxInt32},
-		{-maxInt32, -maxInt32},
-		{math.MaxInt, math.MaxInt},
-		{math.MinInt, math.MinInt},
+	tmpl, err := RandomRepeat(Hyphen, " ", 0, 0)
+	if assert.NoError(t, err, "min and max equal zero should not error") {
+		assert.Equal(t, fixedString(""), tmpl,
+			"min and max equal zero should return empty FixedString")
+	}
+
+	tmpl, err = RandomRepeat(Hyphen, " ", 1, 1)
+	if assert.NoError(t, err, "min and max equal one should not error") {
+		assert.Equal(t, Hyphen, tmpl,
+			"min and max equal one should return template")
+	}
+
+	for _, tc := range []int{
+		70,
+		maxInt32,
+		math.MaxInt,
 	} {
-		tmpl, err := RandomCount(EFFLargeWordlist, tc[0], tc[1])
+		tmpl, err := RandomRepeat(Hyphen, " ", tc, tc)
 		if !assert.NoErrorf(t, err, "equal min and max should not error: %v", tc) {
 			continue
 		}
-		assert.IsTypef(t, (*embededList)(nil), tmpl,
-			"equal min and max should return template: %v", tc)
+		assert.IsTypef(t, (*repeated)(nil), tmpl,
+			"equal min and max should return Repeat(...): %v", tc)
 	}
 
 	for _, tc := range []struct {
 		min, max int
+		sep      string
 		expect   string
 	}{
-		{1, 2, "remover dismay"},
-		{2, 5, "remover dismay vocation"},
-		{4, 7, "remover dismay vocation sepia backtalk"},
-		{10, 20, "remover dismay vocation sepia backtalk think conjure autograph hemlock exit finance obscure dusk rigor hemlock dusk blouse"},
+		{1, 2, " ", "remover dismay"},
+		{2, 5, "", "removerdismayvocation"},
+		{4, 7, "-", "remover-dismay-vocation-sepia-backtalk"},
+		{10, 20, " ", "remover dismay vocation sepia backtalk think conjure autograph hemlock exit finance obscure dusk rigor hemlock dusk blouse"},
 	} {
-		tmpl, err := RandomCount(EFFLargeWordlist, tc.min, tc.max)
+		tmpl, err := RandomRepeat(EFFLargeWordlist(1), tc.sep, tc.min, tc.max)
 		if !assert.NoErrorf(t, err, "valid range should not error: %v", tc) {
 			continue
 		}

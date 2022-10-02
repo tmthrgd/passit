@@ -88,22 +88,25 @@ func (rt *repeated) Password(r io.Reader) (string, error) {
 	return strings.Join(parts, rt.sep), nil
 }
 
-type randomCount struct {
-	tmpl func(count int) Template
+type randomRepeated struct {
+	tmpl Template
+	sep  string
 	min  int
 	n    int
 }
 
-// RandomCount returns a Template that invokes tmpl with a random count read from r
-// in [min,max].
-//
-// If min is equal to max, tmpl is invoked once and the Template returned directly.
+// RandomRepeat returns a Template that concatenates the output of invoking the
+// Template a random number of times in [min,max] to create a single string. The
+// separator string sep is placed between the outputs in the resulting string.
 //
 // An error is returned if either min or max are invalid or outside the suppoted
 // range.
-func RandomCount(tmpl func(count int) Template, min, max int) (Template, error) {
+func RandomRepeat(tmpl Template, sep string, min, max int) (Template, error) {
 	if min > max {
 		return nil, errors.New("passit: min argument cannot be greater than max argument")
+	}
+	if min < 0 {
+		return nil, errors.New("passit: min argument must be positive")
 	}
 
 	n := max - min + 1
@@ -112,19 +115,19 @@ func RandomCount(tmpl func(count int) Template, min, max int) (Template, error) 
 	}
 
 	if min == max {
-		return tmpl(min), nil
+		return Repeat(tmpl, sep, min), nil
 	}
 
-	return &randomCount{tmpl, min, n}, nil
+	return &randomRepeated{tmpl, sep, min, n}, nil
 }
 
-func (c *randomCount) Password(r io.Reader) (string, error) {
+func (c *randomRepeated) Password(r io.Reader) (string, error) {
 	n, err := readIntN(r, c.n)
 	if err != nil {
 		return "", err
 	}
 
-	return c.tmpl(c.min + n).Password(r)
+	return Repeat(c.tmpl, c.sep, c.min+n).Password(r)
 }
 
 // Space is a Template that always returns a fixed ASCII space.
