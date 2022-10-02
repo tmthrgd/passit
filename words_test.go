@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func mustWords(t *testing.T, list ...string) func(int) Template {
+func mustWords(t *testing.T, list ...string) Template {
 	t.Helper()
 
 	tmpl, err := FromWords(list...)
@@ -21,7 +21,7 @@ func mustWords(t *testing.T, list ...string) func(int) Template {
 func TestWords(t *testing.T) {
 	for _, tc := range []struct {
 		expect string
-		tmpl   func(int) Template
+		tmpl   Template
 	}{
 		{"or and or and and and and and", mustWords(t, "and", "or")},
 		{"υγεία ευτυχία υγεία ελπίδα ευτυχία ευτυχία ελπίδα ευτυχία", mustWords(t, "ελπίδα", "υγεία", "ευτυχία", "αιώνια")},
@@ -30,7 +30,7 @@ func TestWords(t *testing.T) {
 
 		testRand := rand.New(rand.NewSource(0))
 
-		pass, err := tc.tmpl(size).Password(testRand)
+		pass, err := Repeat(tc.tmpl, " ", size).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue
 		}

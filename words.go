@@ -8,15 +8,11 @@ import (
 	"unicode/utf8"
 )
 
-type words struct {
-	list  []string
-	count int
-}
+type words struct{ list []string }
 
-// FromWords returns a Template factory that generates passwords of count words
-// length by joining random words from list. It returns an error if the list of
-// words is invalid.
-func FromWords(list ...string) (func(count int) Template, error) {
+// FromWords returns a Template that returns a random word from list. It returns an
+// error if the list of words is invalid.
+func FromWords(list ...string) (Template, error) {
 	if len(list) < 2 {
 		return nil, errors.New("passit: list too short")
 	} else if len(list) > maxReadIntN {
@@ -39,24 +35,14 @@ func FromWords(list ...string) (func(count int) Template, error) {
 		seen[word] = struct{}{}
 	}
 
-	list = append([]string(nil), list...)
-	return func(count int) Template { return &words{list, count} }, nil
+	return &words{append([]string(nil), list...)}, nil
 }
 
 func (w *words) Password(r io.Reader) (string, error) {
-	if w.count <= 0 {
-		return "", errors.New("passit: count must be greater than zero")
+	idx, err := readIntN(r, len(w.list))
+	if err != nil {
+		return "", err
 	}
 
-	words := make([]string, w.count)
-	for i := range words {
-		idx, err := readIntN(r, len(w.list))
-		if err != nil {
-			return "", err
-		}
-
-		words[i] = w.list[idx]
-	}
-
-	return strings.Join(words, " "), nil
+	return w.list[idx], nil
 }
