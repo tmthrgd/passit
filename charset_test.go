@@ -94,12 +94,13 @@ func TestRangeTable(t *testing.T) {
 		{"🍈🐂👒🌴🚱🍉💅🍉🍧🔱🚋🍈👒👗🍈💅🚱🐂🐝🐝🌴💻🛰🚱👗", newTable("🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋")},
 		{"7032aEC2b213F2f2eaCecdFc4", unicode.ASCII_Hex_Digit},
 	}
+
+	const unicodeVersion = "13.0.0"
 	testCasesUni := []testCase{
 		{"ᴓĜPḄŚḸꝊẺꝉḂKṙṿƒćʢꝤᶧꜢＹĊʝḣꟇÔ", unicode.Latin},
 		{"𝈡ΧὐΘῑ𝈂ἇώὰ𐅐ῆ᾿ΰΐ𐅛ᾇᾅυᾅ𐅦ͻ𝈱Άᾗΐ", unicode.Greek},
 		{"₥꠸৲߿₰₦฿₲₽₶₫₹₧₮₵₠₠₸₼₼₢₧﷼₨₮", unicode.Sc},
 	}
-
 	if unicode.Version == unicodeVersion {
 		testCases = append(testCases, testCasesUni...)
 	} else {
