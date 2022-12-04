@@ -18,7 +18,6 @@ type embeddedList struct {
 func (e *embeddedList) Password(r io.Reader) (string, error) {
 	e.once.Do(func() {
 		e.list = strings.Split(e.raw, "\n")
-		e.raw = ""
 	})
 
 	idx, err := readIntN(r, len(e.list))
