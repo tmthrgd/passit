@@ -31,8 +31,8 @@ func (m *modReader) Read(p []byte) (int, error) {
 	return 2, nil
 }
 
-func TestReadUint32n(t *testing.T) {
-	// This test validates that the calculation in readUint32n corrects for
+func TestReadUint16n(t *testing.T) {
+	// This test validates that the calculation in readUint16n corrects for
 	// possible bias.
 	//
 	// This test and modReader was taken from golang.org/x/exp/rand:
