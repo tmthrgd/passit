@@ -6,6 +6,13 @@ import "unicode"
 func AppendToRangeTable(tab *unicode.RangeTable, lo, hi rune) {
 	const maxR16 = 1<<16 - 1
 
+	if lo > hi {
+		panic("passit: lo rune is greater than hi rune")
+	}
+	if lo < 0 {
+		panic("passit: lo argument must be positive")
+	}
+
 	if lo > maxR16 {
 		tab.R32 = append(tab.R32, unicode.Range32{
 			Lo:     uint32(lo),
