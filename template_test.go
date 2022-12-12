@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 	"regexp"
+	"strings"
 	"testing"
 	"unicode/utf8"
 
@@ -196,5 +197,32 @@ func TestAlternate(t *testing.T) {
 		}
 
 		assert.Equal(t, tc.expect, pass, "expected password: %#v", tc)
+	}
+}
+
+func TestRejectionSample(t *testing.T) {
+	rs := RejectionSample(Repeat(LatinMixedNumber, "", 20), func(s string) bool {
+		return strings.Contains(s, "A") && strings.Contains(s, "0")
+	})
+	testRand := rand.New(rand.NewSource(0))
+
+	for _, expect := range []string{
+		"xkf9Fqys6WoABW05gd7k", // 4
+		"0QdosCGRz8jABPGQV1gM", // 8
+		"icnl4fuWlAkmCq0aJ2Qo", // 11
+		"kVOr0LT2uWprQroekxHA", // 21
+		"pl09lU8y1cAr6w9Qy7mM", // 30
+		"pQfbSmTe0h3UAYS3FefO", // 19
+		"Ir16N5dG05L1rAxKi0NB", // 31
+		"1JP8PWHM12PxmH0omJAe", // 3
+		"A0EVEGyhLKigBJ6pripX", // 11
+		"OJwA85UtZ0NCoZusnXk4", // 9
+	} {
+		pass, err := rs.Password(testRand)
+		if !assert.NoError(t, err) {
+			continue
+		}
+
+		assert.Equal(t, expect, pass)
 	}
 }

@@ -158,6 +158,31 @@ func (at *alternate) Password(r io.Reader) (string, error) {
 	return at.tmpls[n].Password(r)
 }
 
+type rejection struct {
+	tmpl      Template
+	condition func(string) bool
+}
+
+// RejectionSample returns a Template that continually generates passwords with tmpl
+// until condition reports true for the generated password or an error occurs.
+//
+// The behaviour is unspecified if condition never reports true.
+func RejectionSample(tmpl Template, condition func(string) bool) Template {
+	return &rejection{tmpl, condition}
+}
+
+func (rs *rejection) Password(r io.Reader) (string, error) {
+	for {
+		pass, err := rs.tmpl.Password(r)
+		if err != nil {
+			return "", err
+		}
+		if rs.condition(pass) {
+			return pass, nil
+		}
+	}
+}
+
 // Space is a Template that always returns a fixed ASCII space.
 var Space Template = fixedString(" ")
 
