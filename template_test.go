@@ -166,3 +166,35 @@ func TestRandomRepeat(t *testing.T) {
 		assert.Equal(t, tc.expect, pass, "valid range expected password: %v", tc)
 	}
 }
+
+func TestAlternate(t *testing.T) {
+	assert.Equal(t, FixedString(""), Alternate(),
+		"Alternate with no templates should return empty FixedString")
+
+	assert.Equal(t, Hyphen, Alternate(Hyphen),
+		"Alternate with single template should return Template")
+
+	for _, tc := range []struct {
+		tmpls  []Template
+		expect string
+	}{
+		{[]Template{}, ""},
+		{[]Template{LatinLower}, "h"},
+		{[]Template{LatinLower, LatinUpper, Number}, "7"},
+		{[]Template{EFFShortWordlist1, EFFShortWordlist2, EFFLargeWordlist}, "hubcap"},
+		{[]Template{
+			Repeat(LatinLower, "!", 5),
+			Repeat(LatinUpper, "@", 3),
+			Repeat(Number, "#", 7),
+		}, "7#2#4#1#3#0#5"},
+	} {
+		testRand := rand.New(rand.NewSource(0))
+
+		pass, err := Alternate(tc.tmpls...).Password(testRand)
+		if !assert.NoErrorf(t, err, "should not error when generating: %#v", tc) {
+			continue
+		}
+
+		assert.Equal(t, tc.expect, pass, "expected password: %#v", tc)
+	}
+}

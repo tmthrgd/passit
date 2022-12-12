@@ -121,13 +121,39 @@ func RandomRepeat(tmpl Template, sep string, min, max int) (Template, error) {
 	return &randomRepeated{tmpl, sep, min, n}, nil
 }
 
-func (c *randomRepeated) Password(r io.Reader) (string, error) {
-	n, err := readIntN(r, c.n)
+func (rr *randomRepeated) Password(r io.Reader) (string, error) {
+	n, err := readIntN(r, rr.n)
 	if err != nil {
 		return "", err
 	}
 
-	return Repeat(c.tmpl, c.sep, c.min+n).Password(r)
+	return Repeat(rr.tmpl, rr.sep, rr.min+n).Password(r)
+}
+
+type alternate struct {
+	tmpls []Template
+}
+
+// Alternate returns a Template that randomly selects one of the provided Template's
+// to use to generate the resultant password.
+func Alternate(tmpls ...Template) Template {
+	switch len(tmpls) {
+	case 0:
+		return FixedString("")
+	case 1:
+		return tmpls[0]
+	default:
+		return &alternate{append([]Template(nil), tmpls...)}
+	}
+}
+
+func (at *alternate) Password(r io.Reader) (string, error) {
+	n, err := readIntN(r, len(at.tmpls))
+	if err != nil {
+		return "", err
+	}
+
+	return at.tmpls[n].Password(r)
 }
 
 // Space is a Template that always returns a fixed ASCII space.
