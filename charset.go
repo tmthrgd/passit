@@ -88,14 +88,14 @@ type rangeTable struct {
 // unicode.RangeTable.
 func FromRangeTable(tab *unicode.RangeTable) Template {
 	runes := countTableRunes(tab)
+	if runes == 0 {
+		return FixedString("")
+	}
+
 	return &rangeTable{tab, runes}
 }
 
 func (rt *rangeTable) Password(r io.Reader) (string, error) {
-	if rt.runes == 0 {
-		return "", errors.New("passit: unicode.RangeTable must be non-empty")
-	}
-
 	v, err := readRune(r, rt.tab, rt.runes)
 	if err != nil {
 		return "", err

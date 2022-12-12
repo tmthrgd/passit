@@ -86,6 +86,7 @@ func TestRangeTable(t *testing.T) {
 		tab    *unicode.RangeTable
 	}
 	testCases := []testCase{
+		{"", new(unicode.RangeTable)},
 		{"1100110101010101110011111", newTable("01")},
 		{"9724130549434343534257971", newTable("0123456789")},
 		{"hxkebberczktmtylzpcqvlrzt", newTable("abcdefghijklmnopqrstuvwxyz")},
@@ -111,18 +112,14 @@ func TestRangeTable(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		const size = 25
-
 		testRand := rand.New(rand.NewSource(0))
 
-		pass, err := Repeat(FromRangeTable(tc.tab), "", size).Password(testRand)
+		pass, err := Repeat(FromRangeTable(tc.tab), "", 25).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue
 		}
 
 		assert.Equal(t, tc.expect, pass)
-		assert.Equal(t, size, utf8.RuneCountInString(pass),
-			"utf8.RuneCountInString(%q)", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
 		allRunesAllowed(t, tc.tab, pass)
