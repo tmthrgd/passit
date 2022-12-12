@@ -16,7 +16,7 @@ type Template interface {
 	//
 	// The returned password may or may not be deterministic with respect to r.
 	//
-	// r should be a uniformly random stream. The numbers of bytes read from r
+	// r should be a uniformly random stream. The number of bytes read from r
 	// may exceed the number of characters in the returned password.
 	Password(r io.Reader) (string, error)
 }
