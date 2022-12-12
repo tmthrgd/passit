@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/exp/slices"
 	"golang.org/x/text/unicode/rangetable"
 )
 
@@ -211,25 +212,23 @@ func naiveIntersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 
 func unstridifyRangeTable(tab *unicode.RangeTable) *unicode.RangeTable {
 	rt := &unicode.RangeTable{
-		R16: tab.R16[:len(tab.R16):len(tab.R16)],
-		R32: tab.R32[:len(tab.R32):len(tab.R32)],
+		R16: slices.Clip(tab.R16),
+		R32: slices.Clip(tab.R32),
 	}
 
 	for i := 0; i < len(rt.R16); i++ {
 		if r16 := rt.R16[i]; r16.Stride != 1 {
-			size := int((r16.Hi-r16.Lo)/r16.Stride) + 1
-			rt.R16 = append(rt.R16, make([]unicode.Range16, size-1)...)
-			copy(rt.R16[i+size:], rt.R16[i+1:])
-
+			add := make([]unicode.Range16, 0, (r16.Hi-r16.Lo)/r16.Stride+1)
 			for r := rune(r16.Lo); r <= rune(r16.Hi); r += rune(r16.Stride) {
 				if r <= unicode.MaxLatin1 {
 					rt.LatinOffset++
 				}
 
-				rt.R16[i] = unicode.Range16{Lo: uint16(r), Hi: uint16(r), Stride: 1}
-				i++
+				add = append(add, unicode.Range16{Lo: uint16(r), Hi: uint16(r), Stride: 1})
 			}
-			i--
+
+			rt.R16 = slices.Replace(rt.R16, i, i+1, add...)
+			i += len(add) - 1
 		} else if r16.Hi <= unicode.MaxLatin1 {
 			rt.LatinOffset++
 		}
@@ -237,15 +236,13 @@ func unstridifyRangeTable(tab *unicode.RangeTable) *unicode.RangeTable {
 
 	for i := 0; i < len(rt.R32); i++ {
 		if r32 := rt.R32[i]; r32.Stride != 1 {
-			size := int((r32.Hi-r32.Lo)/r32.Stride) + 1
-			rt.R32 = append(rt.R32, make([]unicode.Range32, size-1)...)
-			copy(rt.R32[i+size:], rt.R32[i+1:])
-
+			add := make([]unicode.Range32, 0, (r32.Hi-r32.Lo)/r32.Stride+1)
 			for r := rune(r32.Lo); r <= rune(r32.Hi); r += rune(r32.Stride) {
-				rt.R32[i] = unicode.Range32{Lo: uint32(r), Hi: uint32(r), Stride: 1}
-				i++
+				add = append(add, unicode.Range32{Lo: uint32(r), Hi: uint32(r), Stride: 1})
 			}
-			i--
+
+			rt.R32 = slices.Replace(rt.R32, i, i+1, add...)
+			i += len(add) - 1
 		}
 	}
 

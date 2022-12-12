@@ -6,6 +6,8 @@ import (
 	"strings"
 	"unicode"
 	"unicode/utf8"
+
+	"golang.org/x/exp/slices"
 )
 
 type words struct{ list []string }
@@ -35,7 +37,7 @@ func FromWords(list ...string) (Template, error) {
 		seen[word] = struct{}{}
 	}
 
-	return &words{append([]string(nil), list...)}, nil
+	return &words{slices.Clone(list)}, nil
 }
 
 func (w *words) Password(r io.Reader) (string, error) {

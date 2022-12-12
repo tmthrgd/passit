@@ -5,6 +5,8 @@ import (
 	"errors"
 	"io"
 	"strings"
+
+	"golang.org/x/exp/slices"
 )
 
 // Template is an interface for generating passwords.
@@ -34,7 +36,7 @@ func Join(sep string, tmpls ...Template) Template {
 	case 1:
 		return tmpls[0]
 	default:
-		return &joined{append([]Template(nil), tmpls...), sep}
+		return &joined{slices.Clone(tmpls), sep}
 	}
 }
 
@@ -143,7 +145,7 @@ func Alternate(tmpls ...Template) Template {
 	case 1:
 		return tmpls[0]
 	default:
-		return &alternate{append([]Template(nil), tmpls...)}
+		return &alternate{slices.Clone(tmpls)}
 	}
 }
 
