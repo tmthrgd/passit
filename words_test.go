@@ -2,7 +2,6 @@ package passit
 
 import (
 	"math/rand"
-	"strings"
 	"testing"
 	"unicode/utf8"
 
@@ -23,21 +22,19 @@ func TestWords(t *testing.T) {
 		expect string
 		tmpl   Template
 	}{
+		{"       ", mustWords(t)},
+		{"to to to to to to to to", mustWords(t, "to")},
 		{"or or and and or or and or", mustWords(t, "and", "or")},
 		{"υγεία υγεία ευτυχία ελπίδα υγεία αιώνια ελπίδα αιώνια", mustWords(t, "ελπίδα", "υγεία", "ευτυχία", "αιώνια")},
 	} {
-		const size = 8
-
 		testRand := rand.New(rand.NewSource(0))
 
-		pass, err := Repeat(tc.tmpl, " ", size).Password(testRand)
+		pass, err := Repeat(tc.tmpl, " ", 8).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue
 		}
 
 		assert.Equal(t, tc.expect, pass)
-		assert.Equal(t, size-1, strings.Count(pass, " "),
-			`strings.Count(%q, " ")`, pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
 	}
