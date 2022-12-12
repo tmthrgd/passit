@@ -23,8 +23,8 @@ func TestWords(t *testing.T) {
 		expect string
 		tmpl   Template
 	}{
-		{"or and or and and and and and", mustWords(t, "and", "or")},
-		{"υγεία ευτυχία υγεία ελπίδα ευτυχία ευτυχία ελπίδα ευτυχία", mustWords(t, "ελπίδα", "υγεία", "ευτυχία", "αιώνια")},
+		{"or or and and or or and or", mustWords(t, "and", "or")},
+		{"υγεία υγεία ευτυχία ελπίδα υγεία αιώνια ελπίδα αιώνια", mustWords(t, "ελπίδα", "υγεία", "ευτυχία", "αιώνια")},
 	} {
 		const size = 8
 

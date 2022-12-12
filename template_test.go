@@ -40,7 +40,7 @@ func TestJoin(t *testing.T) {
 		pass, err := tmpl.Password(testRand)
 		require.NoError(t, err)
 
-		assert.Equal(t, "native remover dismay vocation sepia C2@ +abc-e", pass)
+		assert.Equal(t, "timothy hubcap partner frigidly usage B0~ +abc-d", pass)
 		assert.Truef(t, pattern.MatchString(pass),
 			"regexp.MustCompile(%q).MatchString(%q)", pattern, pass)
 		assert.Truef(t, utf8.ValidString(pass),
@@ -56,7 +56,7 @@ func TestJoin(t *testing.T) {
 		pass, err := tmpl.Password(testRand)
 		require.NoError(t, err)
 
-		assert.Equal(t, "L@$w@$r", pass)
+		assert.Equal(t, "H@$x@$k", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
 		allRunesAllowed(t, rangeTableASCII, pass)
@@ -79,9 +79,9 @@ func TestRepeat(t *testing.T) {
 		sep    string
 		expect string
 	}{
-		{2, " ", "native remover"},
-		{4, "", "nativeremoverdismayvocation"},
-		{15, "-", "native-remover-dismay-vocation-sepia-backtalk-think-conjure-autograph-hemlock-exit-finance-obscure-dusk-rigor"},
+		{2, " ", "timothy hubcap"},
+		{4, "", "timothyhubcappartnerfrigidly"},
+		{15, "-", "timothy-hubcap-partner-frigidly-usage-probiotic-yodel-playback-preaching-configure-drool-tainted-heading-mama-synthesis"},
 	} {
 		testRand := rand.New(rand.NewSource(0))
 
@@ -108,7 +108,7 @@ func TestRandomRepeat(t *testing.T) {
 		"min greater than max; max negative")
 
 	for _, tc := range [][2]int{
-		{0, maxInt32},
+		{0, maxReadIntN},
 		{0, math.MaxInt},
 	} {
 		_, err = RandomRepeat(Hyphen, " ", tc[0], tc[1])
@@ -130,7 +130,7 @@ func TestRandomRepeat(t *testing.T) {
 
 	for _, tc := range []int{
 		70,
-		maxInt32,
+		maxReadIntN,
 		math.MaxInt,
 	} {
 		tmpl, err := RandomRepeat(Hyphen, " ", tc, tc)
@@ -146,10 +146,10 @@ func TestRandomRepeat(t *testing.T) {
 		sep      string
 		expect   string
 	}{
-		{1, 2, " ", "remover dismay"},
-		{2, 5, "", "removerdismayvocation"},
-		{4, 7, "-", "remover-dismay-vocation-sepia-backtalk"},
-		{10, 20, " ", "remover dismay vocation sepia backtalk think conjure autograph hemlock exit finance obscure dusk rigor hemlock dusk blouse"},
+		{1, 2, " ", "hubcap partner"},
+		{2, 5, "", "hubcappartnerfrigidly"},
+		{4, 7, "-", "hubcap-partner-frigidly-usage-probiotic"},
+		{10, 20, " ", "hubcap partner frigidly usage probiotic yodel playback preaching configure drool tainted heading mama synthesis storage"},
 	} {
 		tmpl, err := RandomRepeat(EFFLargeWordlist, tc.sep, tc.min, tc.max)
 		if !assert.NoErrorf(t, err, "valid range should not error: %v", tc) {

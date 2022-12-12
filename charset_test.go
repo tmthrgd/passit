@@ -12,15 +12,15 @@ import (
 
 func TestCharset(t *testing.T) {
 	for _, tc := range []struct{ expect, template string }{
-		{"1010000010111010000001100", "01"},
-		{"1690822236719012868805980", "0123456789"},
-		{"lwrqmcesfypbvqzagueycldeq", "abcdefghijklmnopqrstuvwxyz"},
-		{"LWRQMCESFYPBVQZAGUEYCLDEQ", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
-		{"lWRQmCESfYpBVqZAGuEYcLDeq", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"},
-		{"VwJIgWOitmbpXelQQossSXxYe", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
-		{"lj$#+pr%%yc!iqmathelp_dr#", "abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+"},
-		{"ρΘΙδΚΙσΧεΣσΕΒωπΠΟΠδΑΕλΚΥΦ", "ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω"},
-		{"🍧🛰🍳🔱🚱👒🎩👒🍉🌴💻🍧🍳🐊🍧🎩🚱🛰💅💅🔱👗🚋🚱🐊", "🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋"},
+		{"1100110101010101110011111", "01"},
+		{"9724130549434343534257971", "0123456789"},
+		{"hxkebberczktmtylzpcqvlrzt", "abcdefghijklmnopqrstuvwxyz"},
+		{"HXKEBBERCZKTMTYLZPCQVLRZT", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+		{"hxKEBbErCZKtMtyLzpcqVlRzt", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"},
+		{"HHG0Rbyp8RmXKhARJxsch7dlF", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
+		{"u))$!!r$p+xtztll+ccq*_e+^", "abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+"},
+		{"ΗσΡΗΣΗνΗωΛαΥΕπΠΝνξΩνΞΧνχζ", "ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω"},
+		{"🍳💻👒💬🍧🍉🔱👗🍈🍳🍈💩💬💩🍈🍉👗💩💬👒👞💻🍳🐝🍧", "🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋"},
 	} {
 		const size = 25
 
@@ -50,10 +50,10 @@ func TestFixedCharset(t *testing.T) {
 		expect   string
 		template Template
 	}{
-		{"lwrqmcesfypbvqzagueycldeq", LatinLower},
-		{"LWRQMCESFYPBVQZAGUEYCLDEQ", LatinUpper},
-		{"LwrqMcesFyPbvQzagUeyCldEQ", LatinMixed},
-		{"1690822236719012868805980", Number},
+		{"hxkebberczktmtylzpcqvlrzt", LatinLower},
+		{"HXKEBBERCZKTMTYLZPCQVLRZT", LatinUpper},
+		{"HXkebBeRczkTmTYlZPCQvLrZT", LatinMixed},
+		{"9724130549434343534257971", Number},
 	} {
 		const size = 25
 
@@ -83,23 +83,23 @@ func TestRangeTable(t *testing.T) {
 		tab    *unicode.RangeTable
 	}
 	testCases := []testCase{
-		{"1010000010111010000001100", newTable("01")},
-		{"1690822236719012868805980", newTable("0123456789")},
-		{"lwrqmcesfypbvqzagueycldeq", newTable("abcdefghijklmnopqrstuvwxyz")},
-		{"LWRQMCESFYPBVQZAGUEYCLDEQ", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
-		{"lWRQmCESfYpBVqZAGuEYcLDeq", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")},
-		{"Lm98WMEYjcRfNUbGGeiiINnOU", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")},
-		{"_@sr~dfttm$p+ea!h*&_dz%fr", newTable("abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+")},
-		{"κΟΡΘΤΡμτΚλμΙΓωθηεηΘΑΙΧΤπς", newTable("ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω")},
-		{"🍈🐂👒🌴🚱🍉💅🍉🍧🔱🚋🍈👒👗🍈💅🚱🐂🐝🐝🌴💻🛰🚱👗", newTable("🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋")},
-		{"7032aEC2b213F2f2eaCecdFc4", unicode.ASCII_Hex_Digit},
+		{"1100110101010101110011111", newTable("01")},
+		{"9724130549434343534257971", newTable("0123456789")},
+		{"hxkebberczktmtylzpcqvlrzt", newTable("abcdefghijklmnopqrstuvwxyz")},
+		{"HXKEBBERCZKTMTYLZPCQVLRZT", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
+		{"hxKEBbErCZKtMtyLzpcqVlRzt", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")},
+		{"776qHRofyHcNAX0H9niSXxTb5", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")},
+		{"iyysppfsd~lhnh__~$$ewz&~u", newTable("abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+")},
+		{"ΝμιΝλΝβΝωΦΒπΙθηαβδψβγτβυΜ", newTable("ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω")},
+		{"👒🚋🍉🍳🍈🍧🌴💻💬👒💬💩🍳💩💬🍧💻💩🍳🍉🎩🚋👒🐊🍈", newTable("🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋")},
+		{"5f6E512B6bCf6d0fFfCa737DF", unicode.ASCII_Hex_Digit},
 	}
 
 	const unicodeVersion = "13.0.0"
 	testCasesUni := []testCase{
-		{"ᴓĜPḄŚḸꝊẺꝉḂKṙṿƒćʢꝤᶧꜢＹĊʝḣꟇÔ", unicode.Latin},
-		{"𝈡ΧὐΘῑ𝈂ἇώὰ𐅐ῆ᾿ΰΐ𐅛ᾇᾅυᾅ𐅦ͻ𝈱Άᾗΐ", unicode.Greek},
-		{"₥꠸৲߿₰₦฿₲₽₶₫₹₧₮₵₠₠₸₼₼₢₧﷼₨₮", unicode.Sc},
+		{"ḷɑꭏꭩɻḅﬁɩꜰꞤᴮᵑｓṗᴮꜻảṭŲꝶḕÿꝧᶜᵫ", unicode.Latin},
+		{"ψἼ𐅀ὁὔὊ𝈼Νᶿὦ𝈖𝈧ϵ𝈭ὅ𐆅ἲᾒῪ͵𐅝῾𝈋𐅯Ὴ", unicode.Greek},
+		{"߾߾؋￠₡₫﹩₹𞋿₡₶₧৳₱$₡৲﷼₼€₱𑿠₭₵֏", unicode.Sc},
 	}
 	if unicode.Version == unicodeVersion {
 		testCases = append(testCases, testCasesUni...)

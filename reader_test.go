@@ -10,14 +10,14 @@ import (
 	"golang.org/x/text/unicode/rangetable"
 )
 
-// modReader is used to probe the upper region of uint32 space. It generates values
-// sequentially in [maxUint32-15,maxUint32]. With modEdge == 15 and
-// maxUint32 == 1<<32-1 == 4294967295, this means that readUint32n(10) will
+// modReader is used to probe the upper region of uint16 space. It generates values
+// sequentially in [maxUint16-15,maxUint16]. With modEdge == 15 and
+// maxUint16 == 1<<16-1 == 65535, this means that readUint16n(10) will
 // repeatedly probe the top range. We thus expect a bias to result unless the
-// calculation in readUint32n gets the edge condition right. We test this by calling
-// readUint32n 100 times; the results should be perfectly evenly distributed across
+// calculation in readUint16n gets the edge condition right. We test this by calling
+// readUint16n 100 times; the results should be perfectly evenly distributed across
 // [0,10).
-type modReader uint32
+type modReader uint16
 
 const modEdge = 15
 
@@ -26,9 +26,9 @@ func (m *modReader) Read(p []byte) (int, error) {
 		*m = 0
 	}
 
-	binary.LittleEndian.PutUint32(p, uint32(maxUint32-*m))
+	binary.LittleEndian.PutUint16(p, uint16(maxUint16-*m))
 	*m++
-	return 4, nil
+	return 2, nil
 }
 
 func TestReadUint32n(t *testing.T) {
@@ -43,7 +43,7 @@ func TestReadUint32n(t *testing.T) {
 		result [10]int
 	)
 	for i := 0; i < 100; i++ {
-		n, err := readUint32n(&src, 10)
+		n, err := readUint16n(&src, 10)
 		require.NoError(t, err)
 		result[n]++
 	}
@@ -68,12 +68,12 @@ func TestCountTableRunes(t *testing.T) {
 	}
 }
 
-type u32Reader uint32
+type u16Reader uint16
 
-func (u *u32Reader) Read(p []byte) (int, error) {
-	binary.LittleEndian.PutUint32(p, uint32(*u))
+func (u *u16Reader) Read(p []byte) (int, error) {
+	binary.LittleEndian.PutUint16(p, uint16(*u))
 	*u++
-	return 4, nil
+	return 2, nil
 }
 
 func TestReadRune(t *testing.T) {
@@ -85,7 +85,7 @@ func TestReadRune(t *testing.T) {
 	} {
 		count := countTableRunes(tab)
 
-		var ur u32Reader
+		var ur u16Reader
 		seen := make(map[rune]struct{}, count)
 		for i := 0; i < count; i++ {
 			r, err := readRune(&ur, tab, count)

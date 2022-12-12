@@ -20,19 +20,19 @@ func TestRegexp(t *testing.T) {
 	testRand := rand.New(rand.NewSource(0))
 
 	for _, expect := range []string{
-		"x90822236719&17:yyyyzzzzyy=",
-		"x7977150zzyyyyzzzzzzyyzzzzyyyy<",
-		"x14404'5\"Lyyyyzzyyyyyyyyyyyyyyzz#",
-		"acd0saaaaaabbbbbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeee?s4;RM>;,2EI/1B~S",
-		"acd2haaaaaaabbbbbbbccccdddddeeeeeeeeeeeeeeeeegG($|A=}6Q('3)7]U",
-		"acd3labbbbbbbbbbccccddddddeeeeeef\"..$~['`<_\\*:&MS2",
-		"abd4iaaaaaaaabccccddddddeeeeeeeeeeeeeefY&TV",
-		"x18372266066416nDyyyy?",
-		"acd2saaaaaaaaaaaaaabbbbbbbbbbbbbbbccccddddddeeeeeeeeeeeeeeeeegggggghhhhhhy;[\\I.P1P;6_F_N)=6",
-		"abd3Paaaaaabbbbbbbbbccccddddddeeeeeeeeeeeeeeefl]-3;V/8H",
-		"acd8KaabbbbbbccccddddddeeeeeeZm7 _AJL~M\"]H}YB[",
-		"abd8sbbbbbbbccccddddeeeeeeeeefTSX#Z>V+(I",
-		"x49868zzzzzzyyyyyyzzzzyyzzyyzz{",
+		"x24130549434343dj;u6zzzz*",
+		"abd1oaaaaaaaabbbbbbbccccdddddeeeeebJG",
+		"abd5WaaaaaaaaaaabbbbbbccccdddddeeeeeeebB8A@L:=\"",
+		"x795e&yyyyyyzzyyyyzzyyzzzzyyzzyyzzyy+",
+		"x19yyyyyyzzyy.",
+		"x33345yyzzyyyyyyzzyyyyzzzzzz`",
+		"acd2XaaaaaabbbbbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeeefC NJ% }5/\"'0SNK\"4",
+		"abd7Vaaaabbbbbbbbbbbbbccccddddeeeeeeeeb4Q(&4I{2",
+		"x99{Ayyzzzzyyyyyyyyzzyyyyyyyyyyzz(",
+		"abd3naaaaaaaaaaabbbbbbccccdddddeeeeeeeeeeefggggggghhhhhhhhhhhhhh ?W",
+		"abd8PaaaaabbbbbbbbccccdddeeeeeeeeeeegBRIKII~IFE",
+		"x0921UmGujzz=",
+		"x4941983495469641gv; -zzzz;",
 	} {
 		pass, err := tmpl.Password(testRand)
 		require.NoError(t, err)
@@ -100,19 +100,19 @@ func TestRegexpUnicodeAny(t *testing.T) {
 	testRand := rand.New(rand.NewSource(0))
 
 	for _, expect := range []string{
-		"x90822236719\u1f8cX\u03c4\u1f63yyyyzzzzyy=",
-		"x7977150zzyyyyzzzzzzyyzzzzyyyy<",
-		"x14404ZbS\u1f94yyyyzzyyyyyyyyyyyyyyzz#",
-		"acd0saaaaaabbbbbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeee\u1f75\u1f24\u03d7\U0001d23b\u1f78\u03ddPI\u03c9\u1fb2\u03a8\U00010173\U0001018d\u1fce\u03d1\u1f1a\u1fe8",
-		"acd2haaaaaaabbbbbbbccccdddddeeeeeeeeeeeeeeeee\u0398L3\u1fa0\U00010153\u0370\u1f2f\U00010159\u1d67\u1fcd\u1d5f\U00010160\U0001017b\u03f5\U00010188\U0001d22c_",
-		"acd3labbbbbbbbbbccccddddddeeeeeef\U0001016e\u1f31&\u1d61\u1fa1I\U000101765\u1fd7\u1f18\u03d2\u1f59\U0001d21b\U00010145\u1f6e\u1faf\U00010161",
-		"abd4iaaaaaaaabccccddddddeeeeeeeeeeeeeefm\u1fd7\u1f82\u1f2a",
-		"x18372266066416\U0001d21b\U0001018eyyyy?",
-		"acd2saaaaaaaaaaaaaabbbbbbbbbbbbbbbccccddddddeeeeeeeeeeeeeeeeegggggghhhhhh\u1f86\U00010161\U0001d203\U0001d205*V'\u1f66\u03ce\u1d27\u1f7c\u1f22\u03cbJ\u1fee\u1fd3SR",
-		"abd3Paaaaaabbbbbbbbbccccddddddeeeeeeeeeeeeeeef\u1f57\u1f4a)\u1fac\u03fe\u1f41\u1f26\u1fbdQ",
-		"acd8Kaabbbbbbccccddddddeeeeee\U0001d23e\u1f20\U0001d206\u1fcb\u1f9d\u1fab\u1f0c\u1ffd\u03d1\u03c5\U0001d209\u0386\U00010141\U0001017e\u03d0\u1fb8\u1f4b",
-		"abd8sbbbbbbbccccddddeeeeeeeeef@\u1f1c\U00010175\U00010166\u03c5\U0001d23e\U00010157GX\u03b2",
-		"x49868zzzzzzyyyyyyzzzzyyzzyyzz{",
+		"x24130549434343`𐆀𐅞ῧϴzzzz*",
+		"abd1oaaaaaaaabbbbbbbccccdddddeeeee4@ό",
+		"abd5Waaaaaaaaaaabbbbbbccccdddddeeeeeeeϋϰῠ𐆅ψᵦὐΉὦ",
+		"x795ὛΗyyyyyyzzyyyyzzyyzzzzyyzzyyzzyy+",
+		"x19yyyyyyzzyy.",
+		"x33345yyzzyyyyyyzzyyyyzzzzzz`",
+		"acd2Xaaaaaabbbbbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeeefβᵡϊ𐅴𝈥ᵡῄ𐅙𐅺ᵦ𐅘ΏὊ=8Wᾪ",
+		"acd4naaaaaaaaaaaabbbbbbbbbbccccddddddeeeeeeeeeeegghhhhhhh$𐅇ἳ`",
+		"abd3SaaaaaaabbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeeeeeggggggggggggghhhhhhhhhhhhhhΧΏ͵UP𐅎ῧ",
+		"abd0SaaaaaaabccccdddddeeeeeeeegggggghhhhhhhᾤὖίYᾄ𐅾𝈉ῚὌJͱᾺ",
+		"x42886446y*ἅ\"ᾲyy$",
+		"x92178ͳςΉῗyyzzzzyyzzyyzzzzyyzz-",
+		"x46964136170313͵ὣCzzzz:",
 	} {
 		pass, err := tmpl.Password(testRand)
 		require.NoError(t, err)
@@ -138,10 +138,10 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 	testRand := rand.New(rand.NewSource(0))
 
 	for _, expect := range []string{
-		"native remover dismay vocation sepia backtalk E2`",
-		"hemlock exit finance obscure dusk rigor A8}",
-		"gone spouse hungrily zoning say shrug Q5[",
-		"crispness bannister pauper silica stiffen deduct S6+",
+		"timothy hubcap partner frigidly usage probiotic E5/",
+		"configure drool tainted heading mama synthesis Z3)",
+		"gusty judicial expansive groin widely vocalist F4-",
+		"refutable velocity synergy phoenix wand tipper C2?",
 	} {
 		pass, err := tmpl.Password(testRand)
 		require.NoError(t, err)
@@ -159,11 +159,11 @@ func TestRegexpSpecialCaptureFactories(t *testing.T) {
 	for _, tc := range []struct {
 		pattern, expect string
 	}{
-		{"(?P<word>)", "clanking"},
-		{"(?P<words>)", "clanking"},
-		{"(?P<words>1)", "clanking"},
-		{"(?P<words>2)", "clanking avalanche"},
-		{"(?P<words>03)", "clanking avalanche cursor"},
+		{"(?P<word>)", "duplicity"},
+		{"(?P<words>)", "duplicity"},
+		{"(?P<words>1)", "duplicity"},
+		{"(?P<words>2)", "duplicity employee"},
+		{"(?P<words>03)", "duplicity employee praising"},
 	} {
 		testRand := rand.New(rand.NewSource(1))
 

@@ -8,10 +8,7 @@ import (
 	"unicode"
 )
 
-const (
-	maxUint32 = (1 << 32) - 1
-	maxInt32  = (1 << 31) - 1
-)
+const maxUint16 = (1 << 16) - 1
 
 func readBytes(r io.Reader, buf []byte) (int, error) {
 	n, err := io.ReadFull(r, buf)
@@ -27,18 +24,18 @@ func readUint8(r io.Reader) (uint8, error) {
 	return buf[0], err
 }
 
-func readUint32(r io.Reader) (uint32, error) {
-	var buf [4]byte
+func readUint16(r io.Reader) (uint16, error) {
+	var buf [2]byte
 	_, err := readBytes(r, buf[:])
-	return binary.LittleEndian.Uint32(buf[:]), err
+	return binary.LittleEndian.Uint16(buf[:]), err
 }
 
-// readUint32n is a helper function that should only be called by readIntN.
-func readUint32n(r io.Reader, n uint32) (uint32, error) {
+// readUint16n is a helper function that should only be called by readIntN.
+func readUint16n(r io.Reader, n uint16) (uint16, error) {
 	// This is based on golang.org/x/exp/rand:
 	// https://github.com/golang/exp/blob/ec7cb31e5a562f5e9e31b300128d2f530f55d127/rand/rand.go#L91-L109.
 
-	v, err := readUint32(r)
+	v, err := readUint16(r)
 	if err != nil {
 		return 0, err
 	}
@@ -48,11 +45,11 @@ func readUint32n(r io.Reader, n uint32) (uint32, error) {
 	}
 
 	// If n does not divide v, to avoid bias we must not use
-	// a v that is within maxUint32%n of the top of the range.
-	if v > maxUint32-n { // Fast check.
-		ceiling := maxUint32 - maxUint32%n
+	// a v that is within maxUint16%n of the top of the range.
+	if v > maxUint16-n { // Fast check.
+		ceiling := maxUint16 - maxUint16%n
 		for v >= ceiling {
-			v, err = readUint32(r)
+			v, err = readUint16(r)
 			if err != nil {
 				return 0, err
 			}
@@ -62,7 +59,7 @@ func readUint32n(r io.Reader, n uint32) (uint32, error) {
 	return v % n, nil
 }
 
-const maxReadIntN = maxInt32
+const maxReadIntN = maxUint16
 
 func readIntN(r io.Reader, n int) (int, error) {
 	switch {
@@ -72,8 +69,8 @@ func readIntN(r io.Reader, n int) (int, error) {
 		// If n is 1, meaning the result will always be 0, avoid reading
 		// anything from r and immediately return 0.
 		return 0, nil
-	case n <= maxInt32:
-		v, err := readUint32n(r, uint32(n))
+	case n <= maxUint16:
+		v, err := readUint16n(r, uint16(n))
 		return int(v), err
 	default:
 		panic("passit: invalid argument to readIntN")
