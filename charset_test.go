@@ -12,6 +12,8 @@ import (
 
 func TestCharset(t *testing.T) {
 	for _, tc := range []struct{ expect, template string }{
+		{"", ""},
+		{"~~~~~~~~~~~~~~~~~~~~~~~~~", "~"},
 		{"1100110101010101110011111", "01"},
 		{"9724130549434343534257971", "0123456789"},
 		{"hxkebberczktmtylzpcqvlrzt", "abcdefghijklmnopqrstuvwxyz"},
@@ -22,8 +24,6 @@ func TestCharset(t *testing.T) {
 		{"ΗσΡΗΣΗνΗωΛαΥΕπΠΝνξΩνΞΧνχζ", "ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω"},
 		{"🍳💻👒💬🍧🍉🔱👗🍈🍳🍈💩💬💩🍈🍉👗💩💬👒👞💻🍳🐝🍧", "🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋"},
 	} {
-		const size = 25
-
 		testRand := rand.New(rand.NewSource(0))
 
 		tmpl, err := FromCharset(tc.template)
@@ -31,14 +31,12 @@ func TestCharset(t *testing.T) {
 			continue
 		}
 
-		pass, err := Repeat(tmpl, "", size).Password(testRand)
+		pass, err := Repeat(tmpl, "", 25).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue
 		}
 
 		assert.Equal(t, tc.expect, pass)
-		assert.Equal(t, size, utf8.RuneCountInString(pass),
-			"utf8.RuneCountInString(%q)", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
 		allRunesAllowed(t, tc.template, pass)
@@ -87,6 +85,7 @@ func TestRangeTable(t *testing.T) {
 	}
 	testCases := []testCase{
 		{"", new(unicode.RangeTable)},
+		{"~~~~~~~~~~~~~~~~~~~~~~~~~", newTable("~")},
 		{"1100110101010101110011111", newTable("01")},
 		{"9724130549434343534257971", newTable("0123456789")},
 		{"hxkebberczktmtylzpcqvlrzt", newTable("abcdefghijklmnopqrstuvwxyz")},

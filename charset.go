@@ -50,24 +50,23 @@ type charset struct{ runes []rune }
 // FromCharset returns a Template that returns a random rune from template. It
 // returns an error if the template is invalid.
 func FromCharset(template string) (Template, error) {
-	runes := []rune(template)
-	if len(runes) < 2 {
-		return nil, errors.New("passit: template too short")
-	} else if len(runes) > maxReadIntN {
-		return nil, errors.New("passit: template too long")
-	} else if !utf8.ValidString(template) {
+	if !utf8.ValidString(template) {
 		return nil, errors.New("passit: template contains invalid unicode rune")
 	}
 
-	seen := make(map[rune]struct{}, len(runes))
-	for _, r := range runes {
-		if _, dup := seen[r]; dup {
-			return nil, errors.New("passit: template contains duplicate rune")
-		}
-		seen[r] = struct{}{}
+	runes := []rune(template)
+	if len(runes) > maxReadIntN {
+		return nil, errors.New("passit: too many runes in template")
 	}
 
-	return &charset{runes}, nil
+	switch len(runes) {
+	case 0:
+		return FixedString(""), nil
+	case 1:
+		return FixedString(template), nil
+	default:
+		return &charset{runes}, nil
+	}
 }
 
 func (c *charset) Password(r io.Reader) (string, error) {
