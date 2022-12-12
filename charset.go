@@ -84,8 +84,8 @@ type rangeTable struct {
 	runes int
 }
 
-// FromRangeTable returns a Template factory that generates passwords of count
-// runes length by joining random runes from the given unicode.RangeTable.
+// FromRangeTable returns a Template that returns a random rune from the
+// unicode.RangeTable.
 func FromRangeTable(tab *unicode.RangeTable) Template {
 	runes := countTableRunes(tab)
 	return &rangeTable{tab, runes}
