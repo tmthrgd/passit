@@ -38,6 +38,8 @@ func (st SpectreTemplate) Password(r io.Reader) (string, error) {
 	// This call to strings.Split doesn't allocate, presumably as Go understands
 	// the slice doesn't escape.
 	templates := strings.Split(string(st), ":")
+
+	// This modulus exhibits bias, but this matches the spec.
 	template := templates[int(idx)%len(templates)]
 
 	buf := make([]byte, len(template))
@@ -51,6 +53,7 @@ func (st SpectreTemplate) Password(r io.Reader) (string, error) {
 			return "", errors.New("passit: template contains invalid character")
 		}
 
+		// This modulus exhibits bias, but this matches the spec.
 		buf[i] = chars[int(buf[i])%len(chars)]
 	}
 
