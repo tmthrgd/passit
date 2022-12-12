@@ -9,6 +9,9 @@ import (
 
 type asciiCharset struct{ s string }
 
+// Number is a Template that returns a random numeric digit.
+var Number Template = &asciiCharset{"0123456789"}
+
 // LatinLower is a Template that returns a random lowercase character from the latin
 // alphabet.
 var LatinLower Template = &asciiCharset{"abcdefghijklmnopqrstuvwxyz"}
@@ -21,8 +24,17 @@ var LatinUpper Template = &asciiCharset{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
 // latin alphabet.
 var LatinMixed Template = &asciiCharset{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"}
 
-// Number is a Template that returns a random numeric digit.
-var Number Template = &asciiCharset{"0123456789"}
+// LatinLower is a Template that returns a random lowercase character from the latin
+// alphabet.
+var LatinLowerNumber Template = &asciiCharset{"abcdefghijklmnopqrstuvwxyz0123456789"}
+
+// LatinUpper is a Template that returns a random uppercase character from the latin
+// alphabet.
+var LatinUpperNumber Template = &asciiCharset{"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
+
+// LatinMixed is a Template that returns a random mixed-case characters from the
+// latin alphabet.
+var LatinMixedNumber Template = &asciiCharset{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
 
 func (ac *asciiCharset) Password(r io.Reader) (string, error) {
 	idx, err := readIntN(r, len(ac.s))

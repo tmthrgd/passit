@@ -50,10 +50,13 @@ func TestFixedCharset(t *testing.T) {
 		expect   string
 		template Template
 	}{
+		{"9724130549434343534257971", Number},
 		{"hxkebberczktmtylzpcqvlrzt", LatinLower},
 		{"HXKEBBERCZKTMTYLZPCQVLRZT", LatinUpper},
 		{"HXkebBeRczkTmTYlZPCQvLrZT", LatinMixed},
-		{"9724130549434343534257971", Number},
+		{"rvgmjdip4r0benclx3uknnb93", LatinLowerNumber},
+		{"RVGMJDIP4R0BENCLX3UKNNB93", LatinUpperNumber},
+		{"hhg0rBYP8rMxkHarjXSCH7DLf", LatinMixedNumber},
 	} {
 		const size = 25
 
