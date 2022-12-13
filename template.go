@@ -200,8 +200,12 @@ var Space Template = fixedString(" ")
 var Hyphen Template = fixedString("-")
 
 // FixedString returns a Template that always returns the given string.
-func FixedString(s string) Template { return fixedString(s) }
+func FixedString(s string) Template {
+	return fixedString(s)
+}
 
 type fixedString string
 
-func (s fixedString) Password(io.Reader) (string, error) { return string(s), nil }
+func (s fixedString) Password(io.Reader) (string, error) {
+	return string(s), nil
+}

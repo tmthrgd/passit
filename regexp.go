@@ -32,7 +32,9 @@ func ParseRegexp(pattern string, flags syntax.Flags) (Template, error) {
 // SetAnyRangeTable sets the unicode.RangeTable used when generating any (.)
 // characters or when restricting character classes ([a-z]) with a user provided
 // one. By default a subset of ASCII is used.
-func (p *RegexpParser) SetAnyRangeTable(tab *unicode.RangeTable) { p.anyTab = tab }
+func (p *RegexpParser) SetAnyRangeTable(tab *unicode.RangeTable) {
+	p.anyTab = tab
+}
 
 // SetSpecialCapture adds a special capture factory to use for matching named
 // captures. A regexp pattern such as "(?P<name>)" will invoke the factory and use
