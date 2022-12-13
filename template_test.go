@@ -69,8 +69,8 @@ func TestRepeat(t *testing.T) {
 		Repeat(Hyphen, " ", -1)
 	})
 
-	assert.Equal(t, FixedString(""), Repeat(Hyphen, " ", 0),
-		"Repeat with count zero should return empty FixedString")
+	assert.Equal(t, Empty, Repeat(Hyphen, " ", 0),
+		"Repeat with count zero should return Empty")
 
 	assert.Equal(t, Hyphen, Repeat(Hyphen, " ", 1),
 		"Repeat with count one should return Template")
@@ -119,8 +119,8 @@ func TestRandomRepeat(t *testing.T) {
 
 	tmpl, err := RandomRepeat(Hyphen, " ", 0, 0)
 	if assert.NoError(t, err, "min and max equal zero should not error") {
-		assert.Equal(t, fixedString(""), tmpl,
-			"min and max equal zero should return empty FixedString")
+		assert.Equal(t, Empty, tmpl,
+			"min and max equal zero should return Empty")
 	}
 
 	tmpl, err = RandomRepeat(Hyphen, " ", 1, 1)
@@ -169,8 +169,8 @@ func TestRandomRepeat(t *testing.T) {
 }
 
 func TestAlternate(t *testing.T) {
-	assert.Equal(t, FixedString(""), Alternate(),
-		"Alternate with no templates should return empty FixedString")
+	assert.Equal(t, Empty, Alternate(),
+		"Alternate with no templates should return Empty")
 
 	assert.Equal(t, Hyphen, Alternate(Hyphen),
 		"Alternate with single template should return Template")

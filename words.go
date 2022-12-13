@@ -27,7 +27,7 @@ func FromWords(list ...string) (Template, error) {
 
 	switch len(list) {
 	case 0:
-		return FixedString(""), nil
+		return Empty, nil
 	case 1:
 		return FixedString(list[0]), nil
 	default:

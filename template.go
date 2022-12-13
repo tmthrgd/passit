@@ -42,7 +42,7 @@ type joined struct {
 func Join(sep string, tmpls ...Template) Template {
 	switch len(tmpls) {
 	case 0:
-		return FixedString("")
+		return Empty
 	case 1:
 		return tmpls[0]
 	default:
@@ -78,7 +78,7 @@ func Repeat(tmpl Template, sep string, count int) Template {
 	case count < 0:
 		panic("passit: count must be positive")
 	case count == 0:
-		return FixedString("")
+		return Empty
 	case count == 1:
 		return tmpl
 	default:
@@ -151,7 +151,7 @@ type alternate struct {
 func Alternate(tmpls ...Template) Template {
 	switch len(tmpls) {
 	case 0:
-		return FixedString("")
+		return Empty
 	case 1:
 		return tmpls[0]
 	default:
@@ -192,6 +192,9 @@ func (rs *rejection) Password(r io.Reader) (string, error) {
 		}
 	}
 }
+
+// Hyphen is a Template that always returns an empty string.
+var Empty Template = fixedString("")
 
 // Space is a Template that always returns a fixed ASCII space.
 var Space Template = fixedString(" ")

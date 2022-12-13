@@ -61,7 +61,7 @@ func FromCharset(template string) (Template, error) {
 
 	switch len(runes) {
 	case 0:
-		return FixedString(""), nil
+		return Empty, nil
 	case 1:
 		return FixedString(template), nil
 	default:
@@ -88,7 +88,7 @@ type rangeTable struct {
 func FromRangeTable(tab *unicode.RangeTable) Template {
 	runes := countTableRunes(tab)
 	if runes == 0 {
-		return FixedString("")
+		return Empty
 	}
 
 	return &rangeTable{tab, runes}
