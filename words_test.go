@@ -1,7 +1,6 @@
 package passit
 
 import (
-	"math/rand"
 	"testing"
 	"unicode/utf8"
 
@@ -24,10 +23,10 @@ func TestWords(t *testing.T) {
 	}{
 		{"       ", mustWords(t)},
 		{"to to to to to to to to", mustWords(t, "to")},
-		{"or or and and or or and or", mustWords(t, "and", "or")},
-		{"υγεία υγεία ευτυχία ελπίδα υγεία αιώνια ελπίδα αιώνια", mustWords(t, "ελπίδα", "υγεία", "ευτυχία", "αιώνια")},
+		{"and or or and and and and or", mustWords(t, "and", "or")},
+		{"ευτυχία αιώνια αιώνια ελπίδα ελπίδα ευτυχία ευτυχία αιώνια", mustWords(t, "ελπίδα", "υγεία", "ευτυχία", "αιώνια")},
 	} {
-		testRand := rand.New(rand.NewSource(0))
+		testRand := newTestRand()
 
 		pass, err := Repeat(tc.tmpl, " ", 8).Password(testRand)
 		if !assert.NoError(t, err) {

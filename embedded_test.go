@@ -1,7 +1,6 @@
 package passit
 
 import (
-	"math/rand"
 	"strings"
 	"testing"
 	"unicode/utf8"
@@ -13,12 +12,12 @@ import (
 func TestEFFLargeWordlist(t *testing.T) {
 	const size = 8
 
-	testRand := rand.New(rand.NewSource(0))
+	testRand := newTestRand()
 
 	pass, err := Repeat(EFFLargeWordlist, " ", size).Password(testRand)
 	require.NoError(t, err)
 
-	assert.Equal(t, "timothy hubcap partner frigidly usage probiotic yodel playback", pass)
+	assert.Equal(t, "reprint wool pantry unworried mummify veneering securely munchkin", pass)
 	assert.Equal(t, size-1, strings.Count(pass, " "),
 		`strings.Count(%q, " ")`, pass)
 	assert.Truef(t, utf8.ValidString(pass),
@@ -31,12 +30,12 @@ func TestEFFLargeWordlist(t *testing.T) {
 func TestEFFShortWordlist1(t *testing.T) {
 	const size = 8
 
-	testRand := rand.New(rand.NewSource(0))
+	testRand := newTestRand()
 
 	pass, err := Repeat(EFFShortWordlist1, " ", size).Password(testRand)
 	require.NoError(t, err)
 
-	assert.Equal(t, "dice marry lake cash shade sift woozy plank", pass)
+	assert.Equal(t, "bush vapor issue ruby carol sleep hula case", pass)
 	assert.Equal(t, size-1, strings.Count(pass, " "),
 		`strings.Count(%q, " ")`, pass)
 	assert.Truef(t, utf8.ValidString(pass),
@@ -49,12 +48,12 @@ func TestEFFShortWordlist1(t *testing.T) {
 func TestEFFShortWordlist2(t *testing.T) {
 	const size = 8
 
-	testRand := rand.New(rand.NewSource(0))
+	testRand := newTestRand()
 
 	pass, err := Repeat(EFFShortWordlist2, " ", size).Password(testRand)
 	require.NoError(t, err)
 
-	assert.Equal(t, "downstairs lakefront jersey breath reimburse robe wreckage narrator", pass)
+	assert.Equal(t, "barracuda vegetable idly podiatrist bossiness satchel hexagon boxlike", pass)
 	assert.Equal(t, size-1, strings.Count(pass, " "),
 		`strings.Count(%q, " ")`, pass)
 	assert.Truef(t, utf8.ValidString(pass),
@@ -67,14 +66,14 @@ func TestEFFShortWordlist2(t *testing.T) {
 func TestEmoji13(t *testing.T) {
 	const size = 25
 
-	for i, expect := range []string{
-		"🇳🇷👀👨🏻\u200d🦰🧚🏻\u200d♀️✴️🇵🇸🍣👫🏼📚🇪🇷👩\u200d🍼🇼🇫🩺🧝🏼\u200d♂️👆🏾🎧🧏🏿\u200d♀️🕴🏽🧜🏿\u200d♀️🖋️🎁🇬🇭🪙🇨🇺⏺️",
-		"🤷🏻🏥📑🚣🏻\u200d♂️🕣🧑🏻👮🏿\u200d♀️🧘🏽\u200d♂️🌁🚻♈👧🏻👴🏽🙆🏾👨🏻\u200d🔬⏏️👩🏽\u200d🦽🥭🅿️👝⚾✋🏾👩🏻\u200d🎨🏄🏽🤍",
-		"🏹👩🏾\u200d🦰🦹🏻🥿🚣🅾️🧑🏽\u200d🤝\u200d🧑🏾🍐🔂🧝🏽\u200d♂️💂🏿\u200d♂️🧑🏽\u200d🚀👴🏿👩🏾\u200d🏭👩🏾\u200d✈️🧿🐒💁🏿\u200d♂️🌴🧑\u200d🍼🚴🏽🇦🇪🦘🥓🇱🇧",
-		"🕵️🧑🏻\u200d🎄🔎🧑🏼\u200d💻🧕🏼🤤🛸🈶☝🏿👨🏼\u200d⚖️👊🏾🏊🏻\u200d♂️🧎🧍\u200d♂️🗓️🏃🏾\u200d♀️🗽🐬👩🏾\u200d💼🎸☕🚜🤾🏼\u200d♂️🐯🚴🏽",
-	} {
-		testRand := rand.New(rand.NewSource(int64(i)))
+	testRand := newTestRand()
 
+	for _, expect := range []string{
+		"🏪🇮🇶👩🏾\u200d🎤🚣🏾🧍🏿\u200d♂️👩\u200d👩\u200d👦\u200d👦🐄🙋🏾👰🏽🌲👩🏿\u200d⚕️👩🏾💁🏾\u200d♂️👩🏻\u200d🦲🧘🏽\u200d♀️🧑🏽\u200d🤝\u200d🧑🏽👱🏻🌄💌⛏️🔙🎟️🏋🏾\u200d♂️4️⃣🤷🏾",
+		"🦸👨🏾\u200d⚖️👨🏿\u200d🍼🏃🏻\u200d♀️🛰️📼💪🏾🧏🏼\u200d♂️🧏🏿\u200d♂️🤾🏻✋🏾🇰🇳🗒️🌃👩🏾\u200d🤝\u200d👨🏼⚓🤵\u200d♀️🧑🏾\u200d🔬🤽🏼🔏🧑🏽\u200d🏫🛫↙️🇾🇪👫🏾",
+		"🧑🏼\u200d🦼🐶🏴🚵🦻👙🈂️🏊🏼🦸🏻\u200d♀️⚗️🏞️🇨🇽💆🏿👨🏼\u200d⚕️🤘🏾🕊️🙏🏻🥸😴⛏️🧗\u200d♀️⏲️🥱🩳🍄",
+		"👨🏿\u200d🤝\u200d👨🏽🧑🏻\u200d⚖️🍱📡🍄👩🏿\u200d🎨🚥🧑🏻\u200d🦳🤳🏾💅🏽🏂🏽👩🏾\u200d🎤🧑🏼\u200d🦱👨🏾\u200d✈️🩰🤚🏽⏱️☦️☯️😃🙍🏽\u200d♂️🤌🏽📂🧑🏼\u200d🎓🌘",
+	} {
 		pass, err := Repeat(Emoji13, "", size).Password(testRand)
 		if !assert.NoError(t, err) {
 			continue

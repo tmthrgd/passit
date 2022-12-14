@@ -1,8 +1,10 @@
 package passit
 
 import (
-	"math"
-	"math/rand"
+	"crypto/aes"
+	"crypto/cipher"
+	"io"
+	"math/bits"
 	"regexp"
 	"strings"
 	"testing"
@@ -11,6 +13,24 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+// newTestRand returns a deterministic CSPRNG for testing use only.
+func newTestRand() io.Reader {
+	var key [16]byte
+	var iv [aes.BlockSize]byte
+	block, _ := aes.NewCipher(key[:])
+	ctr := cipher.NewCTR(block, iv[:])
+	return cipher.StreamReader{S: ctr, R: zeroReader{}}
+}
+
+type zeroReader struct{}
+
+func (zeroReader) Read(p []byte) (int, error) {
+	for i := range p {
+		p[i] = 0
+	}
+	return len(p), nil
+}
 
 func mustCharset(t *testing.T, template string) Template {
 	t.Helper()
@@ -36,12 +56,12 @@ func TestJoin(t *testing.T) {
 			mustCharset(t, "de"),
 		)
 
-		testRand := rand.New(rand.NewSource(0))
+		testRand := newTestRand()
 
 		pass, err := tmpl.Password(testRand)
 		require.NoError(t, err)
 
-		assert.Equal(t, "timothy hubcap partner frigidly usage B0~ +abc-d", pass)
+		assert.Equal(t, "reprint wool pantry unworried mummify Y4% +abc-d", pass)
 		assert.Truef(t, pattern.MatchString(pass),
 			"regexp.MustCompile(%q).MatchString(%q)", pattern, pass)
 		assert.Truef(t, utf8.ValidString(pass),
@@ -52,12 +72,12 @@ func TestJoin(t *testing.T) {
 	{
 		tmpl := Join("@$", LatinUpper, LatinLower, LatinMixed)
 
-		testRand := rand.New(rand.NewSource(0))
+		testRand := newTestRand()
 
 		pass, err := tmpl.Password(testRand)
 		require.NoError(t, err)
 
-		assert.Equal(t, "H@$x@$k", pass)
+		assert.Equal(t, "C@$h@$Z", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
 		allRunesAllowed(t, rangeTableASCII, pass)
@@ -80,11 +100,11 @@ func TestRepeat(t *testing.T) {
 		sep    string
 		expect string
 	}{
-		{2, " ", "timothy hubcap"},
-		{4, "", "timothyhubcappartnerfrigidly"},
-		{15, "-", "timothy-hubcap-partner-frigidly-usage-probiotic-yodel-playback-preaching-configure-drool-tainted-heading-mama-synthesis"},
+		{2, " ", "reprint wool"},
+		{4, "", "reprintwoolpantryunworried"},
+		{12, "-", "reprint-wool-pantry-unworried-mummify-veneering-securely-munchkin-juiciness-steep-cresting-dastardly"},
 	} {
-		testRand := rand.New(rand.NewSource(0))
+		testRand := newTestRand()
 
 		pass, err := Repeat(EFFLargeWordlist, tc.sep, tc.count).Password(testRand)
 		if !assert.NoErrorf(t, err, "valid range should not error when generating: %v", tc) {
@@ -96,6 +116,8 @@ func TestRepeat(t *testing.T) {
 }
 
 func TestRandomRepeat(t *testing.T) {
+	const maxInt = 1<<(bits.UintSize-1) - 1
+
 	_, err := RandomRepeat(Hyphen, " ", 10, 7)
 	assert.EqualError(t, err, "passit: min argument cannot be greater than max argument",
 		"min greater than max")
@@ -110,7 +132,7 @@ func TestRandomRepeat(t *testing.T) {
 
 	for _, tc := range [][2]int{
 		{0, maxReadIntN},
-		{0, math.MaxInt},
+		{0, maxInt},
 	} {
 		_, err = RandomRepeat(Hyphen, " ", tc[0], tc[1])
 		assert.EqualErrorf(t, err, "passit: [min,max] range too large",
@@ -132,7 +154,7 @@ func TestRandomRepeat(t *testing.T) {
 	for _, tc := range []int{
 		70,
 		maxReadIntN,
-		math.MaxInt,
+		maxInt,
 	} {
 		tmpl, err := RandomRepeat(Hyphen, " ", tc, tc)
 		if !assert.NoErrorf(t, err, "equal min and max should not error: %v", tc) {
@@ -147,17 +169,17 @@ func TestRandomRepeat(t *testing.T) {
 		sep      string
 		expect   string
 	}{
-		{1, 2, " ", "hubcap partner"},
-		{2, 5, "", "hubcappartnerfrigidly"},
-		{4, 7, "-", "hubcap-partner-frigidly-usage-probiotic"},
-		{10, 20, " ", "hubcap partner frigidly usage probiotic yodel playback preaching configure drool tainted heading mama synthesis storage"},
+		{1, 2, " ", "wool"},
+		{2, 5, "", "woolpantryunworriedmummify"},
+		{4, 7, "-", "wool-pantry-unworried-mummify-veneering-securely"},
+		{10, 20, " ", "wool pantry unworried mummify veneering securely munchkin juiciness steep cresting dastardly cubical thriving procreate voice lingo stargazer acetone stroller"},
 	} {
 		tmpl, err := RandomRepeat(EFFLargeWordlist, tc.sep, tc.min, tc.max)
 		if !assert.NoErrorf(t, err, "valid range should not error: %v", tc) {
 			continue
 		}
 
-		testRand := rand.New(rand.NewSource(0))
+		testRand := newTestRand()
 
 		pass, err := tmpl.Password(testRand)
 		if !assert.NoErrorf(t, err, "valid range should not error when generating: %v", tc) {
@@ -180,16 +202,16 @@ func TestAlternate(t *testing.T) {
 		expect string
 	}{
 		{[]Template{}, ""},
-		{[]Template{LatinLower}, "h"},
+		{[]Template{LatinLower}, "c"},
 		{[]Template{LatinLower, LatinUpper, Number}, "7"},
-		{[]Template{EFFShortWordlist1, EFFShortWordlist2, EFFLargeWordlist}, "hubcap"},
+		{[]Template{EFFShortWordlist1, EFFShortWordlist2, EFFLargeWordlist}, "wool"},
 		{[]Template{
 			Repeat(LatinLower, "!", 5),
 			Repeat(LatinUpper, "@", 3),
 			Repeat(Number, "#", 7),
-		}, "7#2#4#1#3#0#5"},
+		}, "7#7#8#2#4#4#9"},
 	} {
-		testRand := rand.New(rand.NewSource(0))
+		testRand := newTestRand()
 
 		pass, err := Alternate(tc.tmpls...).Password(testRand)
 		if !assert.NoErrorf(t, err, "should not error when generating: %#v", tc) {
@@ -204,19 +226,19 @@ func TestRejectionSample(t *testing.T) {
 	rs := RejectionSample(Repeat(LatinMixedNumber, "", 20), func(s string) bool {
 		return strings.Contains(s, "A") && strings.Contains(s, "0")
 	})
-	testRand := rand.New(rand.NewSource(0))
+	testRand := newTestRand()
 
 	for _, expect := range []string{
-		"xkf9Fqys6WoABW05gd7k", // 4
-		"0QdosCGRz8jABPGQV1gM", // 8
-		"icnl4fuWlAkmCq0aJ2Qo", // 11
-		"kVOr0LT2uWprQroekxHA", // 21
-		"pl09lU8y1cAr6w9Qy7mM", // 30
-		"pQfbSmTe0h3UAYS3FefO", // 19
-		"Ir16N5dG05L1rAxKi0NB", // 31
-		"1JP8PWHM12PxmH0omJAe", // 3
-		"A0EVEGyhLKigBJ6pripX", // 11
-		"OJwA85UtZ0NCoZusnXk4", // 9
+		"l0LXpszA2lAxxyDUjT8o", // 3
+		"0ZATYpv8h9K3YpeGjsbA", // 3
+		"0ASqickBv1L0WdGukXJ1", // 7
+		"aAA1sxVrP0jGibFTVp2T", // 7
+		"ETeNP2gjuMyU50DbHtOA", // 18
+		"CyglA0KaUPFUvhzRO9DV", // 3
+		"izcumHs0xadaksW0cAS9", // 3
+		"8dhEXXJLAEq0ZH4va5xC", // 95
+		"Mtg00S5dHXBL7ASHEfNd", // 8
+		"330aI6KcSbSCoioRAde1", // 4
 	} {
 		pass, err := rs.Password(testRand)
 		if !assert.NoError(t, err) {

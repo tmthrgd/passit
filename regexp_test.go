@@ -1,7 +1,6 @@
 package passit
 
 import (
-	"math/rand"
 	"regexp"
 	"regexp/syntax"
 	"testing"
@@ -17,22 +16,22 @@ func TestRegexp(t *testing.T) {
 	tmpl, err := ParseRegexp(pattern, syntax.Perl)
 	require.NoError(t, err)
 
-	testRand := rand.New(rand.NewSource(0))
+	testRand := newTestRand()
 
 	for _, expect := range []string{
-		"x24130549434343dj;u6zzzz*",
-		"abd1oaaaaaaaabbbbbbbccccdddddeeeeebJG",
-		"abd5WaaaaaaaaaaabbbbbbccccdddddeeeeeeebB8A@L:=\"",
-		"x795e&yyyyyyzzyyyyzzyyzzzzyyzzyyzzyy+",
-		"x19yyyyyyzzyy.",
-		"x33345yyzzyyyyyyzzyyyyzzzzzz`",
-		"acd2XaaaaaabbbbbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeeefC NJ% }5/\"'0SNK\"4",
-		"abd7Vaaaabbbbbbbbbbbbbccccddddeeeeeeeeb4Q(&4I{2",
-		"x99{Ayyzzzzyyyyyyyyzzyyyyyyyyyyzz(",
-		"abd3naaaaaaaaaaabbbbbbccccdddddeeeeeeeeeeefggggggghhhhhhhhhhhhhh ?W",
-		"abd8PaaaaabbbbbbbbccccdddeeeeeeeeeeegBRIKII~IFE",
-		"x0921UmGujzz=",
-		"x4941983495469641gv; -zzzz;",
+		"acd7faaaaaaaabbbbbbbbbbbccccdddddeeeeeeeeeeeeeeee0u.=_K?L#",
+		"x141s8zzyyzzyyzzyyyyyy[",
+		"acd3labbbbbbbbbbccccddddddeeeeeeeeeeeeeeeeefadM[EV Y4V,",
+		"x8100jnzzzzzzyyyyyyyyyyzzzzyyyyyy|",
+		"x06314366735700yyzz'",
+		"x29323870\\nl]zzzzzzyyzzzzzzyy$",
+		"abd5Baaaaaaaaabbbbbbbbbbbbbccccdddeeeeeeeeeeeeeeeeeeef]pRACY!>S5RG)>",
+		"x22581669274S.FERzz#",
+		"acd3Vaaaabbbbbbccccddddeeeeeeeeeeeeeeeeee6\\9)+|.T/ =/:",
+		"abd2raaaaaaaaaaaabbccccdddeeeeeeeeeeeeeeeeeeu(&78)\"~#",
+		"x3508122602218~S~MXyyyyyyyyzzzzzzzzyyyyzzyyyyyyzz,",
+		"x0560855439%i Jyyyyyyyyyyzzzzzzzzyyyyzzzz-",
+		"abd8Maabccccddddeeeeeeeeeeeeeeeeegggggggghhhhhhh)MOC4P`K~C>/W}",
 	} {
 		pass, err := tmpl.Password(testRand)
 		require.NoError(t, err)
@@ -97,22 +96,22 @@ func TestRegexpUnicodeAny(t *testing.T) {
 	tmpl, err := p.Parse(pattern, syntax.Perl)
 	require.NoError(t, err)
 
-	testRand := rand.New(rand.NewSource(0))
+	testRand := newTestRand()
 
 	for _, expect := range []string{
-		"x24130549434343`𐆀𐅞ῧϴzzzz*",
-		"abd1oaaaaaaaabbbbbbbccccdddddeeeee4@ό",
-		"abd5Waaaaaaaaaaabbbbbbccccdddddeeeeeeeϋϰῠ𐆅ψᵦὐΉὦ",
-		"x795ὛΗyyyyyyzzyyyyzzyyzzzzyyzzyyzzyy+",
-		"x19yyyyyyzzyy.",
-		"x33345yyzzyyyyyyzzyyyyzzzzzz`",
-		"acd2Xaaaaaabbbbbbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeeefβᵡϊ𐅴𝈥ᵡῄ𐅙𐅺ᵦ𐅘ΏὊ=8Wᾪ",
-		"acd4naaaaaaaaaaaabbbbbbbbbbccccddddddeeeeeeeeeeegghhhhhhh$𐅇ἳ`",
-		"abd3SaaaaaaabbbbbbbbbbbbccccdddddeeeeeeeeeeeeeeeeeeeeggggggggggggghhhhhhhhhhhhhhΧΏ͵UP𐅎ῧ",
-		"abd0SaaaaaaabccccdddddeeeeeeeegggggghhhhhhhᾤὖίYᾄ𐅾𝈉ῚὌJͱᾺ",
-		"x42886446y*ἅ\"ᾲyy$",
-		"x92178ͳςΉῗyyzzzzyyzzyyzzzzyyzz-",
-		"x46964136170313͵ὣCzzzz:",
+		"acd7faaaaaaaabbbbbbbbbbbccccdddddeeeeeeeeeeeeeeee1ᾒ𝉁-Ἆᴦδώ𝈩",
+		"x141Ἦ𐅄zzyyzzyyzzyyyyyy[",
+		"acd3labbbbbbbbbbccccddddddeeeeeeeeeeeeeeeeef𝈟ῼἡὒ𐅌ἐυὧ𝈏ᾨῧ",
+		"x100ήᾣzzzzzzyyyyyyyyyyzzzzyyyyyy|",
+		"x06314366735700yyzz'",
+		"x29323870Ἤoὦδzzzzzzyyzzzzzzyy$",
+		"abd5BaaaaaaaaabbbbbbbbbbbbbccccdddeeeeeeeeeeeeeeeeeeefἽΙῺϿ𝈑ᾐΏἣϲ𝈢Ὃ𐅯η𐅸",
+		"x22581669274Ὼϓᾧᾜὼzz#",
+		"acd3Vaaaabbbbbbccccddddeeeeeeeeeeeeeeeeeeᾉᵪᾋ𐅌ᵩϸᾃϠ𐅾ᵧὤ𐅒ᾨ",
+		"abd2raaaaaaaaaaaabbccccdddeeeeeeeeeeeeeeeeeeO῀ἠἇᾤἙἴςε",
+		"x3508122602218Α𐅏Ὴψ𐅮yyyyyyyyzzzzzzzzyyyyzzyyyyyyzz,",
+		"x0560855439ύ+TὟyyyyyyyyyyzzzzzzzzyyyyzzzz-",
+		"abd8Maabccccddddeeeeeeeeeeeeeeeeegggggggghhhhhhh𝉄῭ᵡᵟΎῄB𝈰Ω῀ᾛ϶ϳΌ",
 	} {
 		pass, err := tmpl.Password(testRand)
 		require.NoError(t, err)
@@ -135,13 +134,13 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 	tmpl, err := p.Parse(`((?P<word>) ){6}[[:upper:]][[:digit:]][[:punct:]]`, syntax.PerlX)
 	require.NoError(t, err)
 
-	testRand := rand.New(rand.NewSource(0))
+	testRand := newTestRand()
 
 	for _, expect := range []string{
-		"timothy hubcap partner frigidly usage probiotic E5/",
-		"configure drool tainted heading mama synthesis Z3)",
-		"gusty judicial expansive groin widely vocalist F4-",
-		"refutable velocity synergy phoenix wand tipper C2?",
+		"reprint wool pantry unworried mummify veneering U9]",
+		"steep cresting dastardly cubical thriving procreate V9_",
+		"acetone stroller frantic catapult tipping wildland P6*",
+		"consumer phantom handclasp blast broadside spleen E4[",
 	} {
 		pass, err := tmpl.Password(testRand)
 		require.NoError(t, err)
@@ -159,13 +158,13 @@ func TestRegexpSpecialCaptureFactories(t *testing.T) {
 	for _, tc := range []struct {
 		pattern, expect string
 	}{
-		{"(?P<word>)", "duplicity"},
-		{"(?P<words>)", "duplicity"},
-		{"(?P<words>1)", "duplicity"},
-		{"(?P<words>2)", "duplicity employee"},
-		{"(?P<words>03)", "duplicity employee praising"},
+		{"(?P<word>)", "reprint"},
+		{"(?P<words>)", "reprint"},
+		{"(?P<words>1)", "reprint"},
+		{"(?P<words>2)", "reprint wool"},
+		{"(?P<words>03)", "reprint wool pantry"},
 	} {
-		testRand := rand.New(rand.NewSource(1))
+		testRand := newTestRand()
 
 		tmpl, err := p.Parse(tc.pattern, syntax.PerlX)
 		if !assert.NoError(t, err, tc.pattern) {

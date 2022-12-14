@@ -1,7 +1,6 @@
 package passit
 
 import (
-	"math/rand"
 	"testing"
 	"unicode"
 	"unicode/utf8"
@@ -14,17 +13,17 @@ func TestCharset(t *testing.T) {
 	for _, tc := range []struct{ expect, template string }{
 		{"", ""},
 		{"~~~~~~~~~~~~~~~~~~~~~~~~~", "~"},
-		{"1100110101010101110011111", "01"},
-		{"9724130549434343534257971", "0123456789"},
-		{"hxkebberczktmtylzpcqvlrzt", "abcdefghijklmnopqrstuvwxyz"},
-		{"HXKEBBERCZKTMTYLZPCQVLRZT", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
-		{"hxKEBbErCZKtMtyLzpcqVlRzt", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"},
-		{"HHG0Rbyp8RmXKhARJxsch7dlF", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
-		{"u))$!!r$p+xtztll+ccq*_e+^", "abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+"},
-		{"ΗσΡΗΣΗνΗωΛαΥΕπΠΝνξΩνΞΧνχζ", "ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω"},
-		{"🍳💻👒💬🍧🍉🔱👗🍈🍳🍈💩💬💩🍈🍉👗💩💬👒👞💻🍳🐝🍧", "🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋"},
+		{"0110000100000101100110101", "01"},
+		{"0778244948606109948934141", "0123456789"},
+		{"chzqoyupqagyotuvfssvfazip", "abcdefghijklmnopqrstuvwxyz"},
+		{"CHZQOYUPQAGYOTUVFSSVFAZIP", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+		{"CHzQoyuPQAGYOtUVfSsvfaZiP", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"},
+		{"sjpUAg8nkoSSQrctlGCdFAxkN", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
+		{"cu+qoyuc#~t_b^uv%%fv%nmip", "abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+"},
+		{"κΔφδΦΓΥΖΞκκΤΠΔΖΠοΣυγψΝηΔΝ", "ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω"},
+		{"🐊🐝🐝💅🎩🍈🍈🚋💬💅🛰🔱🛰🍧🔱🍳🚋🍈💅🚋🍉🍈🍧🍈🐂", "🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋"},
 	} {
-		testRand := rand.New(rand.NewSource(0))
+		testRand := newTestRand()
 
 		tmpl, err := FromCharset(tc.template)
 		if !assert.NoError(t, err) {
@@ -48,17 +47,17 @@ func TestFixedCharset(t *testing.T) {
 		expect   string
 		template Template
 	}{
-		{"9724130549434343534257971", Number},
-		{"hxkebberczktmtylzpcqvlrzt", LatinLower},
-		{"HXKEBBERCZKTMTYLZPCQVLRZT", LatinUpper},
-		{"HXkebBeRczkTmTYlZPCQvLrZT", LatinMixed},
-		{"rvgmjdip4r0benclx3uknnb93", LatinLowerNumber},
-		{"RVGMJDIP4R0BENCLX3UKNNB93", LatinUpperNumber},
-		{"hhg0rBYP8rMxkHarjXSCH7DLf", LatinMixedNumber},
+		{"0778244948606109948934141", Number},
+		{"chzqoyupqagyotuvfssvfazip", LatinLower},
+		{"CHZQOYUPQAGYOTUVFSSVFAZIP", LatinUpper},
+		{"chZqOYUpqagyoTuvFsSVFAzIp", LatinMixed},
+		{"0x92i4olu68ewri7h861h87op", LatinLowerNumber},
+		{"0X92I4OLU68EWRI7H861H87OP", LatinUpperNumber},
+		{"SJPuaG8NKOssqRCTLgcDfaXKn", LatinMixedNumber},
 	} {
 		const size = 25
 
-		testRand := rand.New(rand.NewSource(0))
+		testRand := newTestRand()
 
 		pass, err := Repeat(tc.template, "", size).Password(testRand)
 		if !assert.NoError(t, err) {
@@ -86,23 +85,23 @@ func TestRangeTable(t *testing.T) {
 	testCases := []testCase{
 		{"", new(unicode.RangeTable)},
 		{"~~~~~~~~~~~~~~~~~~~~~~~~~", newTable("~")},
-		{"1100110101010101110011111", newTable("01")},
-		{"9724130549434343534257971", newTable("0123456789")},
-		{"hxkebberczktmtylzpcqvlrzt", newTable("abcdefghijklmnopqrstuvwxyz")},
-		{"HXKEBBERCZKTMTYLZPCQVLRZT", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
-		{"hxKEBbErCZKtMtyLzpcqVlRzt", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")},
-		{"776qHRofyHcNAX0H9niSXxTb5", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")},
-		{"iyysppfsd~lhnh__~$$ewz&~u", newTable("abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+")},
-		{"ΝμιΝλΝβΝωΦΒπΙθηαβδψβγτβυΜ", newTable("ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω")},
-		{"👒🚋🍉🍳🍈🍧🌴💻💬👒💬💩🍳💩💬🍧💻💩🍳🍉🎩🚋👒🐊🍈", newTable("🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋")},
-		{"5f6E512B6bCf6d0fFfCa737DF", unicode.ASCII_Hex_Digit},
+		{"0110000100000101100110101", newTable("01")},
+		{"0778244948606109948934141", newTable("0123456789")},
+		{"chzqoyupqagyotuvfssvfazip", newTable("abcdefghijklmnopqrstuvwxyz")},
+		{"CHZQOYUPQAGYOTUVFSSVFAZIP", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
+		{"CHzQoyuPQAGYOtUVfSsvfaZiP", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")},
+		{"iZfK0WydaeIIGhSjb62T50naD", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")},
+		{"$i~ecmi$rohz#uijtt(jtba+d", newTable("abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+")},
+		{"ΥΗσΘςΕπΛγΥΥξηΗΛηζλρΖχαΞΗα", newTable("ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω")},
+		{"👗🐊🐊🐝💅💬💬🛰🍳🐝🐂🌴🐂🍈🌴👒🛰💬🐝🛰🍧💬🍈💬👞", newTable("🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋")},
+		{"e7FCC065cCCe6FA9F047BC9e1", unicode.ASCII_Hex_Digit},
 	}
 
 	const unicodeVersion = "13.0.0"
 	testCasesUni := []testCase{
-		{"ḷɑꭏꭩɻḅﬁɩꜰꞤᴮᵑｓṗᴮꜻảṭŲꝶḕÿꝧᶜᵫ", unicode.Latin},
-		{"ψἼ𐅀ὁὔὊ𝈼Νᶿὦ𝈖𝈧ϵ𝈭ὅ𐆅ἲᾒῪ͵𐅝῾𝈋𐅯Ὴ", unicode.Greek},
-		{"߾߾؋￠₡₫﹩₹𞋿₡₶₧৳₱$₡৲﷼₼€₱𑿠₭₵֏", unicode.Sc},
+		{"ᵻḙꞪiǰↇꝢṛŸḨẨĠỤǉŦꝋɡḆＹɅẁṦǟḊꭒ", unicode.Latin},
+		{"ἳ𝈛ῥᵡ𐅺όΫ𐅷𐆎ἓ𐅖Ί𝈂ΗᾁῈϼᴧρὺᵞ𐅰Ϟ𐅬θ", unicode.Greek},
+		{"₼₳₹₤$₰𞋿₷₴₸₢₢₠₻€₽₵؋£₭֏$﷼₴௹", unicode.Sc},
 	}
 	if unicode.Version == unicodeVersion {
 		testCases = append(testCases, testCasesUni...)
@@ -111,7 +110,7 @@ func TestRangeTable(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		testRand := rand.New(rand.NewSource(0))
+		testRand := newTestRand()
 
 		pass, err := Repeat(FromRangeTable(tc.tab), "", 25).Password(testRand)
 		if !assert.NoError(t, err) {
