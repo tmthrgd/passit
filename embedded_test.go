@@ -103,18 +103,12 @@ func TestEmoji13(t *testing.T) {
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
 	}
-}
 
-func TestEmojiValid(t *testing.T) {
-	for _, emoji := range strings.Split(emoji13List, "\n") {
+	// Check that each emoji in Emoji13 is a valid UTF8 string.
+	for _, emoji := range Emoji13.(*embeddedGenerator).list {
 		assert.Truef(t, utf8.ValidString(emoji),
 			"utf8.ValidString(%q)", emoji)
 	}
-}
-
-func TestEmojiCounts(t *testing.T) {
-	// Expected count is taken from https://www.unicode.org/emoji/charts-M.N/emoji-counts.html.
-	assert.Equal(t, 3304, strings.Count(emoji13List, "\n")+1, "Unicode 13.0")
 }
 
 func countEmojiInString(list []string, s string) int {

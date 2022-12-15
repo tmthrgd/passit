@@ -1,15 +1,13 @@
 package passit
 
 import (
-	_ "embed" // for go:embed
 	"io"
 	"strings"
 	"sync"
 
+	"go.tmthrgd.dev/passit/internal/emojilist"
 	"go.tmthrgd.dev/passit/internal/wordlist"
 )
-
-//go:generate go run emoji_generate.go emoji_generate_gen.go emoji_generate_ucd.go -unicode 13.0.0
 
 type embeddedGenerator struct {
 	once sync.Once
@@ -28,9 +26,6 @@ func (eg *embeddedGenerator) Password(r io.Reader) (string, error) {
 	})
 	return readSliceN(r, eg.list)
 }
-
-//go:embed emoji_13.0.txt
-var emoji13List string
 
 // STS10Wordlist is a Generator that returns a random word from Sam Schlinkert's
 // '1Password Replacement List'.
@@ -61,4 +56,4 @@ var EFFShortWordlist2 Generator = &embeddedGenerator{raw: &wordlist.EFFShortWord
 
 // Emoji13 is a Generator that returns a random emoji from the Unicode 13.0 emoji
 // list.
-var Emoji13 Generator = &embeddedGenerator{raw: &emoji13List}
+var Emoji13 Generator = &embeddedGenerator{raw: &emojilist.Unicode13}
