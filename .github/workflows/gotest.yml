@@ -23,10 +23,6 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
           cache: true
-      - name: go version
-        run: go version
-      - name: go env
-        run: go env
       - name: go vet
         run: go vet ./...
         if: runner.os == 'Linux'
