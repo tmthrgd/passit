@@ -63,7 +63,7 @@ func FromCharset(charset string) (Generator, error) {
 	case 0:
 		return Empty, nil
 	case 1:
-		return FixedString(charset), nil
+		return String(charset), nil
 	default:
 		return &runeGenerator{runes}, nil
 	}

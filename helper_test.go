@@ -53,7 +53,7 @@ func TestJoin(t *testing.T) {
 			Digit,
 			mustCharset(t, "~!@#$%^&*()"),
 			Space,
-			FixedString("+abc"),
+			String("+abc"),
 			Hyphen,
 			mustCharset(t, "de"),
 		)

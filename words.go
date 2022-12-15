@@ -29,7 +29,7 @@ func FromWords(list ...string) (Generator, error) {
 	case 0:
 		return Empty, nil
 	case 1:
-		return FixedString(list[0]), nil
+		return String(list[0]), nil
 	default:
 		return &words{slices.Clone(list)}, nil
 	}
