@@ -9,8 +9,8 @@ import (
 
 type asciiGenerator struct{ s string }
 
-// Number is a Generator that returns a random numeric digit.
-var Number Generator = &asciiGenerator{"0123456789"}
+// Digit is a Generator that returns a random numeric digit.
+var Digit Generator = &asciiGenerator{"0123456789"}
 
 // LatinLower is a Generator that returns a random lowercase character from the latin
 // alphabet.
@@ -25,16 +25,16 @@ var LatinUpper Generator = &asciiGenerator{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
 var LatinMixed Generator = &asciiGenerator{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"}
 
 // LatinLower is a Generator that returns a random lowercase character from the latin
-// alphabet.
-var LatinLowerNumber Generator = &asciiGenerator{"abcdefghijklmnopqrstuvwxyz0123456789"}
+// alphabet or a numeric digit.
+var LatinLowerDigit Generator = &asciiGenerator{"abcdefghijklmnopqrstuvwxyz0123456789"}
 
 // LatinUpper is a Generator that returns a random uppercase character from the latin
-// alphabet.
-var LatinUpperNumber Generator = &asciiGenerator{"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
+// alphabet or a numeric digit.
+var LatinUpperDigit Generator = &asciiGenerator{"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
 
 // LatinMixed is a Generator that returns a random mixed-case characters from the
-// latin alphabet.
-var LatinMixedNumber Generator = &asciiGenerator{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
+// latin alphabet or a numeric digit.
+var LatinMixedDigit Generator = &asciiGenerator{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
 
 func (ag *asciiGenerator) Password(r io.Reader) (string, error) {
 	idx, err := readIntN(r, len(ag.s))

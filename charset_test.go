@@ -47,13 +47,13 @@ func TestFixedCharset(t *testing.T) {
 		expect string
 		gen    Generator
 	}{
-		{"0778244948606109948934141", Number},
+		{"0778244948606109948934141", Digit},
 		{"chzqoyupqagyotuvfssvfazip", LatinLower},
 		{"CHZQOYUPQAGYOTUVFSSVFAZIP", LatinUpper},
 		{"chZqOYUpqagyoTuvFsSVFAzIp", LatinMixed},
-		{"0x92i4olu68ewri7h861h87op", LatinLowerNumber},
-		{"0X92I4OLU68EWRI7H861H87OP", LatinUpperNumber},
-		{"SJPuaG8NKOssqRCTLgcDfaXKn", LatinMixedNumber},
+		{"0x92i4olu68ewri7h861h87op", LatinLowerDigit},
+		{"0X92I4OLU68EWRI7H861H87OP", LatinUpperDigit},
+		{"SJPuaG8NKOssqRCTLgcDfaXKn", LatinMixedDigit},
 	} {
 		const size = 25
 

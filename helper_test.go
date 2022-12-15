@@ -50,7 +50,7 @@ func TestJoin(t *testing.T) {
 			Repeat(EFFLargeWordlist, " ", 5),
 			Space,
 			LatinUpper,
-			Number,
+			Digit,
 			mustCharset(t, "~!@#$%^&*()"),
 			Space,
 			FixedString("+abc"),
@@ -203,12 +203,12 @@ func TestAlternate(t *testing.T) {
 	}{
 		{[]Generator{}, ""},
 		{[]Generator{LatinLower}, "c"},
-		{[]Generator{LatinLower, LatinUpper, Number}, "7"},
+		{[]Generator{LatinLower, LatinUpper, Digit}, "7"},
 		{[]Generator{EFFShortWordlist1, EFFShortWordlist2, EFFLargeWordlist}, "wool"},
 		{[]Generator{
 			Repeat(LatinLower, "!", 5),
 			Repeat(LatinUpper, "@", 3),
-			Repeat(Number, "#", 7),
+			Repeat(Digit, "#", 7),
 		}, "7#7#8#2#4#4#9"},
 	} {
 		tr := newTestRand()
@@ -223,7 +223,7 @@ func TestAlternate(t *testing.T) {
 }
 
 func TestRejectionSample(t *testing.T) {
-	rs := RejectionSample(Repeat(LatinMixedNumber, "", 20), func(s string) bool {
+	rs := RejectionSample(Repeat(LatinMixedDigit, "", 20), func(s string) bool {
 		return strings.Contains(s, "A") && strings.Contains(s, "0")
 	})
 	tr := newTestRand()
