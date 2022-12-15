@@ -84,8 +84,8 @@ func Ascii85(count int) Template {
 
 func (e *encoding) Password(r io.Reader) (string, error) {
 	buf := make([]byte, e.count)
-	if _, err := readBytes(r, buf); err != nil {
-		return "", err
+	if _, err := io.ReadFull(r, buf); err != nil {
+		return "", wrapReadError(err)
 	}
 
 	return e.encodeToString(buf), nil

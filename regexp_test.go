@@ -207,3 +207,19 @@ func BenchmarkRegexpParse(b *testing.B) {
 		}
 	}
 }
+
+func BenchmarkRegexpTemplate(b *testing.B) {
+	const pattern = `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+(?P<punct>[[:punct:]])`
+	tmpl, err := ParseRegexp(pattern, syntax.Perl)
+	if err != nil {
+		require.NoError(b, err)
+	}
+	testRand := newTestRand()
+
+	for n := 0; n < b.N; n++ {
+		_, err := tmpl.Password(testRand)
+		if err != nil {
+			require.NoError(b, err)
+		}
+	}
+}

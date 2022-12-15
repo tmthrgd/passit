@@ -8,28 +8,50 @@ import (
 	"unicode"
 )
 
-const maxUint16 = (1 << 16) - 1
+const (
+	maxUint16   = (1 << 16) - 1
+	maxReadIntN = maxUint16
+)
 
-func readBytes(r io.Reader, buf []byte) (int, error) {
-	n, err := io.ReadFull(r, buf)
-	if err != nil {
-		return n, fmt.Errorf("passit: failed to read entropy: %w", err)
-	}
-	return n, nil
+func wrapReadError(err error) error {
+	return fmt.Errorf("passit: failed to read entropy: %w", err)
 }
 
-func readUint16(r io.Reader) (uint16, error) {
+func readUint16Buffer(r io.Reader) (uint16, error) {
 	var buf [2]byte
-	_, err := readBytes(r, buf[:])
-	return binary.LittleEndian.Uint16(buf[:]), err
+	if _, err := io.ReadFull(r, buf[:]); err != nil {
+		return 0, wrapReadError(err)
+	}
+
+	return binary.LittleEndian.Uint16(buf[:]), nil
+}
+
+func readUint16Byte(br io.ByteReader) (uint16, error) {
+	b0, err := br.ReadByte()
+	if err != nil {
+		return 0, wrapReadError(err)
+	}
+
+	b1, err := br.ReadByte()
+	if err != nil {
+		return 0, wrapReadError(err)
+	}
+
+	// Assemble a little-endian uint16.
+	return uint16(b0) | uint16(b1)<<8, nil
 }
 
 // readUint16n is a helper function that should only be called by readIntN.
-func readUint16n(r io.Reader, n uint16) (uint16, error) {
+func readUint16n(r io.Reader, n uint16) (v uint16, err error) {
 	// This is based on golang.org/x/exp/rand:
 	// https://github.com/golang/exp/blob/ec7cb31e5a562f5e9e31b300128d2f530f55d127/rand/rand.go#L91-L109.
 
-	v, err := readUint16(r)
+	br, brOK := r.(io.ByteReader)
+	if brOK {
+		v, err = readUint16Byte(br)
+	} else {
+		v, err = readUint16Buffer(r)
+	}
 	if err != nil {
 		return 0, err
 	}
@@ -43,7 +65,11 @@ func readUint16n(r io.Reader, n uint16) (uint16, error) {
 	if v > maxUint16-n { // Fast check.
 		ceiling := maxUint16 - maxUint16%n
 		for v >= ceiling {
-			v, err = readUint16(r)
+			if brOK {
+				v, err = readUint16Byte(br)
+			} else {
+				v, err = readUint16Buffer(r)
+			}
 			if err != nil {
 				return 0, err
 			}
@@ -52,8 +78,6 @@ func readUint16n(r io.Reader, n uint16) (uint16, error) {
 
 	return v % n, nil
 }
-
-const maxReadIntN = maxUint16
 
 func readIntN(r io.Reader, n int) (int, error) {
 	switch {

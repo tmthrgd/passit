@@ -1,6 +1,7 @@
 package passit
 
 import (
+	"bufio"
 	"crypto/aes"
 	"crypto/cipher"
 	"io"
@@ -20,7 +21,8 @@ func newTestRand() io.Reader {
 	var iv [aes.BlockSize]byte
 	block, _ := aes.NewCipher(key[:])
 	ctr := cipher.NewCTR(block, iv[:])
-	return cipher.StreamReader{S: ctr, R: zeroReader{}}
+	sr := cipher.StreamReader{S: ctr, R: zeroReader{}}
+	return bufio.NewReader(sr)
 }
 
 type zeroReader struct{}

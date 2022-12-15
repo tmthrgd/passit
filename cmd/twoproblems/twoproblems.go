@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bufio"
 	"crypto/rand"
 	"errors"
 	"flag"
@@ -50,7 +51,7 @@ func main1() error {
 		return fmt.Errorf("twoproblems: failed to parse %q pattern: %w", flag.Arg(0), err)
 	}
 
-	pass, err := tmpl.Password(rand.Reader)
+	pass, err := tmpl.Password(bufio.NewReader(rand.Reader))
 	if err != nil {
 		return fmt.Errorf("twoproblems: failed to generate password: %w", err)
 	}
