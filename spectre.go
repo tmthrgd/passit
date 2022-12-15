@@ -28,9 +28,18 @@ const (
 )
 
 func (st SpectreTemplate) readTemplate(r io.Reader) (string, error) {
-	// A benchmark of just (SpectreTemplate).Password shows strings.Split being
-	// responsible for 88% of all allocated data.
-	return readSliceN(r, strings.Split(string(st), ":"))
+	templates := string(st)
+	n, err := readIntN(r, strings.Count(templates, ":")+1)
+	if err != nil {
+		return "", err
+	}
+
+	for ; n > 0; n-- {
+		_, templates, _ = strings.Cut(templates, ":")
+	}
+
+	template, _, _ := strings.Cut(templates, ":")
+	return template, nil
 }
 
 // Password implements Template.
