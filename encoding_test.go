@@ -16,7 +16,7 @@ func TestEncoding(t *testing.T) {
 	}, "Ascii85(-1)")
 
 	for _, tc := range []struct {
-		templ  func(int) Template
+		gen    func(int) Generator
 		expect string
 		count  int
 	}{
@@ -49,9 +49,9 @@ func TestEncoding(t *testing.T) {
 		{Ascii85, "B'Dt<mtrYXLeRX", 11},
 		{Ascii85, "B'Dt<mtrYXLeRYJattV$=9", 17},
 	} {
-		testRand := newTestRand()
+		tr := newTestRand()
 
-		pass, err := tc.templ(tc.count).Password(testRand)
+		pass, err := tc.gen(tc.count).Password(tr)
 		if !assert.NoError(t, err) {
 			continue
 		}

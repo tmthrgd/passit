@@ -9,17 +9,17 @@ import (
 
 //go:generate go run emoji_generate.go emoji_generate_gen.go emoji_generate_ucd.go -unicode 13.0.0
 
-type embeddedList struct {
+type embeddedGenerator struct {
 	once sync.Once
 	raw  string
 	list []string
 }
 
-func (e *embeddedList) Password(r io.Reader) (string, error) {
-	e.once.Do(func() {
-		e.list = strings.Split(e.raw, "\n")
+func (eg *embeddedGenerator) Password(r io.Reader) (string, error) {
+	eg.once.Do(func() {
+		eg.list = strings.Split(eg.raw, "\n")
 	})
-	return readSliceN(r, e.list)
+	return readSliceN(r, eg.list)
 }
 
 var (
@@ -57,17 +57,18 @@ var (
 	emoji13List string
 )
 
-// EFFLargeWordlist is a Template that returns a random word from the
+// EFFLargeWordlist is a Generator that returns a random word from the
 // EFF Large Wordlist for Passphrases (eff_large_wordlist.txt).
-var EFFLargeWordlist Template = &embeddedList{raw: effLargeWordlist}
+var EFFLargeWordlist Generator = &embeddedGenerator{raw: effLargeWordlist}
 
-// EFFShortWordlist1 is a Template that returns a random word from the
+// EFFShortWordlist1 is a Generator that returns a random word from the
 // EFF Short Wordlist for Passphrases #1 (eff_short_wordlist_1.txt).
-var EFFShortWordlist1 Template = &embeddedList{raw: effShortWordlist1}
+var EFFShortWordlist1 Generator = &embeddedGenerator{raw: effShortWordlist1}
 
-// EFFShortWordlist2 is a Template that returns a random word from the
+// EFFShortWordlist2 is a Generator that returns a random word from the
 // EFF Short Wordlist for Passphrases #2 (eff_short_wordlist_2_0.txt).
-var EFFShortWordlist2 Template = &embeddedList{raw: effShortWordlist2}
+var EFFShortWordlist2 Generator = &embeddedGenerator{raw: effShortWordlist2}
 
-// Emoji13 is a Template that returns a random emoji from the Unicode 13.0 emoji list.
-var Emoji13 Template = &embeddedList{raw: emoji13List}
+// Emoji13 is a Generator that returns a random emoji from the Unicode 13.0 emoji
+// list.
+var Emoji13 Generator = &embeddedGenerator{raw: emoji13List}

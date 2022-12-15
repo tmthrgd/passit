@@ -9,7 +9,7 @@ import (
 
 func TestSpectreTemplate(t *testing.T) {
 	for _, tc := range []struct {
-		template  SpectreTemplate
+		gen       SpectreTemplate
 		expected1 string
 		expected2 string
 	}{
@@ -22,14 +22,14 @@ func TestSpectreTemplate(t *testing.T) {
 		{SpectrePIN, "0778", "2449"},
 		{SpectreShort, "His8", "Zup9"},
 	} {
-		testRand := newTestRand()
+		tr := newTestRand()
 
-		pass, err := tc.template.Password(testRand)
+		pass, err := tc.gen.Password(tr)
 		if assert.NoErrorf(t, err, "failed to generate password: %+v", tc) {
 			assert.Equalf(t, tc.expected1, pass, "incorrect password generated: %+v", tc)
 		}
 
-		pass, err = tc.template.Password(testRand)
+		pass, err = tc.gen.Password(tr)
 		if assert.NoErrorf(t, err, "failed to generate password: %+v", tc) {
 			assert.Equalf(t, tc.expected2, pass, "incorrect password generated: %+v", tc)
 		}
@@ -39,12 +39,12 @@ func TestSpectreTemplate(t *testing.T) {
 var sinkString string
 
 func BenchmarkSpectreTemplate(b *testing.B) {
-	testRand := newTestRand()
+	tr := newTestRand()
 
 	var pass string
 	for n := 0; n < b.N; n++ {
 		var err error
-		pass, err = SpectreLong.Password(testRand)
+		pass, err = SpectreLong.Password(tr)
 		if err != nil {
 			require.NoErrorf(b, err, "failed to generate password")
 		}

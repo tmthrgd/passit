@@ -8,17 +8,17 @@ import (
 	"strings"
 )
 
-type encoding struct {
+type encodingGenerator struct {
 	encodeToString func([]byte) string
 	count          int
 }
 
-func newEncoding(count int, encodeToString func([]byte) string) Template {
+func newEncoding(count int, encodeToString func([]byte) string) Generator {
 	if count < 0 {
 		panic("passit: count must be positive")
 	}
 
-	return &encoding{encodeToString, count}
+	return &encodingGenerator{encodeToString, count}
 }
 
 func encodeToHex(hextable string, src []byte) string {
@@ -33,48 +33,48 @@ func encodeToHex(hextable string, src []byte) string {
 	return sb.String()
 }
 
-// HexLower returns a Template that encodes count-bytes in lowercase hexadecimal.
-func HexLower(count int) Template {
+// HexLower returns a Generator that encodes count-bytes in lowercase hexadecimal.
+func HexLower(count int) Generator {
 	return newEncoding(count, func(src []byte) string {
 		return encodeToHex("0123456789abcdef", src)
 	})
 }
 
-// HexUpper returns a Template that encodes count-bytes in uppercase hexadecimal.
-func HexUpper(count int) Template {
+// HexUpper returns a Generator that encodes count-bytes in uppercase hexadecimal.
+func HexUpper(count int) Generator {
 	return newEncoding(count, func(src []byte) string {
 		return encodeToHex("0123456789ABCDEF", src)
 	})
 }
 
-// Base32Std returns a Template that encodes count-bytes with
+// Base32Std returns a Generator that encodes count-bytes with
 // encoding/base32.StdEncoding without padding.
-func Base32Std(count int) Template {
+func Base32Std(count int) Generator {
 	rawStd := base32.StdEncoding.WithPadding(base32.NoPadding)
 	return newEncoding(count, rawStd.EncodeToString)
 }
 
-// Base32Hex returns a Template that encodes count-bytes with
+// Base32Hex returns a Generator that encodes count-bytes with
 // encoding/base32.HexEncoding without padding.
-func Base32Hex(count int) Template {
+func Base32Hex(count int) Generator {
 	rawHex := base32.HexEncoding.WithPadding(base32.NoPadding)
 	return newEncoding(count, rawHex.EncodeToString)
 }
 
-// Base64Std returns a Template that encodes count-bytes with
+// Base64Std returns a Generator that encodes count-bytes with
 // encoding/base64.RawStdEncoding.
-func Base64Std(count int) Template {
+func Base64Std(count int) Generator {
 	return newEncoding(count, base64.RawStdEncoding.EncodeToString)
 }
 
-// Base64URL returns a Template that encodes count-bytes with
+// Base64URL returns a Generator that encodes count-bytes with
 // encoding/base64.RawURLEncoding.
-func Base64URL(count int) Template {
+func Base64URL(count int) Generator {
 	return newEncoding(count, base64.RawURLEncoding.EncodeToString)
 }
 
-// Ascii85 returns a Template that encodes count-bytes with encoding/ascii85.
-func Ascii85(count int) Template {
+// Ascii85 returns a Generator that encodes count-bytes with encoding/ascii85.
+func Ascii85(count int) Generator {
 	return newEncoding(count, func(src []byte) string {
 		dst := make([]byte, ascii85.MaxEncodedLen(len(src)))
 		n := ascii85.Encode(dst, src)
@@ -82,11 +82,11 @@ func Ascii85(count int) Template {
 	})
 }
 
-func (e *encoding) Password(r io.Reader) (string, error) {
-	buf := make([]byte, e.count)
+func (eg *encodingGenerator) Password(r io.Reader) (string, error) {
+	buf := make([]byte, eg.count)
 	if _, err := io.ReadFull(r, buf); err != nil {
 		return "", wrapReadError(err)
 	}
 
-	return e.encodeToString(buf), nil
+	return eg.encodeToString(buf), nil
 }

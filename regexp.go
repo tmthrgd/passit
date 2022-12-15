@@ -16,16 +16,16 @@ const maxUnboundedRepeatCount = 15
 
 type regexpGenerator func(*strings.Builder, io.Reader) error
 
-// RegexpParser is a regular expressions parser that parses patterns into a Template
-// that generates passwords matching the parsed regexp. The zero-value is a usable
-// parser.
+// RegexpParser is a regular expressions parser that parses patterns into a
+// Generator that generates passwords matching the parsed regexp. The zero-value is
+// a usable parser.
 type RegexpParser struct {
 	anyTab          *unicode.RangeTable
 	specialCaptures map[string]SpecialCaptureFactory
 }
 
 // ParseRegexp is a shortcut for new(RegexpParser).Parse(pattern, flags).
-func ParseRegexp(pattern string, flags syntax.Flags) (Template, error) {
+func ParseRegexp(pattern string, flags syntax.Flags) (Generator, error) {
 	return new(RegexpParser).Parse(pattern, flags)
 }
 
@@ -38,19 +38,16 @@ func (p *RegexpParser) SetAnyRangeTable(tab *unicode.RangeTable) {
 
 // SetSpecialCapture adds a special capture factory to use for matching named
 // captures. A regexp pattern such as "(?P<name>)" will invoke the factory and use
-// the returned Template instead of the contents of the capture.
+// the returned Generator instead of the contents of the capture.
 func (p *RegexpParser) SetSpecialCapture(name string, factory SpecialCaptureFactory) {
 	if p.specialCaptures == nil {
 		p.specialCaptures = make(map[string]SpecialCaptureFactory)
 	}
-
 	p.specialCaptures[name] = factory
 }
 
-type regexpTemplate struct{ gen regexpGenerator }
-
-// Parse parses the regexp pattern according to the flags and returns a Template. It
-// returns an error if the regexp is invalid. It uses regexp/syntax to parse the
+// Parse parses the regexp pattern according to the flags and returns a Generator.
+// It returns an error if the regexp is invalid. It uses regexp/syntax to parse the
 // pattern.
 //
 // All regexp features supported by regexp/syntax are supported, though some may
@@ -58,7 +55,7 @@ type regexpTemplate struct{ gen regexpGenerator }
 //
 // Neither syntax.MatchNL nor syntax.FoldCase will have any effect whether present
 // or not.
-func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Template, error) {
+func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Generator, error) {
 	// We intentionally never generate newlines, but passing syntax.MatchNL to
 	// syntax.Parse simplifies the parsed character classes.
 	flags |= syntax.MatchNL
@@ -86,17 +83,12 @@ func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Template, erro
 	//
 	// r = r.Simplify()
 
-	gen, err := p.parse(r)
-	if err != nil {
-		return nil, err
-	}
-
-	return regexpTemplate{gen}, nil
+	return p.parse(r)
 }
 
-func (rt regexpTemplate) Password(r io.Reader) (string, error) {
+func (rg regexpGenerator) Password(r io.Reader) (string, error) {
 	var b strings.Builder
-	if err := rt.gen(&b, r); err != nil {
+	if err := rg(&b, r); err != nil {
 		return "", err
 	}
 
@@ -209,13 +201,13 @@ func (p *RegexpParser) namedCapture(sr *syntax.Regexp) (regexpGenerator, error) 
 		return p.parse(sr.Sub[0])
 	}
 
-	tmpl, err := factory(sr)
+	gen, err := factory(sr)
 	if err != nil {
 		return nil, err
 	}
 
 	return func(b *strings.Builder, r io.Reader) error {
-		pass, err := tmpl.Password(r)
+		pass, err := gen.Password(r)
 		if err != nil {
 			return err
 		} else if !utf8.ValidString(pass) {
@@ -327,14 +319,14 @@ func (p *RegexpParser) anyRangeTable() *unicode.RangeTable {
 
 // SpecialCaptureFactory represents a special capture factory to be used with
 // (*RegexpParser).SetSpecialCapture.
-type SpecialCaptureFactory func(*syntax.Regexp) (Template, error)
+type SpecialCaptureFactory func(*syntax.Regexp) (Generator, error)
 
 // SpecialCaptureBasic returns a special capture factory that doesn't accept any
-// input and always returns the provided Template.
-func SpecialCaptureBasic(tmpl Template) SpecialCaptureFactory {
-	return func(sr *syntax.Regexp) (Template, error) {
+// input and always returns the provided Generator.
+func SpecialCaptureBasic(gen Generator) SpecialCaptureFactory {
+	return func(sr *syntax.Regexp) (Generator, error) {
 		if sr.Sub[0].Op == syntax.OpEmptyMatch {
-			return tmpl, nil
+			return gen, nil
 		}
 
 		return nil, errors.New("passit: unsupported capture")
@@ -342,20 +334,20 @@ func SpecialCaptureBasic(tmpl Template) SpecialCaptureFactory {
 }
 
 // SpecialCaptureWithRepeat returns a special capture factory that parses the
-// capture value for a count to be used with Repeat(tmpl, sep, count). If the
-// capture is empty, the Template is returned directly.
-func SpecialCaptureWithRepeat(tmpl Template, sep string) SpecialCaptureFactory {
-	return func(sr *syntax.Regexp) (Template, error) {
+// capture value for a count to be used with Repeat(gen, sep, count). If the
+// capture is empty, the Generator is returned directly.
+func SpecialCaptureWithRepeat(gen Generator, sep string) SpecialCaptureFactory {
+	return func(sr *syntax.Regexp) (Generator, error) {
 		switch sr.Sub[0].Op {
 		case syntax.OpEmptyMatch:
-			return tmpl, nil
+			return gen, nil
 		case syntax.OpLiteral:
 			count, err := strconv.ParseUint(string(sr.Sub[0].Rune), 10, bits.UintSize-1)
 			if err != nil {
 				return nil, fmt.Errorf("passit: failed to parse capture: %w", err)
 			}
 
-			return Repeat(tmpl, sep, int(count)), nil
+			return Repeat(gen, sep, int(count)), nil
 		default:
 			return nil, errors.New("passit: unsupported capture")
 		}

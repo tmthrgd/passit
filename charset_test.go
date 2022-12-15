@@ -10,7 +10,7 @@ import (
 )
 
 func TestCharset(t *testing.T) {
-	for _, tc := range []struct{ expect, template string }{
+	for _, tc := range []struct{ expect, charset string }{
 		{"", ""},
 		{"~~~~~~~~~~~~~~~~~~~~~~~~~", "~"},
 		{"0110000100000101100110101", "01"},
@@ -23,14 +23,14 @@ func TestCharset(t *testing.T) {
 		{"κΔφδΦΓΥΖΞκκΤΠΔΖΠοΣυγψΝηΔΝ", "ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω"},
 		{"🐊🐝🐝💅🎩🍈🍈🚋💬💅🛰🔱🛰🍧🔱🍳🚋🍈💅🚋🍉🍈🍧🍈🐂", "🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋"},
 	} {
-		testRand := newTestRand()
+		tr := newTestRand()
 
-		tmpl, err := FromCharset(tc.template)
+		gen, err := FromCharset(tc.charset)
 		if !assert.NoError(t, err) {
 			continue
 		}
 
-		pass, err := Repeat(tmpl, "", 25).Password(testRand)
+		pass, err := Repeat(gen, "", 25).Password(tr)
 		if !assert.NoError(t, err) {
 			continue
 		}
@@ -38,14 +38,14 @@ func TestCharset(t *testing.T) {
 		assert.Equal(t, tc.expect, pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
-		allRunesAllowed(t, tc.template, pass)
+		allRunesAllowed(t, tc.charset, pass)
 	}
 }
 
 func TestFixedCharset(t *testing.T) {
 	for _, tc := range []struct {
-		expect   string
-		template Template
+		expect string
+		gen    Generator
 	}{
 		{"0778244948606109948934141", Number},
 		{"chzqoyupqagyotuvfssvfazip", LatinLower},
@@ -57,9 +57,9 @@ func TestFixedCharset(t *testing.T) {
 	} {
 		const size = 25
 
-		testRand := newTestRand()
+		tr := newTestRand()
 
-		pass, err := Repeat(tc.template, "", size).Password(testRand)
+		pass, err := Repeat(tc.gen, "", size).Password(tr)
 		if !assert.NoError(t, err) {
 			continue
 		}
@@ -69,7 +69,7 @@ func TestFixedCharset(t *testing.T) {
 			"utf8.RuneCountInString(%q)", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
-		allRunesAllowed(t, tc.template.(*asciiCharset).s, pass)
+		allRunesAllowed(t, tc.gen.(*asciiGenerator).s, pass)
 	}
 }
 
@@ -110,9 +110,9 @@ func TestRangeTable(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		testRand := newTestRand()
+		tr := newTestRand()
 
-		pass, err := Repeat(FromRangeTable(tc.tab), "", 25).Password(testRand)
+		pass, err := Repeat(FromRangeTable(tc.tab), "", 25).Password(tr)
 		if !assert.NoError(t, err) {
 			continue
 		}

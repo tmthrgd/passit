@@ -13,10 +13,10 @@ import (
 func TestRegexp(t *testing.T) {
 	pattern := `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+(?P<punct>[[:punct:]])`
 
-	tmpl, err := ParseRegexp(pattern, syntax.Perl)
+	gen, err := ParseRegexp(pattern, syntax.Perl)
 	require.NoError(t, err)
 
-	testRand := newTestRand()
+	tr := newTestRand()
 
 	for _, expect := range []string{
 		"acd7faaaaaaaabbbbbbbbbbbccccdddddeeeeeeeeeeeeeeee0u.=_K?L#",
@@ -33,7 +33,7 @@ func TestRegexp(t *testing.T) {
 		"x0560855439%i Jyyyyyyyyyyzzzzzzzzyyyyzzzz-",
 		"abd8Maabccccddddeeeeeeeeeeeeeeeeegggggggghhhhhhh)MOC4P`K~C>/W}",
 	} {
-		pass, err := tmpl.Password(testRand)
+		pass, err := gen.Password(tr)
 		require.NoError(t, err)
 
 		assert.Equal(t, expect, pass)
@@ -93,10 +93,10 @@ func TestRegexpUnicodeAny(t *testing.T) {
 	var p RegexpParser
 	p.SetAnyRangeTable(asciiGreek13RangeTable)
 
-	tmpl, err := p.Parse(pattern, syntax.Perl)
+	gen, err := p.Parse(pattern, syntax.Perl)
 	require.NoError(t, err)
 
-	testRand := newTestRand()
+	tr := newTestRand()
 
 	for _, expect := range []string{
 		"acd7faaaaaaaabbbbbbbbbbbccccdddddeeeeeeeeeeeeeeee1ᾒ𝉁-Ἆᴦδώ𝈩",
@@ -113,7 +113,7 @@ func TestRegexpUnicodeAny(t *testing.T) {
 		"x0560855439ύ+TὟyyyyyyyyyyzzzzzzzzyyyyzzzz-",
 		"abd8Maabccccddddeeeeeeeeeeeeeeeeegggggggghhhhhhh𝉄῭ᵡᵟΎῄB𝈰Ω῀ᾛ϶ϳΌ",
 	} {
-		pass, err := tmpl.Password(testRand)
+		pass, err := gen.Password(tr)
 		require.NoError(t, err)
 
 		if !assert.Equal(t, expect, pass) {
@@ -131,10 +131,10 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 	var p RegexpParser
 	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist))
 
-	tmpl, err := p.Parse(`((?P<word>) ){6}[[:upper:]][[:digit:]][[:punct:]]`, syntax.PerlX)
+	gen, err := p.Parse(`((?P<word>) ){6}[[:upper:]][[:digit:]][[:punct:]]`, syntax.PerlX)
 	require.NoError(t, err)
 
-	testRand := newTestRand()
+	tr := newTestRand()
 
 	for _, expect := range []string{
 		"reprint wool pantry unworried mummify veneering U9]",
@@ -142,7 +142,7 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 		"acetone stroller frantic catapult tipping wildland P6*",
 		"consumer phantom handclasp blast broadside spleen E4[",
 	} {
-		pass, err := tmpl.Password(testRand)
+		pass, err := gen.Password(tr)
 		require.NoError(t, err)
 
 		assert.Equal(t, expect, pass)
@@ -164,14 +164,14 @@ func TestRegexpSpecialCaptureFactories(t *testing.T) {
 		{"(?P<words>2)", "reprint wool"},
 		{"(?P<words>03)", "reprint wool pantry"},
 	} {
-		testRand := newTestRand()
+		tr := newTestRand()
 
-		tmpl, err := p.Parse(tc.pattern, syntax.PerlX)
+		gen, err := p.Parse(tc.pattern, syntax.PerlX)
 		if !assert.NoError(t, err, tc.pattern) {
 			continue
 		}
 
-		pass, err := tmpl.Password(testRand)
+		pass, err := gen.Password(tr)
 		if assert.NoError(t, err, tc.pattern) {
 			assert.Equal(t, tc.expect, pass, tc.pattern)
 			allRunesAllowed(t, rangeTableASCII, pass)
@@ -208,16 +208,16 @@ func BenchmarkRegexpParse(b *testing.B) {
 	}
 }
 
-func BenchmarkRegexpTemplate(b *testing.B) {
+func BenchmarkRegexpPassword(b *testing.B) {
 	const pattern = `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+(?P<punct>[[:punct:]])`
-	tmpl, err := ParseRegexp(pattern, syntax.Perl)
+	gen, err := ParseRegexp(pattern, syntax.Perl)
 	if err != nil {
 		require.NoError(b, err)
 	}
-	testRand := newTestRand()
+	tr := newTestRand()
 
 	for n := 0; n < b.N; n++ {
-		_, err := tmpl.Password(testRand)
+		_, err := gen.Password(tr)
 		if err != nil {
 			require.NoError(b, err)
 		}

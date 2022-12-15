@@ -12,9 +12,9 @@ import (
 func TestEFFLargeWordlist(t *testing.T) {
 	const size = 8
 
-	testRand := newTestRand()
+	tr := newTestRand()
 
-	pass, err := Repeat(EFFLargeWordlist, " ", size).Password(testRand)
+	pass, err := Repeat(EFFLargeWordlist, " ", size).Password(tr)
 	require.NoError(t, err)
 
 	assert.Equal(t, "reprint wool pantry unworried mummify veneering securely munchkin", pass)
@@ -23,16 +23,16 @@ func TestEFFLargeWordlist(t *testing.T) {
 	assert.Truef(t, utf8.ValidString(pass),
 		"utf8.ValidString(%q)", pass)
 
-	_, err = FromWords(EFFLargeWordlist.(*embeddedList).list...)
+	_, err = FromWords(EFFLargeWordlist.(*embeddedGenerator).list...)
 	assert.NoError(t, err, "wordlist valid")
 }
 
 func TestEFFShortWordlist1(t *testing.T) {
 	const size = 8
 
-	testRand := newTestRand()
+	tr := newTestRand()
 
-	pass, err := Repeat(EFFShortWordlist1, " ", size).Password(testRand)
+	pass, err := Repeat(EFFShortWordlist1, " ", size).Password(tr)
 	require.NoError(t, err)
 
 	assert.Equal(t, "bush vapor issue ruby carol sleep hula case", pass)
@@ -41,16 +41,16 @@ func TestEFFShortWordlist1(t *testing.T) {
 	assert.Truef(t, utf8.ValidString(pass),
 		"utf8.ValidString(%q)", pass)
 
-	_, err = FromWords(EFFShortWordlist1.(*embeddedList).list...)
+	_, err = FromWords(EFFShortWordlist1.(*embeddedGenerator).list...)
 	assert.NoError(t, err, "wordlist valid")
 }
 
 func TestEFFShortWordlist2(t *testing.T) {
 	const size = 8
 
-	testRand := newTestRand()
+	tr := newTestRand()
 
-	pass, err := Repeat(EFFShortWordlist2, " ", size).Password(testRand)
+	pass, err := Repeat(EFFShortWordlist2, " ", size).Password(tr)
 	require.NoError(t, err)
 
 	assert.Equal(t, "barracuda vegetable idly podiatrist bossiness satchel hexagon boxlike", pass)
@@ -59,14 +59,14 @@ func TestEFFShortWordlist2(t *testing.T) {
 	assert.Truef(t, utf8.ValidString(pass),
 		"utf8.ValidString(%q)", pass)
 
-	_, err = FromWords(EFFShortWordlist2.(*embeddedList).list...)
+	_, err = FromWords(EFFShortWordlist2.(*embeddedGenerator).list...)
 	assert.NoError(t, err, "wordlist valid")
 }
 
 func TestEmoji13(t *testing.T) {
 	const size = 25
 
-	testRand := newTestRand()
+	tr := newTestRand()
 
 	for _, expect := range []string{
 		"🏪🇮🇶👩🏾\u200d🎤🚣🏾🧍🏿\u200d♂️👩\u200d👩\u200d👦\u200d👦🐄🙋🏾👰🏽🌲👩🏿\u200d⚕️👩🏾💁🏾\u200d♂️👩🏻\u200d🦲🧘🏽\u200d♀️🧑🏽\u200d🤝\u200d🧑🏽👱🏻🌄💌⛏️🔙🎟️🏋🏾\u200d♂️4️⃣🤷🏾",
@@ -74,13 +74,13 @@ func TestEmoji13(t *testing.T) {
 		"🧑🏼\u200d🦼🐶🏴🚵🦻👙🈂️🏊🏼🦸🏻\u200d♀️⚗️🏞️🇨🇽💆🏿👨🏼\u200d⚕️🤘🏾🕊️🙏🏻🥸😴⛏️🧗\u200d♀️⏲️🥱🩳🍄",
 		"👨🏿\u200d🤝\u200d👨🏽🧑🏻\u200d⚖️🍱📡🍄👩🏿\u200d🎨🚥🧑🏻\u200d🦳🤳🏾💅🏽🏂🏽👩🏾\u200d🎤🧑🏼\u200d🦱👨🏾\u200d✈️🩰🤚🏽⏱️☦️☯️😃🙍🏽\u200d♂️🤌🏽📂🧑🏼\u200d🎓🌘",
 	} {
-		pass, err := Repeat(Emoji13, "", size).Password(testRand)
+		pass, err := Repeat(Emoji13, "", size).Password(tr)
 		if !assert.NoError(t, err) {
 			continue
 		}
 
 		assert.Equal(t, expect, pass)
-		assert.Equal(t, size, countEmojiInString(Emoji13.(*embeddedList).list, pass),
+		assert.Equal(t, size, countEmojiInString(Emoji13.(*embeddedGenerator).list, pass),
 			"countEmojiInString(%q)", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)

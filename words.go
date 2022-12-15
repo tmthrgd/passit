@@ -10,9 +10,9 @@ import (
 
 type words struct{ list []string }
 
-// FromWords returns a Template that returns a random word from list. It returns an
+// FromWords returns a Generator that returns a random word from list. It returns an
 // error if the list of words is invalid.
-func FromWords(list ...string) (Template, error) {
+func FromWords(list ...string) (Generator, error) {
 	if len(list) > maxReadIntN {
 		return nil, errors.New("passit: list too long")
 	}

@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-// SpectreTemplate implements a variant of the Spectre / Master Password encoding
-// algorithm by Maarten Billemont for generating passwords.
+// SpectreTemplate is a Generator that implements a variant of the
+// Spectre / Master Password encoding algorithm by Maarten Billemont.
 //
 // This algorithm is not compatible with any of the officially published algorithms,
 // but it does produce passwords using the same templates that are indistinguishable
@@ -42,7 +42,7 @@ func (st SpectreTemplate) readTemplate(r io.Reader) (string, error) {
 	return template, nil
 }
 
-// Password implements Template.
+// Password implements Generator.
 func (st SpectreTemplate) Password(r io.Reader) (string, error) {
 	template, err := st.readTemplate(r)
 	if err != nil {

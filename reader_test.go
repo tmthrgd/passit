@@ -69,7 +69,7 @@ func TestReadIntN(t *testing.T) {
 		}, "readIntN with invalid n=%d", n)
 	}
 
-	testReader := newTestRand()
+	tr := newTestRand()
 
 	for _, tc := range []struct{ N, Expect int }{
 		{10, 0},
@@ -83,7 +83,7 @@ func TestReadIntN(t *testing.T) {
 		{255, 59},
 		{maxReadIntN, 52988},
 	} {
-		got, err := readIntN(testReader, tc.N)
+		got, err := readIntN(tr, tc.N)
 		if assert.NoErrorf(t, err, "readIntN with n=%d: error", tc.N) {
 			assert.Equalf(t, tc.Expect, got, "readIntN with n=%d: result", tc.N)
 		}

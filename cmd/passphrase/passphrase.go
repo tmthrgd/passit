@@ -33,20 +33,20 @@ func main() {
 	sep := flag.String("s", " ", "the separator to use between words")
 	flag.Parse()
 
-	var tmpl passit.Template
+	var gen passit.Generator
 	switch *list {
 	case "large":
-		tmpl = passit.EFFLargeWordlist
+		gen = passit.EFFLargeWordlist
 	case "short1":
-		tmpl = passit.EFFShortWordlist1
+		gen = passit.EFFShortWordlist1
 	case "short2":
-		tmpl = passit.EFFShortWordlist2
+		gen = passit.EFFShortWordlist2
 	default:
 		log.SetFlags(0)
 		log.Fatal("passit: invalid wordlist specified")
 	}
 
-	pass, err := passit.Repeat(tmpl, *sep, *count).Password(rand.Reader)
+	pass, err := passit.Repeat(gen, *sep, *count).Password(rand.Reader)
 	if err != nil {
 		log.SetFlags(0)
 		log.Fatal(err)

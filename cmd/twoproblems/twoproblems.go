@@ -46,12 +46,12 @@ func main1() error {
 	rp.SetSpecialCapture("short2word", passit.SpecialCaptureWithRepeat(passit.EFFShortWordlist2, " "))
 	rp.SetSpecialCapture("emoji", passit.SpecialCaptureWithRepeat(passit.Emoji13, ""))
 
-	tmpl, err := rp.Parse(flag.Arg(0), syntax.Perl)
+	gen, err := rp.Parse(flag.Arg(0), syntax.Perl)
 	if err != nil {
 		return fmt.Errorf("twoproblems: failed to parse %q pattern: %w", flag.Arg(0), err)
 	}
 
-	pass, err := tmpl.Password(bufio.NewReader(rand.Reader))
+	pass, err := gen.Password(bufio.NewReader(rand.Reader))
 	if err != nil {
 		return fmt.Errorf("twoproblems: failed to generate password: %w", err)
 	}

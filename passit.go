@@ -3,8 +3,8 @@ package passit
 
 import "io"
 
-// Template is an interface for generating passwords.
-type Template interface {
+// Generator is an interface for generating passwords.
+type Generator interface {
 	// Password returns a randomly generated password using r as the source of
 	// randomness.
 	//
@@ -20,12 +20,12 @@ type Template interface {
 	Password(r io.Reader) (string, error)
 }
 
-// The TemplateFunc type is an adapter to allow the use of ordinary functions as
+// The GeneratorFunc type is an adapter to allow the use of ordinary functions as
 // password generators. If f is a function with the appropriate signature,
-// TemplateFunc(f) is a Template that calls f.
-type TemplateFunc func(r io.Reader) (string, error)
+// GeneratorFunc(f) is a Generator that calls f.
+type GeneratorFunc func(r io.Reader) (string, error)
 
-// Password implements Template, calling f(r).
-func (f TemplateFunc) Password(r io.Reader) (string, error) {
+// Password implements Generator, calling f(r).
+func (f GeneratorFunc) Password(r io.Reader) (string, error) {
 	return f(r)
 }

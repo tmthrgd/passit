@@ -9,29 +9,29 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-type joined struct {
-	tmpls []Template
-	sep   string
+type concatGenerator struct {
+	gens []Generator
+	sep  string
 }
 
-// Join returns a Template that concatenates the outputs of each Template to create
-// a single string. The separator string sep is placed between the outputs in the
-// resulting string.
-func Join(sep string, tmpls ...Template) Template {
-	switch len(tmpls) {
+// Join returns a Generator that concatenates the outputs of each Generator to
+// create a single string. The separator string sep is placed between the outputs in
+// the resulting string.
+func Join(sep string, gens ...Generator) Generator {
+	switch len(gens) {
 	case 0:
 		return Empty
 	case 1:
-		return tmpls[0]
+		return gens[0]
 	default:
-		return &joined{slices.Clone(tmpls), sep}
+		return &concatGenerator{slices.Clone(gens), sep}
 	}
 }
 
-func (j *joined) Password(r io.Reader) (string, error) {
-	parts := make([]string, len(j.tmpls))
-	for i, tmpl := range j.tmpls {
-		part, err := tmpl.Password(r)
+func (cg *concatGenerator) Password(r io.Reader) (string, error) {
+	parts := make([]string, len(cg.gens))
+	for i, gen := range cg.gens {
+		part, err := gen.Password(r)
 		if err != nil {
 			return "", err
 		}
@@ -39,35 +39,35 @@ func (j *joined) Password(r io.Reader) (string, error) {
 		parts[i] = part
 	}
 
-	return strings.Join(parts, j.sep), nil
+	return strings.Join(parts, cg.sep), nil
 }
 
-type repeated struct {
-	tmpl  Template
+type repeatGenerator struct {
+	gen   Generator
 	sep   string
 	count int
 }
 
-// Repeat returns a Template that concatenates the output of invoking the Template
+// Repeat returns a Generator that concatenates the output of invoking the Generator
 // count times to create a single string. The separator string sep is placed between
 // the outputs in the resulting string.
-func Repeat(tmpl Template, sep string, count int) Template {
+func Repeat(gen Generator, sep string, count int) Generator {
 	switch {
 	case count < 0:
 		panic("passit: count must be positive")
 	case count == 0:
 		return Empty
 	case count == 1:
-		return tmpl
+		return gen
 	default:
-		return &repeated{tmpl, sep, count}
+		return &repeatGenerator{gen, sep, count}
 	}
 }
 
-func (rt *repeated) Password(r io.Reader) (string, error) {
-	parts := make([]string, rt.count)
+func (rg *repeatGenerator) Password(r io.Reader) (string, error) {
+	parts := make([]string, rg.count)
 	for i := range parts {
-		part, err := rt.tmpl.Password(r)
+		part, err := rg.gen.Password(r)
 		if err != nil {
 			return "", err
 		}
@@ -75,23 +75,23 @@ func (rt *repeated) Password(r io.Reader) (string, error) {
 		parts[i] = part
 	}
 
-	return strings.Join(parts, rt.sep), nil
+	return strings.Join(parts, rg.sep), nil
 }
 
-type randomRepeated struct {
-	tmpl Template
-	sep  string
-	min  int
-	n    int
+type randomRepeatGenerator struct {
+	gen Generator
+	sep string
+	min int
+	n   int
 }
 
-// RandomRepeat returns a Template that concatenates the output of invoking the
-// Template a random number of times in [min,max] to create a single string. The
+// RandomRepeat returns a Generator that concatenates the output of invoking the
+// Generator a random number of times in [min,max] to create a single string. The
 // separator string sep is placed between the outputs in the resulting string.
 //
 // An error is returned if either min or max are invalid or outside the suppoted
 // range.
-func RandomRepeat(tmpl Template, sep string, min, max int) (Template, error) {
+func RandomRepeat(gen Generator, sep string, min, max int) (Generator, error) {
 	if min > max {
 		return nil, errors.New("passit: min argument cannot be greater than max argument")
 	}
@@ -105,83 +105,83 @@ func RandomRepeat(tmpl Template, sep string, min, max int) (Template, error) {
 	}
 
 	if min == max {
-		return Repeat(tmpl, sep, min), nil
+		return Repeat(gen, sep, min), nil
 	}
 
-	return &randomRepeated{tmpl, sep, min, n}, nil
+	return &randomRepeatGenerator{gen, sep, min, n}, nil
 }
 
-func (rr *randomRepeated) Password(r io.Reader) (string, error) {
-	n, err := readIntN(r, rr.n)
+func (rg *randomRepeatGenerator) Password(r io.Reader) (string, error) {
+	n, err := readIntN(r, rg.n)
 	if err != nil {
 		return "", err
 	}
 
-	return Repeat(rr.tmpl, rr.sep, rr.min+n).Password(r)
+	return Repeat(rg.gen, rg.sep, rg.min+n).Password(r)
 }
 
-type alternate struct {
-	tmpls []Template
+type alternateGenerator struct {
+	gens []Generator
 }
 
-// Alternate returns a Template that randomly selects one of the provided Template's
-// to use to generate the resultant password.
-func Alternate(tmpls ...Template) Template {
-	switch len(tmpls) {
+// Alternate returns a Generator that randomly selects one of the provided
+// Generator's to use to generate the password.
+func Alternate(gens ...Generator) Generator {
+	switch len(gens) {
 	case 0:
 		return Empty
 	case 1:
-		return tmpls[0]
+		return gens[0]
 	default:
-		return &alternate{slices.Clone(tmpls)}
+		return &alternateGenerator{slices.Clone(gens)}
 	}
 }
 
-func (at *alternate) Password(r io.Reader) (string, error) {
-	tmpl, err := readSliceN(r, at.tmpls)
+func (ag *alternateGenerator) Password(r io.Reader) (string, error) {
+	gen, err := readSliceN(r, ag.gens)
 	if err != nil {
 		return "", err
 	}
 
-	return tmpl.Password(r)
+	return gen.Password(r)
 }
 
-type rejection struct {
-	tmpl      Template
+type rejectionGenerator struct {
+	gen       Generator
 	condition func(string) bool
 }
 
-// RejectionSample returns a Template that continually generates passwords with tmpl
+// RejectionSample returns a Generator that continually generates passwords with gen
 // until condition reports true for the generated password or an error occurs.
 //
 // The behaviour is unspecified if condition never reports true.
-func RejectionSample(tmpl Template, condition func(string) bool) Template {
-	return &rejection{tmpl, condition}
+func RejectionSample(gen Generator, condition func(string) bool) Generator {
+	return &rejectionGenerator{gen, condition}
 }
 
-func (rs *rejection) Password(r io.Reader) (string, error) {
+func (rg *rejectionGenerator) Password(r io.Reader) (string, error) {
 	for {
-		pass, err := rs.tmpl.Password(r)
+		pass, err := rg.gen.Password(r)
 		if err != nil {
 			return "", err
 		}
-		if rs.condition(pass) {
+		if rg.condition(pass) {
 			return pass, nil
 		}
 	}
 }
 
-// Hyphen is a Template that always returns an empty string.
-var Empty Template = fixedString("")
+// Hyphen is a Generator that always returns an empty string.
+var Empty Generator = fixedString("")
 
-// Space is a Template that always returns a fixed ASCII space.
-var Space Template = fixedString(" ")
+// Space is a Generator that always returns a fixed ASCII space.
+var Space Generator = fixedString(" ")
 
-// Hyphen is a Template that always returns a fixed ASCII hyphen-minus.
-var Hyphen Template = fixedString("-")
+// Hyphen is a Generator that always returns a fixed ASCII hyphen-minus.
+var Hyphen Generator = fixedString("-")
 
-// FixedString returns a Template that always returns the given string.
-func FixedString(s string) Template {
+// FixedString returns a Generator that always returns the given string.
+func FixedString(s string) Generator {
 	return fixedString(s)
 }
 

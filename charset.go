@@ -7,70 +7,70 @@ import (
 	"unicode/utf8"
 )
 
-type asciiCharset struct{ s string }
+type asciiGenerator struct{ s string }
 
-// Number is a Template that returns a random numeric digit.
-var Number Template = &asciiCharset{"0123456789"}
+// Number is a Generator that returns a random numeric digit.
+var Number Generator = &asciiGenerator{"0123456789"}
 
-// LatinLower is a Template that returns a random lowercase character from the latin
+// LatinLower is a Generator that returns a random lowercase character from the latin
 // alphabet.
-var LatinLower Template = &asciiCharset{"abcdefghijklmnopqrstuvwxyz"}
+var LatinLower Generator = &asciiGenerator{"abcdefghijklmnopqrstuvwxyz"}
 
-// LatinUpper is a Template that returns a random uppercase character from the latin
+// LatinUpper is a Generator that returns a random uppercase character from the latin
 // alphabet.
-var LatinUpper Template = &asciiCharset{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
+var LatinUpper Generator = &asciiGenerator{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
 
-// LatinMixed is a Template that returns a random mixed-case characters from the
+// LatinMixed is a Generator that returns a random mixed-case characters from the
 // latin alphabet.
-var LatinMixed Template = &asciiCharset{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"}
+var LatinMixed Generator = &asciiGenerator{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"}
 
-// LatinLower is a Template that returns a random lowercase character from the latin
+// LatinLower is a Generator that returns a random lowercase character from the latin
 // alphabet.
-var LatinLowerNumber Template = &asciiCharset{"abcdefghijklmnopqrstuvwxyz0123456789"}
+var LatinLowerNumber Generator = &asciiGenerator{"abcdefghijklmnopqrstuvwxyz0123456789"}
 
-// LatinUpper is a Template that returns a random uppercase character from the latin
+// LatinUpper is a Generator that returns a random uppercase character from the latin
 // alphabet.
-var LatinUpperNumber Template = &asciiCharset{"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
+var LatinUpperNumber Generator = &asciiGenerator{"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
 
-// LatinMixed is a Template that returns a random mixed-case characters from the
+// LatinMixed is a Generator that returns a random mixed-case characters from the
 // latin alphabet.
-var LatinMixedNumber Template = &asciiCharset{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
+var LatinMixedNumber Generator = &asciiGenerator{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
 
-func (ac *asciiCharset) Password(r io.Reader) (string, error) {
-	idx, err := readIntN(r, len(ac.s))
+func (ag *asciiGenerator) Password(r io.Reader) (string, error) {
+	idx, err := readIntN(r, len(ag.s))
 	if err != nil {
 		return "", err
 	}
 
-	return ac.s[idx : idx+1], nil
+	return ag.s[idx : idx+1], nil
 }
 
-type charset struct{ runes []rune }
+type runeGenerator struct{ runes []rune }
 
-// FromCharset returns a Template that returns a random rune from template. It
-// returns an error if the template is invalid.
-func FromCharset(template string) (Template, error) {
-	if !utf8.ValidString(template) {
-		return nil, errors.New("passit: template contains invalid unicode rune")
+// FromCharset returns a Generator that returns a random rune from charset. It
+// returns an error if the charset is invalid.
+func FromCharset(charset string) (Generator, error) {
+	if !utf8.ValidString(charset) {
+		return nil, errors.New("passit: charset contains invalid unicode rune")
 	}
 
-	runes := []rune(template)
+	runes := []rune(charset)
 	if len(runes) > maxReadIntN {
-		return nil, errors.New("passit: too many runes in template")
+		return nil, errors.New("passit: too many runes in charset")
 	}
 
 	switch len(runes) {
 	case 0:
 		return Empty, nil
 	case 1:
-		return FixedString(template), nil
+		return FixedString(charset), nil
 	default:
-		return &charset{runes}, nil
+		return &runeGenerator{runes}, nil
 	}
 }
 
-func (c *charset) Password(r io.Reader) (string, error) {
-	v, err := readSliceN(r, c.runes)
+func (rg *runeGenerator) Password(r io.Reader) (string, error) {
+	v, err := readSliceN(r, rg.runes)
 	if err != nil {
 		return "", err
 	}
@@ -78,24 +78,24 @@ func (c *charset) Password(r io.Reader) (string, error) {
 	return string(v), nil
 }
 
-type rangeTable struct {
+type unicodeGenerator struct {
 	tab   *unicode.RangeTable
 	runes int
 }
 
-// FromRangeTable returns a Template that returns a random rune from the
+// FromRangeTable returns a Generator that returns a random rune from the
 // unicode.RangeTable.
-func FromRangeTable(tab *unicode.RangeTable) Template {
+func FromRangeTable(tab *unicode.RangeTable) Generator {
 	runes := countTableRunes(tab)
 	if runes == 0 {
 		return Empty
 	}
 
-	return &rangeTable{tab, runes}
+	return &unicodeGenerator{tab, runes}
 }
 
-func (rt *rangeTable) Password(r io.Reader) (string, error) {
-	v, err := readRune(r, rt.tab, rt.runes)
+func (ug *unicodeGenerator) Password(r io.Reader) (string, error) {
+	v, err := readRune(r, ug.tab, ug.runes)
 	if err != nil {
 		return "", err
 	}

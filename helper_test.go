@@ -35,18 +35,18 @@ func (zeroReader) Read(p []byte) (int, error) {
 }
 
 func TestJoin(t *testing.T) {
-	mustCharset := func(t *testing.T, template string) Template {
+	mustCharset := func(t *testing.T, charset string) Generator {
 		t.Helper()
 
-		tmpl, err := FromCharset(template)
+		cg, err := FromCharset(charset)
 		require.NoError(t, err)
-		return tmpl
+		return cg
 	}
 
 	{
 		pattern := regexp.MustCompile(`^([a-z]+ ){5}[A-Z][0-9][~!@#$%^&*()] \+abc-[de]$`)
 
-		tmpl := Join("",
+		gen := Join("",
 			Repeat(EFFLargeWordlist, " ", 5),
 			Space,
 			LatinUpper,
@@ -58,9 +58,9 @@ func TestJoin(t *testing.T) {
 			mustCharset(t, "de"),
 		)
 
-		testRand := newTestRand()
+		tr := newTestRand()
 
-		pass, err := tmpl.Password(testRand)
+		pass, err := gen.Password(tr)
 		require.NoError(t, err)
 
 		assert.Equal(t, "reprint wool pantry unworried mummify Y4% +abc-d", pass)
@@ -72,11 +72,11 @@ func TestJoin(t *testing.T) {
 	}
 
 	{
-		tmpl := Join("@$", LatinUpper, LatinLower, LatinMixed)
+		gen := Join("@$", LatinUpper, LatinLower, LatinMixed)
 
-		testRand := newTestRand()
+		tr := newTestRand()
 
-		pass, err := tmpl.Password(testRand)
+		pass, err := gen.Password(tr)
 		require.NoError(t, err)
 
 		assert.Equal(t, "C@$h@$Z", pass)
@@ -95,7 +95,7 @@ func TestRepeat(t *testing.T) {
 		"Repeat with count zero should return Empty")
 
 	assert.Equal(t, Hyphen, Repeat(Hyphen, " ", 1),
-		"Repeat with count one should return Template")
+		"Repeat with count one should return Generator")
 
 	for _, tc := range []struct {
 		count  int
@@ -106,9 +106,9 @@ func TestRepeat(t *testing.T) {
 		{4, "", "reprintwoolpantryunworried"},
 		{12, "-", "reprint-wool-pantry-unworried-mummify-veneering-securely-munchkin-juiciness-steep-cresting-dastardly"},
 	} {
-		testRand := newTestRand()
+		tr := newTestRand()
 
-		pass, err := Repeat(EFFLargeWordlist, tc.sep, tc.count).Password(testRand)
+		pass, err := Repeat(EFFLargeWordlist, tc.sep, tc.count).Password(tr)
 		if !assert.NoErrorf(t, err, "valid range should not error when generating: %v", tc) {
 			continue
 		}
@@ -141,16 +141,14 @@ func TestRandomRepeat(t *testing.T) {
 			"out of range: %v", tc)
 	}
 
-	tmpl, err := RandomRepeat(Hyphen, " ", 0, 0)
+	gen, err := RandomRepeat(Hyphen, " ", 0, 0)
 	if assert.NoError(t, err, "min and max equal zero should not error") {
-		assert.Equal(t, Empty, tmpl,
-			"min and max equal zero should return Empty")
+		assert.Equal(t, Empty, gen, "min and max equal zero should return Empty")
 	}
 
-	tmpl, err = RandomRepeat(Hyphen, " ", 1, 1)
+	gen, err = RandomRepeat(Hyphen, " ", 1, 1)
 	if assert.NoError(t, err, "min and max equal one should not error") {
-		assert.Equal(t, Hyphen, tmpl,
-			"min and max equal one should return template")
+		assert.Equal(t, Hyphen, gen, "min and max equal one should return Generator")
 	}
 
 	for _, tc := range []int{
@@ -158,11 +156,11 @@ func TestRandomRepeat(t *testing.T) {
 		maxReadIntN,
 		maxInt,
 	} {
-		tmpl, err := RandomRepeat(Hyphen, " ", tc, tc)
+		gen, err := RandomRepeat(Hyphen, " ", tc, tc)
 		if !assert.NoErrorf(t, err, "equal min and max should not error: %v", tc) {
 			continue
 		}
-		assert.IsTypef(t, (*repeated)(nil), tmpl,
+		assert.IsTypef(t, (*repeatGenerator)(nil), gen,
 			"equal min and max should return Repeat(...): %v", tc)
 	}
 
@@ -176,14 +174,14 @@ func TestRandomRepeat(t *testing.T) {
 		{4, 7, "-", "wool-pantry-unworried-mummify-veneering-securely"},
 		{10, 20, " ", "wool pantry unworried mummify veneering securely munchkin juiciness steep cresting dastardly cubical thriving procreate voice lingo stargazer acetone stroller"},
 	} {
-		tmpl, err := RandomRepeat(EFFLargeWordlist, tc.sep, tc.min, tc.max)
+		gen, err := RandomRepeat(EFFLargeWordlist, tc.sep, tc.min, tc.max)
 		if !assert.NoErrorf(t, err, "valid range should not error: %v", tc) {
 			continue
 		}
 
-		testRand := newTestRand()
+		tr := newTestRand()
 
-		pass, err := tmpl.Password(testRand)
+		pass, err := gen.Password(tr)
 		if !assert.NoErrorf(t, err, "valid range should not error when generating: %v", tc) {
 			continue
 		}
@@ -194,28 +192,28 @@ func TestRandomRepeat(t *testing.T) {
 
 func TestAlternate(t *testing.T) {
 	assert.Equal(t, Empty, Alternate(),
-		"Alternate with no templates should return Empty")
+		"Alternate with no Generators should return Empty")
 
 	assert.Equal(t, Hyphen, Alternate(Hyphen),
-		"Alternate with single template should return Template")
+		"Alternate with single Generator should return Generator")
 
 	for _, tc := range []struct {
-		tmpls  []Template
+		gens   []Generator
 		expect string
 	}{
-		{[]Template{}, ""},
-		{[]Template{LatinLower}, "c"},
-		{[]Template{LatinLower, LatinUpper, Number}, "7"},
-		{[]Template{EFFShortWordlist1, EFFShortWordlist2, EFFLargeWordlist}, "wool"},
-		{[]Template{
+		{[]Generator{}, ""},
+		{[]Generator{LatinLower}, "c"},
+		{[]Generator{LatinLower, LatinUpper, Number}, "7"},
+		{[]Generator{EFFShortWordlist1, EFFShortWordlist2, EFFLargeWordlist}, "wool"},
+		{[]Generator{
 			Repeat(LatinLower, "!", 5),
 			Repeat(LatinUpper, "@", 3),
 			Repeat(Number, "#", 7),
 		}, "7#7#8#2#4#4#9"},
 	} {
-		testRand := newTestRand()
+		tr := newTestRand()
 
-		pass, err := Alternate(tc.tmpls...).Password(testRand)
+		pass, err := Alternate(tc.gens...).Password(tr)
 		if !assert.NoErrorf(t, err, "should not error when generating: %#v", tc) {
 			continue
 		}
@@ -228,7 +226,7 @@ func TestRejectionSample(t *testing.T) {
 	rs := RejectionSample(Repeat(LatinMixedNumber, "", 20), func(s string) bool {
 		return strings.Contains(s, "A") && strings.Contains(s, "0")
 	})
-	testRand := newTestRand()
+	tr := newTestRand()
 
 	for _, expect := range []string{
 		"l0LXpszA2lAxxyDUjT8o", // 3
@@ -242,7 +240,7 @@ func TestRejectionSample(t *testing.T) {
 		"Mtg00S5dHXBL7ASHEfNd", // 8
 		"330aI6KcSbSCoioRAde1", // 4
 	} {
-		pass, err := rs.Password(testRand)
+		pass, err := rs.Password(tr)
 		if !assert.NoError(t, err) {
 			continue
 		}
