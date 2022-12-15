@@ -1,4 +1,5 @@
 // Command passphrase generates random passphrases using either
+// Sam Schlinkert's '1Password Replacement List' (1password-replacement.txt),
 // the EFF Large Wordlist for Passphrases (eff_large_wordlist.txt),
 // the EFF Short Wordlist for Passphrases #1 (eff_short_wordlist_1.txt), or
 // the EFF Short Wordlist for Passphrases #2 (eff_short_wordlist_2_0.txt).
