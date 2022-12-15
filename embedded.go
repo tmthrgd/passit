@@ -72,7 +72,8 @@ var (
 	emoji13List string
 )
 
-// STS10Wordlist is a Generator that returns a random word from the ....
+// STS10Wordlist is a Generator that returns a random word from Sam Schlinkert's
+// '1Password Replacement List'.
 //
 // This wordlist is licensed by Sam Schlinkert under a CC BY 3.0 license.
 var STS10Wordlist Generator = &embeddedGenerator{raw: &sts10Wordlist}
