@@ -2,7 +2,10 @@ package passit
 
 import (
 	"encoding/binary"
+	"errors"
+	"math/bits"
 	"testing"
+	"testing/iotest"
 	"unicode"
 
 	"github.com/stretchr/testify/assert"
@@ -50,6 +53,40 @@ func TestReadUint16n(t *testing.T) {
 
 	for _, r := range result {
 		require.Equal(t, 10, r, result)
+	}
+}
+
+func TestReadIntN(t *testing.T) {
+	n, err := readIntN(iotest.ErrReader(errors.New("should not call Read")), 1)
+	if assert.NoError(t, err, "readIntN with n=1 and error io.Reader: error") {
+		assert.Equal(t, 0, n, "readIntN with n=1 and error io.Reader: result")
+	}
+
+	const maxInt = 1<<(bits.UintSize-1) - 1
+	for _, n := range []int{-10, -1, 0, maxReadIntN + 1, maxInt} {
+		assert.PanicsWithValuef(t, "passit: invalid argument to readIntN", func() {
+			readIntN(zeroReader{}, n)
+		}, "readIntN with invalid n=%d", n)
+	}
+
+	testReader := newTestRand()
+
+	for _, tc := range []struct{ N, Expect int }{
+		{10, 0},
+		{100, 47},
+		{128, 111},
+		{255, 103},
+		{maxReadIntN, 19592},
+		{maxReadIntN, 23034},
+		{100, 14},
+		{128, 43},
+		{255, 59},
+		{maxReadIntN, 52988},
+	} {
+		got, err := readIntN(testReader, tc.N)
+		if assert.NoErrorf(t, err, "readIntN with n=%d: error", tc.N) {
+			assert.Equalf(t, tc.Expect, got, "readIntN with n=%d: result", tc.N)
+		}
 	}
 }
 
