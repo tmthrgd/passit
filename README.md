@@ -43,13 +43,13 @@ The package provides a number of generators that produce output from a fixed set
 | `EFFShortWordlist1` | A word from the EFF Short Wordlist for Passphrases #1     | "acid" "match"          |
 | `EFFShortWordlist2` | A word from the EFF Short Wordlist for Passphrases #2     | "aardvark" "jaywalker"  |
 | `Emoji13`           | A Unicode 13.0 emoji                                      | "⌚" "🕸️" "🧎🏾‍♀️"          |
-| `HexLower`          | Lowercase hexadecimal                                     | "66e94bd4ef8a2c3b"      |
-| `HexUpper`          | Uppercase hexadecimal                                     | "66E94BD4EF8A2C3B"      |
-| `Base32Std`         | Base32 standard                                           | "M3UUXVHPRIWDW"         |
-| `Base32Hex`         | Base32 hexadecimal                                        | "CRKKNL7FH8M3M"         |
-| `Base64Std`         | Base64 standard                                           | "ZulL1O+KLDs"           |
-| `Base64URL`         | Base64 URL                                                | "ZulL1O-KLDs"           |
-| `Ascii85`           | Ascii85                                                   | "B'Dt<mtrYX"            |
+| `HexLower`          | Lowercase hexadecimal encoding                            | "66e94bd4ef8a2c3b"      |
+| `HexUpper`          | Uppercase hexadecimal encoding                            | "66E94BD4EF8A2C3B"      |
+| `Base32Std`         | Base32 standard encoding                                  | "M3UUXVHPRIWDW"         |
+| `Base32Hex`         | Base32 hexadecimal encoding                               | "CRKKNL7FH8M3M"         |
+| `Base64Std`         | Base64 standard encoding                                  | "ZulL1O+KLDs"           |
+| `Base64URL`         | Base64 URL encoding                                       | "ZulL1O-KLDs"           |
+| `Ascii85`           | Ascii85 encoding                                          | "B'Dt<mtrYX"            |
 | `SpectreMaximum`    | The Spectre maximum template                              | "i7,o%yC4&fmQ1r*qfcWq"  |
 | `SpectreLong`       | The Spectre long template                                 | "ZikzXuwuHeve1("        |
 | `SpectreMedium`     | The Spectre medium template                               | "Zik2~Puh"              |
