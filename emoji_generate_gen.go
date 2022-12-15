@@ -5,7 +5,6 @@
 //   bundle -o emoji_generate_gen.go -pkg main golang.org/x/text/internal/gen
 
 //go:build ignore
-// +build ignore
 
 // Package gen contains common code for the various code generation tools in the
 // text repository. Its usage ensures consistency between tools.

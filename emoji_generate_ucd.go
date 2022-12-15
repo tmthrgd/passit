@@ -5,7 +5,6 @@
 //   bundle -o emoji_generate_ucd.go -pkg main golang.org/x/text/internal/ucd
 
 //go:build ignore
-// +build ignore
 
 // Package ucd provides a parser for Unicode Character Database files, the
 // format of which is defined in https://www.unicode.org/reports/tr44/. See

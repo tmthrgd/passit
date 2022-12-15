@@ -5,7 +5,6 @@
 // The code in this file was taken from golang.org/x/text/internal/export/unicode.
 
 //go:build ignore
-// +build ignore
 
 // Unicode table generator.
 // Data read from the web.
