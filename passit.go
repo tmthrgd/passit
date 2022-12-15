@@ -1,4 +1,4 @@
-// Package passit provides various password generators.
+// Package passit provides a collection of password generators.
 package passit
 
 import "io"
