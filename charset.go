@@ -85,6 +85,10 @@ type unicodeGenerator struct {
 
 // FromRangeTable returns a Generator that returns a random rune from the
 // unicode.RangeTable.
+//
+// The returned Generator is only deterministic if the same unicode.RangeTable is
+// used. Be aware that the builtin unicode.X tables are subject to change as new
+// versions of Unicode are released and are not suitable for deterministic use.
 func FromRangeTable(tab *unicode.RangeTable) Generator {
 	runes := countTableRunes(tab)
 	if runes == 0 {

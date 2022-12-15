@@ -32,6 +32,10 @@ func ParseRegexp(pattern string, flags syntax.Flags) (Generator, error) {
 // SetAnyRangeTable sets the unicode.RangeTable used when generating any (.)
 // characters or when restricting character classes ([a-z]) with a user provided
 // one. By default a subset of ASCII is used.
+//
+// The regexp Generator is only deterministic if the same unicode.RangeTable is
+// used. Be aware that the builtin unicode.X tables are subject to change as new
+// versions of Unicode are released and are not suitable for deterministic use.
 func (p *RegexpParser) SetAnyRangeTable(tab *unicode.RangeTable) {
 	p.anyTab = tab
 }
