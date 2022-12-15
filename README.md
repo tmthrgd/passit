@@ -119,7 +119,19 @@ expression template.
 $ go install go.tmthrgd.dev/passit/cmd/twoproblems@latest
 $ twoproblems '[[:alpha:]]{15}-[[:digit:]]{3}[[:punct:]]{2}'
 KsMtvHnSOmqjIll-277&$
+$ twoproblems '[[:alpha:][:digit:]]{5}-(?P<word>/5/-)-[[:punct:]]{5}'
+7iy71-equity-platelet-subtitle-give-rescued-@_$!*
 ```
+
+Two special captures (`(?P<name>)`) are supported:
+
+1. `(?P<word>)`: A word from any of the supported wordlists. This can take up to
+ three paramaters: the name of a supported wordlist ('sts10' - default, 'eff:large',
+ 'eff:short1' or 'eff:short2'), an optional number to generate multiple words, and
+ an optional separator to insert between the words (defaults to a space), each
+ parameter is separated by a '/'.
+1. `(?P<emoji>)`: A Unicode 13.0 emoji returned from `Emoji13`. This can take a number
+ to generate multiple emoji.
 
 ## Sources of randomness
 
