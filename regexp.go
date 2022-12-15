@@ -60,12 +60,14 @@ func (p *RegexpParser) SetSpecialCapture(name string, factory SpecialCaptureFact
 // Neither syntax.MatchNL nor syntax.FoldCase will have any effect whether present
 // or not.
 func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Generator, error) {
+	// The generator acts badly when used with syntax.FoldCase. Return an error.
+	if flags&syntax.FoldCase != 0 {
+		return nil, errors.New("passit: syntax.FoldCase is unsupported by RegexpParser")
+	}
+
 	// We intentionally never generate newlines, but passing syntax.MatchNL to
 	// syntax.Parse simplifies the parsed character classes.
 	flags |= syntax.MatchNL
-
-	// The generator acts badly when used with syntax.FoldCase. Zero it out.
-	flags &= ^syntax.FoldCase
 
 	r, err := syntax.Parse(pattern, flags)
 	if err != nil {
