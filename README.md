@@ -99,6 +99,7 @@ Two commands for easy CLI password generation are provided.
 ### passphrase
 
 `passphrase` is a tool that generates random passphrases using either
+Sam Schlinkert's '1Password Replacement List' (1password-replacement.txt),
 the EFF Large Wordlist for Passphrases (eff_large_wordlist.txt),
 the EFF Short Wordlist for Passphrases #1 (eff_short_wordlist_1.txt), or
 the EFF Short Wordlist for Passphrases #2 (eff_short_wordlist_2_0.txt).
@@ -106,7 +107,7 @@ the EFF Short Wordlist for Passphrases #2 (eff_short_wordlist_2_0.txt).
 ```shell
 $ go install go.tmthrgd.dev/passit/cmd/passphrase@latest
 $ passphrase -n 5 -s -
-province-ladder-broken-duo-shucking
+keeper-stockade-grooved-warrants-toned
 ```
 
 ### twoproblems

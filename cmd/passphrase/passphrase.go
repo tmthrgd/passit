@@ -18,6 +18,7 @@ func init() {
 	flag.Usage = func() {
 		out := flag.CommandLine.Output()
 		fmt.Fprintln(out, "passphrase is a tool that generates random passphrases using either")
+		fmt.Fprintln(out, "Sam Schlinkert's '1Password Replacement List' (1password-replacement.txt),")
 		fmt.Fprintln(out, "the EFF Large Wordlist for Passphrases (eff_large_wordlist.txt),")
 		fmt.Fprintln(out, "the EFF Short Wordlist for Passphrases #1 (eff_short_wordlist_1.txt), or")
 		fmt.Fprintln(out, "the EFF Short Wordlist for Passphrases #2 (eff_short_wordlist_2_0.txt).")
@@ -28,18 +29,20 @@ func init() {
 }
 
 func main() {
-	list := flag.String("l", "large", "the wordlist to use; valid options are large, short1 and short2")
+	list := flag.String("l", "sts10", "the wordlist to use; valid options are sts10, eff:large, eff:short1 and eff:short2")
 	count := flag.Int("n", 6, "the number of words in the generated password")
 	sep := flag.String("s", " ", "the separator to use between words")
 	flag.Parse()
 
 	var gen passit.Generator
 	switch *list {
-	case "large":
+	case "sts10":
+		gen = passit.STS10Wordlist
+	case "eff:large":
 		gen = passit.EFFLargeWordlist
-	case "short1":
+	case "eff:short1":
 		gen = passit.EFFShortWordlist1
-	case "short2":
+	case "eff:short2":
 		gen = passit.EFFShortWordlist2
 	default:
 		log.SetFlags(0)
