@@ -30,11 +30,15 @@ func (eg *embeddedGenerator) Password(r io.Reader) (string, error) {
 // STS10Wordlist is a Generator that returns a random word from Sam Schlinkert's
 // '1Password Replacement List'.
 //
+// It contains 18,208 words and has 14.152 bits of entropy per word.
+//
 // This wordlist is licensed by Sam Schlinkert under a CC BY 3.0 license.
 var STS10Wordlist Generator = &embeddedGenerator{raw: &wordlist.STS10Wordlist}
 
 // EFFLargeWordlist is a Generator that returns a random word from the
 // EFF Large Wordlist for Passphrases (eff_large_wordlist.txt).
+//
+// It contains 7,776 words and has 12.925 bits of entropy per word.
 //
 // This wordlist is licensed by the Electronic Frontier Foundation under a
 // CC BY 3.0 US license.
@@ -43,12 +47,16 @@ var EFFLargeWordlist Generator = &embeddedGenerator{raw: &wordlist.EFFLargeWordl
 // EFFShortWordlist1 is a Generator that returns a random word from the
 // EFF Short Wordlist for Passphrases #1 (eff_short_wordlist_1.txt).
 //
+// It contains 1,296 words and has 10.340 bits of entropy per word.
+//
 // This wordlist is licensed by the Electronic Frontier Foundation under a
 // CC BY 3.0 US license.
 var EFFShortWordlist1 Generator = &embeddedGenerator{raw: &wordlist.EFFShortWordlist1}
 
 // EFFShortWordlist2 is a Generator that returns a random word from the
 // EFF Short Wordlist for Passphrases #2 (eff_short_wordlist_2_0.txt).
+//
+// It contains 1,296 words and has 10.340 bits of entropy per word.
 //
 // This wordlist is licensed by the Electronic Frontier Foundation under a
 // CC BY 3.0 US license.
