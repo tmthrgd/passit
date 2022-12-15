@@ -1,6 +1,3 @@
-// This implements part of the Spectre / Master Password algorithm by
-// Maarten Billemont.
-
 package passit
 
 import (
@@ -9,11 +6,13 @@ import (
 	"strings"
 )
 
-// SpectreTemplate implements v1+ of the Spectre / Master Password encoding
-// algorithm for generating passwords.
+// SpectreTemplate implements a variant of the Spectre / Master Password encoding
+// algorithm by Maarten Billemont for generating passwords.
 //
-// Note: It only implements the encoding of the seed bytes into a password string
-// and not the entire algorithm.
+// This algorithm is not compatible with any of the officially published algorithms,
+// but it does produce passwords using the same templates that are indistinguishable
+// from the official algorithm. Unlike that algorithm, this doesn't exhibit a modulo
+// bias.
 type SpectreTemplate string
 
 // These are the standard templates defined by Spectre / Master Password.
@@ -28,36 +27,37 @@ const (
 	SpectrePhrase  SpectreTemplate = "cvcc cvc cvccvcv cvc:cvc cvccvcvcv cvcv:cv cvccv cvc cvcvccv"
 )
 
+func (st SpectreTemplate) readTemplate(r io.Reader) (string, error) {
+	// A benchmark of just (SpectreTemplate).Password shows strings.Split being
+	// responsible for 88% of all allocated data.
+	return readSliceN(r, strings.Split(string(st), ":"))
+}
+
 // Password implements Template.
 func (st SpectreTemplate) Password(r io.Reader) (string, error) {
-	idx, err := readUint8(r)
+	template, err := st.readTemplate(r)
 	if err != nil {
 		return "", err
 	}
 
-	// This call to strings.Split doesn't allocate, presumably as Go understands
-	// the slice doesn't escape.
-	templates := strings.Split(string(st), ":")
+	var sb strings.Builder
+	sb.Grow(len(template))
 
-	// This modulus exhibits bias, but this matches the spec.
-	template := templates[int(idx)%len(templates)]
-
-	buf := make([]byte, len(template))
-	if _, err := readBytes(r, buf); err != nil {
-		return "", err
-	}
-
-	for i, c := range []byte(template) {
+	for _, c := range []byte(template) {
 		chars, ok := spectreChars[c]
 		if !ok {
 			return "", errors.New("passit: template contains invalid character")
 		}
 
-		// This modulus exhibits bias, but this matches the spec.
-		buf[i] = chars[int(buf[i])%len(chars)]
+		n, err := readIntN(r, len(chars))
+		if err != nil {
+			return "", err
+		}
+
+		sb.WriteByte(chars[n])
 	}
 
-	return string(buf), nil
+	return sb.String(), nil
 }
 
 var spectreChars = map[byte]string{
