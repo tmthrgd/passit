@@ -131,7 +131,7 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 	var p RegexpParser
 	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist))
 
-	gen, err := p.Parse(`((?P<word>) ){6}[[:upper:]][[:digit:]][[:punct:]]`, syntax.PerlX)
+	gen, err := p.Parse(`((?P<word>) ){6}[[:upper:]][[:digit:]][[:punct:]]`, syntax.Perl)
 	require.NoError(t, err)
 
 	tr := newTestRand()
@@ -166,7 +166,7 @@ func TestRegexpSpecialCaptureFactories(t *testing.T) {
 	} {
 		tr := newTestRand()
 
-		gen, err := p.Parse(tc.pattern, syntax.PerlX)
+		gen, err := p.Parse(tc.pattern, syntax.Perl)
 		if !assert.NoError(t, err, tc.pattern) {
 			continue
 		}
@@ -191,7 +191,7 @@ func TestRegexpSpecialCaptureFactories(t *testing.T) {
 		{"(?P<words>-0x12)", "passit: failed to parse capture: strconv.ParseUint: parsing \"-0x12\": invalid syntax"},
 		{"(?P<words>4a)", "passit: failed to parse capture: strconv.ParseUint: parsing \"4a\": invalid syntax"},
 	} {
-		_, err := p.Parse(tc.pattern, syntax.PerlX)
+		_, err := p.Parse(tc.pattern, syntax.Perl)
 		assert.EqualError(t, err, tc.errString, tc.pattern)
 	}
 }
