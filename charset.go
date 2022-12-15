@@ -70,12 +70,12 @@ func FromCharset(template string) (Template, error) {
 }
 
 func (c *charset) Password(r io.Reader) (string, error) {
-	idx, err := readIntN(r, len(c.runes))
+	v, err := readSliceN(r, c.runes)
 	if err != nil {
 		return "", err
 	}
 
-	return string(c.runes[idx : idx+1]), nil
+	return string(v), nil
 }
 
 type rangeTable struct {

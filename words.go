@@ -36,10 +36,5 @@ func FromWords(list ...string) (Template, error) {
 }
 
 func (w *words) Password(r io.Reader) (string, error) {
-	idx, err := readIntN(r, len(w.list))
-	if err != nil {
-		return "", err
-	}
-
-	return w.list[idx], nil
+	return readSliceN(r, w.list)
 }

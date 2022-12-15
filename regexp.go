@@ -301,12 +301,12 @@ func (p *RegexpParser) alternate(sr *syntax.Regexp) (regexpGenerator, error) {
 	}
 
 	return func(b *strings.Builder, r io.Reader) error {
-		idx, err := readIntN(r, len(gens))
+		gen, err := readSliceN(r, gens)
 		if err != nil {
 			return err
 		}
 
-		return gens[idx](b, r)
+		return gen(b, r)
 	}, nil
 }
 

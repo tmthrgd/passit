@@ -160,12 +160,12 @@ func Alternate(tmpls ...Template) Template {
 }
 
 func (at *alternate) Password(r io.Reader) (string, error) {
-	n, err := readIntN(r, len(at.tmpls))
+	tmpl, err := readSliceN(r, at.tmpls)
 	if err != nil {
 		return "", err
 	}
 
-	return at.tmpls[n].Password(r)
+	return tmpl.Password(r)
 }
 
 type rejection struct {

@@ -19,13 +19,7 @@ func (e *embeddedList) Password(r io.Reader) (string, error) {
 	e.once.Do(func() {
 		e.list = strings.Split(e.raw, "\n")
 	})
-
-	idx, err := readIntN(r, len(e.list))
-	if err != nil {
-		return "", err
-	}
-
-	return e.list[idx], nil
+	return readSliceN(r, e.list)
 }
 
 var (

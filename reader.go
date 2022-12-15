@@ -77,6 +77,15 @@ func readIntN(r io.Reader, n int) (int, error) {
 	}
 }
 
+func readSliceN[T any](r io.Reader, s []T) (T, error) {
+	i, err := readIntN(r, len(s))
+	if err != nil {
+		return *new(T), err
+	}
+
+	return s[i], nil
+}
+
 func countTableRunes(tab *unicode.RangeTable) int {
 	var c int
 	for _, r16 := range tab.R16 {
