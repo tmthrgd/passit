@@ -173,7 +173,7 @@ func (rg *rejectionGenerator) Password(r io.Reader) (string, error) {
 
 type fixedString string
 
-// Hyphen is a Generator that always returns an empty string.
+// Empty is a Generator that always returns an empty string.
 var Empty Generator = fixedString("")
 
 // Space is a Generator that always returns a fixed ASCII space.

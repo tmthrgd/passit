@@ -24,16 +24,16 @@ var LatinUpper Generator = &asciiGenerator{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
 // latin alphabet.
 var LatinMixed Generator = &asciiGenerator{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"}
 
-// LatinLower is a Generator that returns a random lowercase character from the latin
-// alphabet or a numeric digit.
+// LatinLowerDigit is a Generator that returns a random lowercase character from the
+// latin alphabet or a numeric digit.
 var LatinLowerDigit Generator = &asciiGenerator{"abcdefghijklmnopqrstuvwxyz0123456789"}
 
-// LatinUpper is a Generator that returns a random uppercase character from the latin
-// alphabet or a numeric digit.
+// LatinUpperDigit is a Generator that returns a random uppercase character from the
+// latin alphabet or a numeric digit.
 var LatinUpperDigit Generator = &asciiGenerator{"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
 
-// LatinMixed is a Generator that returns a random mixed-case characters from the
-// latin alphabet or a numeric digit.
+// LatinMixedDigit is a Generator that returns a random mixed-case characters from
+// the latin alphabet or a numeric digit.
 var LatinMixedDigit Generator = &asciiGenerator{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
 
 func (ag *asciiGenerator) Password(r io.Reader) (string, error) {
