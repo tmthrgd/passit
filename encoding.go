@@ -4,8 +4,8 @@ import (
 	"encoding/ascii85"
 	"encoding/base32"
 	"encoding/base64"
-	"encoding/hex"
 	"io"
+	"strings"
 )
 
 type encoding struct {
@@ -21,9 +21,30 @@ func newEncoding(count int, encodeToString func([]byte) string) Template {
 	return &encoding{encodeToString, count}
 }
 
-// Hex returns a Template that encodes count-bytes with encoding/hex.
-func Hex(count int) Template {
-	return newEncoding(count, hex.EncodeToString)
+func encodeToHex(hextable string, src []byte) string {
+	var sb strings.Builder
+	sb.Grow(len(src) * 2)
+
+	for _, v := range src {
+		sb.WriteByte(hextable[v>>4])
+		sb.WriteByte(hextable[v&0x0f])
+	}
+
+	return sb.String()
+}
+
+// HexLower returns a Template that encodes count-bytes in lowercase hexadecimal.
+func HexLower(count int) Template {
+	return newEncoding(count, func(src []byte) string {
+		return encodeToHex("0123456789abcdef", src)
+	})
+}
+
+// HexUpper returns a Template that encodes count-bytes in uppercase hexadecimal.
+func HexUpper(count int) Template {
+	return newEncoding(count, func(src []byte) string {
+		return encodeToHex("0123456789ABCDEF", src)
+	})
 }
 
 // Base32Std returns a Template that encodes count-bytes with

@@ -9,8 +9,8 @@ import (
 
 func TestEncoding(t *testing.T) {
 	assert.PanicsWithValue(t, "passit: count must be positive", func() {
-		Hex(-1)
-	}, "Hex(-1)")
+		HexLower(-1)
+	}, "HexLower(-1)")
 	assert.PanicsWithValue(t, "passit: count must be positive", func() {
 		Ascii85(-1)
 	}, "Ascii85(-1)")
@@ -20,10 +20,14 @@ func TestEncoding(t *testing.T) {
 		expect string
 		count  int
 	}{
-		{Hex, "", 0},
-		{Hex, "66e94bd4ef8a2c3b", 8},
-		{Hex, "66e94bd4ef8a2c3b884cfa", 11},
-		{Hex, "66e94bd4ef8a2c3b884cfa59ca342b2e58", 17},
+		{HexLower, "", 0},
+		{HexLower, "66e94bd4ef8a2c3b", 8},
+		{HexLower, "66e94bd4ef8a2c3b884cfa", 11},
+		{HexLower, "66e94bd4ef8a2c3b884cfa59ca342b2e58", 17},
+		{HexUpper, "", 0},
+		{HexUpper, "66E94BD4EF8A2C3B", 8},
+		{HexUpper, "66E94BD4EF8A2C3B884CFA", 11},
+		{HexUpper, "66E94BD4EF8A2C3B884CFA59CA342B2E58", 17},
 		{Base32Std, "", 0},
 		{Base32Std, "M3UUXVHPRIWDW", 8},
 		{Base32Std, "M3UUXVHPRIWDXCCM7I", 11},
