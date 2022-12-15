@@ -29,6 +29,16 @@ func (eg *embeddedGenerator) Password(r io.Reader) (string, error) {
 
 var (
 	// This wordlist was taken from:
+	// https://github.com/sts10/generated-wordlists/tree/e0daeebbffbb/lists/1password-replacement
+	// where it was called 1password-replacement.txt.
+	//
+	// 1password-replacement.txt is licensed by Sam Schlinkert under a CC BY 3.0
+	// license (https://creativecommons.org/licenses/by/3.0/).
+	//
+	//go:embed sts10_wordlist.txt
+	sts10Wordlist string
+
+	// This wordlist was taken from:
 	// https://www.eff.org/files/2016/07/18/eff_large_wordlist.txt.
 	//
 	// eff_large_wordlist.txt is licensed by the Electronic Frontier Foundation
@@ -62,16 +72,30 @@ var (
 	emoji13List string
 )
 
+// STS10Wordlist is a Generator that returns a random word from the ....
+//
+// This wordlist is licensed by Sam Schlinkert under a CC BY 3.0 license.
+var STS10Wordlist Generator = &embeddedGenerator{raw: &sts10Wordlist}
+
 // EFFLargeWordlist is a Generator that returns a random word from the
 // EFF Large Wordlist for Passphrases (eff_large_wordlist.txt).
+//
+// This wordlist is licensed by the Electronic Frontier Foundation under a
+// CC BY 3.0 US license.
 var EFFLargeWordlist Generator = &embeddedGenerator{raw: &effLargeWordlist}
 
 // EFFShortWordlist1 is a Generator that returns a random word from the
 // EFF Short Wordlist for Passphrases #1 (eff_short_wordlist_1.txt).
+//
+// This wordlist is licensed by the Electronic Frontier Foundation under a
+// CC BY 3.0 US license.
 var EFFShortWordlist1 Generator = &embeddedGenerator{raw: &effShortWordlist1}
 
 // EFFShortWordlist2 is a Generator that returns a random word from the
 // EFF Short Wordlist for Passphrases #2 (eff_short_wordlist_2_0.txt).
+//
+// This wordlist is licensed by the Electronic Frontier Foundation under a
+// CC BY 3.0 US license.
 var EFFShortWordlist2 Generator = &embeddedGenerator{raw: &effShortWordlist2}
 
 // Emoji13 is a Generator that returns a random emoji from the Unicode 13.0 emoji

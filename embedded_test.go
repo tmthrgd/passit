@@ -9,6 +9,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestSTS10Wordlist(t *testing.T) {
+	const size = 8
+
+	tr := newTestRand()
+
+	pass, err := Repeat(STS10Wordlist, " ", size).Password(tr)
+	require.NoError(t, err)
+
+	assert.Equal(t, "winner vertigo spurs believed dude runaways poorest tourists", pass)
+	assert.Equal(t, size-1, strings.Count(pass, " "),
+		`strings.Count(%q, " ")`, pass)
+	assert.Truef(t, utf8.ValidString(pass),
+		"utf8.ValidString(%q)", pass)
+
+	_, err = FromWords(STS10Wordlist.(*embeddedGenerator).list...)
+	assert.NoError(t, err, "wordlist valid")
+}
+
 func TestEFFLargeWordlist(t *testing.T) {
 	const size = 8
 
