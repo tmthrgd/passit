@@ -76,7 +76,7 @@ There are also a number of 'helper' generators that interact with the output of 
 | Generator         | Description                                                            |
 | ----------------- | ---------------------------------------------------------------------- |
 | `Alternate`       | Select a generator at random                                           |
-| `Join`            | Concatenated the output of multiple generators                         |
+| `Join`            | Concatenate the output of multiple generators                          |
 | `Repeat`          | Invoke a generator multiple times and concatenate the output           |
 | `RandomRepeat`    | Invoke a generator a random number of times and concatenate the output |
 | `RejectionSample` | Continually invoke a generator until the output passes a test          |
