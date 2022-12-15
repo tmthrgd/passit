@@ -18,7 +18,9 @@ func wrapReadError(err error) error {
 }
 
 func readUint16Buffer(r io.Reader) (uint16, error) {
+	// buf escapes into io.Reader and is thus heap allocated.
 	var buf [2]byte
+
 	if _, err := io.ReadFull(r, buf[:]); err != nil {
 		return 0, wrapReadError(err)
 	}
