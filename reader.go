@@ -4,53 +4,50 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-)
-
-const (
-	maxUint16   = (1 << 16) - 1
-	maxReadIntN = maxUint16
+	"math/bits"
 )
 
 func wrapReadError(err error) error {
 	return fmt.Errorf("passit: failed to read entropy: %w", err)
 }
 
-func readUint16Buffer(r io.Reader) (uint16, error) {
+func readUint64Buffer(r io.Reader, byteLen int) (uint64, error) {
 	// buf escapes into io.Reader and is thus heap allocated.
-	var buf [2]byte
+	var buf [8]byte
 
-	if _, err := io.ReadFull(r, buf[:]); err != nil {
+	if _, err := io.ReadFull(r, buf[:byteLen]); err != nil {
 		return 0, wrapReadError(err)
 	}
 
-	return binary.LittleEndian.Uint16(buf[:]), nil
+	return binary.LittleEndian.Uint64(buf[:]), nil
 }
 
-func readUint16Byte(br io.ByteReader) (uint16, error) {
-	b0, err := br.ReadByte()
-	if err != nil {
-		return 0, wrapReadError(err)
+func readUint64Byte(br io.ByteReader, byteLen int) (uint64, error) {
+	var v, n uint64
+	for i := 0; i < byteLen; i++ {
+		b, err := br.ReadByte()
+		if err != nil {
+			return 0, wrapReadError(err)
+		}
+
+		v |= uint64(b) << n
+		n += 8
 	}
 
-	b1, err := br.ReadByte()
-	if err != nil {
-		return 0, wrapReadError(err)
-	}
-
-	// Assemble a little-endian uint16.
-	return uint16(b0) | uint16(b1)<<8, nil
+	return v, nil
 }
 
-// readUint16n is a helper function that should only be called by readIntN.
-func readUint16n(r io.Reader, n uint16) (v uint16, err error) {
+// readUint64n is a helper function that should only be called by readIntN.
+func readUint64n(r io.Reader, n uint64, bitLen int) (v uint64, err error) {
 	// This is based on golang.org/x/exp/rand:
 	// https://github.com/golang/exp/blob/ec7cb31e5a562f5e9e31b300128d2f530f55d127/rand/rand.go#L91-L109.
 
+	byteLen := bitLen / 8
 	br, brOK := r.(io.ByteReader)
 	if brOK {
-		v, err = readUint16Byte(br)
+		v, err = readUint64Byte(br, byteLen)
 	} else {
-		v, err = readUint16Buffer(r)
+		v, err = readUint64Buffer(r, byteLen)
 	}
 	if err != nil {
 		return 0, err
@@ -60,15 +57,21 @@ func readUint16n(r io.Reader, n uint16) (v uint16, err error) {
 		return v & (n - 1), nil
 	}
 
-	// If n does not divide v, to avoid bias we must not use
-	// a v that is within maxUint16%n of the top of the range.
-	if v > maxUint16-n { // Fast check.
-		ceiling := maxUint16 - maxUint16%n
+	// max is the maximum value read from readUint64* and depends on the number
+	// of bytes we read.
+	//
+	// Note: v <= max && n <= max.
+	max := uint64(1)<<bitLen - 1
+
+	// If n does not divide v, to avoid bias we must not use a v that is within
+	// max%n of the top of the range.
+	if v > max-n { // Fast check.
+		ceiling := max - max%n
 		for v >= ceiling {
 			if brOK {
-				v, err = readUint16Byte(br)
+				v, err = readUint64Byte(br, byteLen)
 			} else {
-				v, err = readUint16Buffer(r)
+				v, err = readUint64Buffer(r, byteLen)
 			}
 			if err != nil {
 				return 0, err
@@ -87,12 +90,13 @@ func readIntN(r io.Reader, n int) (int, error) {
 		// If n is 1, meaning the result will always be 0, avoid reading
 		// anything from r and immediately return 0.
 		return 0, nil
-	case n <= maxUint16:
-		v, err := readUint16n(r, uint16(n))
-		return int(v), err
-	default:
-		panic("passit: invalid argument to readIntN")
 	}
+
+	// Round up to the nearest multiple of 16 (i.e. 16, 32, 48 or 64).
+	bitLen := (bits.Len(uint(n)) + 15) &^ 15
+
+	v, err := readUint64n(r, uint64(n), bitLen)
+	return int(v), err
 }
 
 func readSliceN[T any](r io.Reader, s []T) (T, error) {

@@ -1,7 +1,6 @@
 package passit
 
 import (
-	"errors"
 	"io"
 	"unicode"
 )
@@ -60,10 +59,6 @@ func FromCharset(charset string) Generator {
 }
 
 func (rg *runeGenerator) Password(r io.Reader) (string, error) {
-	if len(rg.runes) > maxReadIntN {
-		return "", errors.New("passit: too many runes in charset")
-	}
-
 	v, err := readSliceN(r, rg.runes)
 	if err != nil {
 		return "", err
@@ -93,10 +88,6 @@ func FromRangeTable(tab *unicode.RangeTable) Generator {
 }
 
 func (ug *unicodeGenerator) Password(r io.Reader) (string, error) {
-	if ug.runes > maxReadIntN {
-		return "", errors.New("passit: unicode.RangeTable is too large")
-	}
-
 	idx, err := readIntN(r, ug.runes)
 	if err != nil {
 		return "", err

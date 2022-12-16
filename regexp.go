@@ -247,11 +247,8 @@ func (p *RegexpParser) anyChar(sr *syntax.Regexp) (regexpGenerator, error) {
 
 func (*RegexpParser) charClassInternal(sr *syntax.Regexp, tab *unicode.RangeTable) (regexpGenerator, error) {
 	count := countRunesInTable(tab)
-	switch {
-	case count == 0:
+	if count == 0 {
 		return nil, fmt.Errorf("passit: character class %s contains zero allowed runes", sr)
-	case count > maxReadIntN:
-		return nil, fmt.Errorf("passit: character class %s contains too many runes", sr)
 	}
 
 	return func(b *strings.Builder, r io.Reader) error {
@@ -316,10 +313,9 @@ func (p *RegexpParser) repeatInternal(sr *syntax.Regexp, min, max int) (regexpGe
 		return nil, err
 	}
 
+	// N can never overflow as syntax.Parse will return an error if min or max
+	// exceed 1000.
 	N := max - min + 1
-	if N < 1 || N > maxReadIntN {
-		return nil, errors.New("passit: [min,max] range too large")
-	}
 
 	return func(b *strings.Builder, r io.Reader) error {
 		n, err := readIntN(r, N)

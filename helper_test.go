@@ -124,14 +124,9 @@ func TestRandomRepeat(t *testing.T) {
 	assert.EqualError(t, err, "passit: min argument cannot be greater than max argument",
 		"min greater than max; max negative")
 
-	for _, tc := range [][2]int{
-		{0, maxReadIntN},
-		{0, maxInt},
-	} {
-		_, err = RandomRepeat(Hyphen, " ", tc[0], tc[1])
-		assert.EqualErrorf(t, err, "passit: [min,max] range too large",
-			"out of range: %v", tc)
-	}
+	_, err = RandomRepeat(Hyphen, " ", 0, maxInt)
+	assert.EqualError(t, err, "passit: [min,max] range too large",
+		"out of range: 0, max int")
 
 	gen, err := RandomRepeat(Hyphen, " ", 0, 0)
 	if assert.NoError(t, err, "min and max equal zero should not error") {
@@ -145,7 +140,8 @@ func TestRandomRepeat(t *testing.T) {
 
 	for _, tc := range []int{
 		70,
-		maxReadIntN,
+		1<<16 - 1,
+		1<<31 - 1,
 		maxInt,
 	} {
 		gen, err := RandomRepeat(Hyphen, " ", tc, tc)

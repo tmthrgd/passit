@@ -99,7 +99,7 @@ func RandomRepeat(gen Generator, sep string, min, max int) (Generator, error) {
 	}
 
 	n := max - min + 1
-	if n < 1 || n > maxReadIntN {
+	if n < 1 {
 		return nil, errors.New("passit: [min,max] range too large")
 	}
 
@@ -185,10 +185,6 @@ func FromSlice(list ...string) Generator {
 }
 
 func (sg *sliceGenerator) Password(r io.Reader) (string, error) {
-	if len(sg.list) > maxReadIntN {
-		return "", errors.New("passit: list too long")
-	}
-
 	return readSliceN(r, sg.list)
 }
 
