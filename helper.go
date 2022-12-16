@@ -1,7 +1,6 @@
 package passit
 
 import (
-	"errors"
 	"io"
 	"strings"
 
@@ -87,27 +86,24 @@ type randomRepeatGenerator struct {
 // RandomRepeat returns a Generator that concatenates the output of invoking the
 // Generator a random number of times in [min,max] to create a single string. The
 // separator string sep is placed between the outputs in the resulting string.
-//
-// An error is returned if either min or max are invalid or outside the suppoted
-// range.
-func RandomRepeat(gen Generator, sep string, min, max int) (Generator, error) {
-	if min > max {
-		return nil, errors.New("passit: min argument cannot be greater than max argument")
-	}
+func RandomRepeat(gen Generator, sep string, min, max int) Generator {
 	if min < 0 {
-		return nil, errors.New("passit: min argument must be positive")
+		panic("passit: min argument must be positive")
+	}
+	if min > max {
+		panic("passit: min argument cannot be greater than max argument")
 	}
 
 	n := max - min + 1
 	if n < 1 {
-		return nil, errors.New("passit: [min,max] range too large")
+		panic("passit: [min,max] range too large")
 	}
 
 	if min == max {
-		return Repeat(gen, sep, min), nil
+		return Repeat(gen, sep, min)
 	}
 
-	return &randomRepeatGenerator{gen, sep, min, n}, nil
+	return &randomRepeatGenerator{gen, sep, min, n}
 }
 
 func (rg *randomRepeatGenerator) Password(r io.Reader) (string, error) {

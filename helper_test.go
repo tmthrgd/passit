@@ -112,31 +112,27 @@ func TestRepeat(t *testing.T) {
 func TestRandomRepeat(t *testing.T) {
 	const maxInt = 1<<(bits.UintSize-1) - 1
 
-	_, err := RandomRepeat(Hyphen, " ", 10, 7)
-	assert.EqualError(t, err, "passit: min argument cannot be greater than max argument",
-		"min greater than max")
+	assert.PanicsWithValue(t, "passit: min argument cannot be greater than max argument", func() {
+		RandomRepeat(Hyphen, " ", 10, 7)
+	}, "min greater than max")
 
-	_, err = RandomRepeat(Hyphen, " ", -5, 7)
-	assert.EqualError(t, err, "passit: min argument must be positive",
-		"min negative")
+	assert.PanicsWithValue(t, "passit: min argument must be positive", func() {
+		RandomRepeat(Hyphen, " ", -5, 7)
+	}, "min negative")
 
-	_, err = RandomRepeat(Hyphen, " ", 5, -7)
-	assert.EqualError(t, err, "passit: min argument cannot be greater than max argument",
-		"min greater than max; max negative")
+	assert.PanicsWithValue(t, "passit: min argument cannot be greater than max argument", func() {
+		RandomRepeat(Hyphen, " ", 5, -7)
+	}, "min greater than max; max negative")
 
-	_, err = RandomRepeat(Hyphen, " ", 0, maxInt)
-	assert.EqualError(t, err, "passit: [min,max] range too large",
-		"out of range: 0, max int")
+	assert.PanicsWithValue(t, "passit: [min,max] range too large", func() {
+		RandomRepeat(Hyphen, " ", 0, maxInt)
+	}, "out of range: 0, max int")
 
-	gen, err := RandomRepeat(Hyphen, " ", 0, 0)
-	if assert.NoError(t, err, "min and max equal zero should not error") {
-		assert.Equal(t, Empty, gen, "min and max equal zero should return Empty")
-	}
+	gen := RandomRepeat(Hyphen, " ", 0, 0)
+	assert.Equal(t, Empty, gen, "min and max equal zero should return Empty")
 
-	gen, err = RandomRepeat(Hyphen, " ", 1, 1)
-	if assert.NoError(t, err, "min and max equal one should not error") {
-		assert.Equal(t, Hyphen, gen, "min and max equal one should return Generator")
-	}
+	gen = RandomRepeat(Hyphen, " ", 1, 1)
+	assert.Equal(t, Hyphen, gen, "min and max equal one should return Generator")
 
 	for _, tc := range []int{
 		70,
@@ -144,10 +140,7 @@ func TestRandomRepeat(t *testing.T) {
 		1<<31 - 1,
 		maxInt,
 	} {
-		gen, err := RandomRepeat(Hyphen, " ", tc, tc)
-		if !assert.NoErrorf(t, err, "equal min and max should not error: %v", tc) {
-			continue
-		}
+		gen := RandomRepeat(Hyphen, " ", tc, tc)
 		assert.IsTypef(t, (*repeatGenerator)(nil), gen,
 			"equal min and max should return Repeat(...): %v", tc)
 	}
@@ -162,14 +155,9 @@ func TestRandomRepeat(t *testing.T) {
 		{4, 7, "-", "mascot-ultimatum-lantern-lushly-recoil-humvee"},
 		{10, 20, " ", "mascot ultimatum lantern lushly recoil humvee uncolored phrase spearmint vividness haunt esquire cargo"},
 	} {
-		gen, err := RandomRepeat(EFFLargeWordlist, tc.sep, tc.min, tc.max)
-		if !assert.NoErrorf(t, err, "valid range should not error: %v", tc) {
-			continue
-		}
-
 		tr := newTestRand()
 
-		pass, err := gen.Password(tr)
+		pass, err := RandomRepeat(EFFLargeWordlist, tc.sep, tc.min, tc.max).Password(tr)
 		if !assert.NoErrorf(t, err, "valid range should not error when generating: %v", tc) {
 			continue
 		}
