@@ -139,7 +139,7 @@ Two special captures (`(?P<name>)`) are supported:
 doesn't already implement `io.ByteReader`) will greatly improve the performance of
 the generators.
 
-For generating random passwrods, `Password` should be called with
+For generating random passwords, `Password` should be called with
 [`crypto/rand.Reader`](https://pkg.go.dev/crypto/rand#pkg-variables). Avoid using
 poor quality sources of randomness like math/rand.
 
