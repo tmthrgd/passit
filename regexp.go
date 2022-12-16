@@ -227,7 +227,7 @@ func (p *RegexpParser) foldedRune(c rune) (regexpGenerator, error) {
 func (p *RegexpParser) charClass(sr *syntax.Regexp) (regexpGenerator, error) {
 	tab := new(unicode.RangeTable)
 	for i := 0; i < len(sr.Rune); i += 2 {
-		AppendToRangeTable(tab, sr.Rune[i], sr.Rune[i+1])
+		appendToRangeTable(tab, sr.Rune[i], sr.Rune[i+1])
 	}
 
 	// intersectRangeTables requires that the first RangeTable have a Stride of

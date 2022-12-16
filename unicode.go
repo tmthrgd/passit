@@ -2,8 +2,7 @@ package passit
 
 import "unicode"
 
-// AppendToRangeTable appends the runes in [lo, hi] to the unicode.RangeTable.
-func AppendToRangeTable(tab *unicode.RangeTable, lo, hi rune) {
+func appendToRangeTable(tab *unicode.RangeTable, lo, hi rune) {
 	const maxR16 = 1<<16 - 1
 
 	if lo > hi {
