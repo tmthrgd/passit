@@ -84,11 +84,14 @@ type unicodeGenerator struct {
 // versions of Unicode are released and are not suitable for deterministic use.
 func FromRangeTable(tab *unicode.RangeTable) Generator {
 	runes := countRunesInTable(tab)
-	if runes == 0 {
+	switch runes {
+	case 0:
 		return Empty
+	case 1:
+		return String(string(getRuneInTable(tab, 0)))
+	default:
+		return &unicodeGenerator{tab, runes}
 	}
-
-	return &unicodeGenerator{tab, runes}
 }
 
 func (ug *unicodeGenerator) Password(r io.Reader) (string, error) {
