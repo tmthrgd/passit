@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io"
 	"unicode"
-	"unicode/utf8"
 )
 
 type asciiGenerator struct{ s string }
@@ -50,10 +49,6 @@ type runeGenerator struct{ runes []rune }
 // FromCharset returns a Generator that returns a random rune from charset. It
 // returns an error if the charset is invalid.
 func FromCharset(charset string) (Generator, error) {
-	if !utf8.ValidString(charset) {
-		return nil, errors.New("passit: charset contains invalid unicode rune")
-	}
-
 	runes := []rune(charset)
 	if len(runes) > maxReadIntN {
 		return nil, errors.New("passit: too many runes in charset")

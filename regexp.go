@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
-	"unicode/utf8"
 )
 
 const maxUnboundedRepeatCount = 15
@@ -283,14 +282,8 @@ func (p *RegexpParser) namedCapture(sr *syntax.Regexp) (regexpGenerator, error) 
 
 	return func(b *strings.Builder, r io.Reader) error {
 		pass, err := gen.Password(r)
-		if err != nil {
-			return err
-		} else if !utf8.ValidString(pass) {
-			return errors.New("passit: special capture output contains invalid unicode rune")
-		}
-
 		b.WriteString(pass)
-		return nil
+		return err
 	}, nil
 }
 

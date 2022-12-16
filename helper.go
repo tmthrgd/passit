@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io"
 	"strings"
-	"unicode/utf8"
 
 	"golang.org/x/exp/slices"
 )
@@ -178,14 +177,6 @@ type sliceGenerator struct{ list []string }
 func FromSlice(list ...string) (Generator, error) {
 	if len(list) > maxReadIntN {
 		return nil, errors.New("passit: list too long")
-	}
-
-	for _, s := range list {
-		if s == "" {
-			return nil, errors.New("passit: empty string in list")
-		} else if !utf8.ValidString(s) {
-			return nil, errors.New("passit: list entry contains invalid unicode rune")
-		}
 	}
 
 	switch len(list) {
