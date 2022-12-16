@@ -34,10 +34,14 @@ func modEdgeInc[T constraints.Unsigned](m *T) T {
 }
 
 func putUintN[T constraints.Unsigned](b []byte, n int, v T) {
+	// Silence a vet warning ("v (may be 8 bits) too small for shift of 8") by
+	// always casting v to uint64.
+	v64 := uint64(v)
+
 	_ = b[n-1] // early bounds check to guarantee safety of writes below
 	for i := 0; i < n; i++ {
-		b[i] = byte(v)
-		v >>= 8
+		b[i] = byte(v64)
+		v64 >>= 8
 	}
 }
 
