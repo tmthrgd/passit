@@ -6,11 +6,9 @@ import (
 	"math/bits"
 	"testing"
 	"testing/iotest"
-	"unicode"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/text/unicode/rangetable"
 )
 
 // modReader is used to probe the upper region of uint16 space. It generates values
@@ -87,59 +85,5 @@ func TestReadIntN(t *testing.T) {
 		if assert.NoErrorf(t, err, "readIntN with n=%d: error", tc.N) {
 			assert.Equalf(t, tc.Expect, got, "readIntN with n=%d: result", tc.N)
 		}
-	}
-}
-
-func TestCountTableRunes(t *testing.T) {
-	for _, tabs := range []map[string]*unicode.RangeTable{
-		unicode.Categories, unicode.Properties, unicode.Scripts,
-	} {
-		for _, tab := range tabs {
-			got := countTableRunes(tab)
-
-			var expect int
-			rangetable.Visit(tab, func(rune) { expect++ })
-
-			assert.Equal(t, expect, got)
-		}
-	}
-}
-
-type u16Reader uint16
-
-func (u *u16Reader) Read(p []byte) (int, error) {
-	binary.LittleEndian.PutUint16(p, uint16(*u))
-	*u++
-	return 2, nil
-}
-
-func TestReadRune(t *testing.T) {
-	for _, tab := range []*unicode.RangeTable{
-		rangeTableASCII,
-		unicode.Lu,
-		unicode.Ll,
-		unicode.N,
-	} {
-		count := countTableRunes(tab)
-
-		var ur u16Reader
-		seen := make(map[rune]struct{}, count)
-		for i := 0; i < count; i++ {
-			r, err := readRune(&ur, tab, count)
-			require.NoError(t, err)
-
-			_, dup := seen[r]
-			seen[r] = struct{}{}
-
-			require.Truef(t, unicode.Is(tab, r), "rune %U not found in table", r)
-			require.Falsef(t, dup, "duplicate rune %U returned", r)
-		}
-
-		r, err := readRune(&ur, tab, count)
-		require.NoError(t, err)
-
-		_, dup := seen[r]
-		require.Truef(t, unicode.Is(tab, r), "rune %U not found in table", r)
-		require.Truef(t, dup, "expected duplicate rune %U not returned", r)
 	}
 }

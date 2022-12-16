@@ -2,10 +2,8 @@ package passit
 
 import (
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"io"
-	"unicode"
 )
 
 const (
@@ -104,45 +102,4 @@ func readSliceN[T any](r io.Reader, s []T) (T, error) {
 	}
 
 	return s[i], nil
-}
-
-func countTableRunes(tab *unicode.RangeTable) int {
-	var c int
-	for _, r16 := range tab.R16 {
-		c += int((r16.Hi-r16.Lo)/r16.Stride) + 1
-	}
-	for _, r32 := range tab.R32 {
-		c += int((r32.Hi-r32.Lo)/r32.Stride) + 1
-	}
-
-	return c
-}
-
-func readRune(r io.Reader, tab *unicode.RangeTable, count int) (rune, error) {
-	if count > maxReadIntN {
-		return 0, errors.New("passit: unicode.RangeTable is too large")
-	}
-
-	v, err := readIntN(r, count)
-	if err != nil {
-		return 0, err
-	}
-
-	for _, r16 := range tab.R16 {
-		size := int((r16.Hi-r16.Lo)/r16.Stride) + 1
-		if v < size {
-			return rune(r16.Lo + uint16(v)*r16.Stride), nil
-		}
-		v -= size
-	}
-
-	for _, r32 := range tab.R32 {
-		size := int((r32.Hi-r32.Lo)/r32.Stride) + 1
-		if v < size {
-			return rune(r32.Lo + uint32(v)*r32.Stride), nil
-		}
-		v -= size
-	}
-
-	panic("passit: internal error: unicode.RangeTable did not contain rune")
 }

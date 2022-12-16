@@ -247,14 +247,17 @@ func (p *RegexpParser) anyChar(sr *syntax.Regexp) (regexpGenerator, error) {
 }
 
 func (*RegexpParser) charClassInternal(sr *syntax.Regexp, tab *unicode.RangeTable) (regexpGenerator, error) {
-	count := countTableRunes(tab)
-	if count == 0 {
+	count := countRunesInTable(tab)
+	switch {
+	case count == 0:
 		return nil, fmt.Errorf("passit: character class %s contains zero allowed runes", sr)
+	case count > maxReadIntN:
+		return nil, fmt.Errorf("passit: character class %s contains too many runes", sr)
 	}
 
 	return func(b *strings.Builder, r io.Reader) error {
-		v, err := readRune(r, tab, count)
-		b.WriteRune(v)
+		idx, err := readIntN(r, count)
+		b.WriteRune(getRuneInTable(tab, idx))
 		return err
 	}, nil
 }

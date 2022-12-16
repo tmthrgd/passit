@@ -90,7 +90,7 @@ type unicodeGenerator struct {
 // used. Be aware that the builtin unicode.X tables are subject to change as new
 // versions of Unicode are released and are not suitable for deterministic use.
 func FromRangeTable(tab *unicode.RangeTable) Generator {
-	runes := countTableRunes(tab)
+	runes := countRunesInTable(tab)
 	if runes == 0 {
 		return Empty
 	}
@@ -99,10 +99,14 @@ func FromRangeTable(tab *unicode.RangeTable) Generator {
 }
 
 func (ug *unicodeGenerator) Password(r io.Reader) (string, error) {
-	v, err := readRune(r, ug.tab, ug.runes)
+	if ug.runes > maxReadIntN {
+		return "", errors.New("passit: unicode.RangeTable is too large")
+	}
+
+	idx, err := readIntN(r, ug.runes)
 	if err != nil {
 		return "", err
 	}
 
-	return string(v), nil
+	return string(getRuneInTable(ug.tab, idx)), nil
 }

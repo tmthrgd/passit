@@ -35,6 +35,41 @@ func allRunesAllowed(t *testing.T, allowed any, str string) {
 	}
 }
 
+func TestCountRunesInTable(t *testing.T) {
+	for _, tabs := range []map[string]*unicode.RangeTable{
+		unicode.Categories, unicode.Properties, unicode.Scripts,
+	} {
+		for name, tab := range tabs {
+			got := countRunesInTable(tab)
+
+			var expect int
+			rangetable.Visit(tab, func(rune) { expect++ })
+
+			assert.Equal(t, expect, got, name)
+		}
+	}
+}
+
+func TestGetRuneInTable(t *testing.T) {
+	for _, tabs := range []map[string]*unicode.RangeTable{
+		unicode.Categories, unicode.Properties, unicode.Scripts,
+	} {
+		for name, tab := range tabs {
+			var got []rune
+			for i, c := 0, countRunesInTable(tab); i < c; i++ {
+				got = append(got, getRuneInTable(tab, i))
+			}
+
+			var expect []rune
+			rangetable.Visit(tab, func(r rune) {
+				expect = append(expect, r)
+			})
+
+			require.Equal(t, expect, got, name)
+		}
+	}
+}
+
 func TestUnstridifyRangeTable(t *testing.T) {
 	// This will trip the race detector if unicode.C is modified.
 	go func() { _ = *unicode.C }()
@@ -177,7 +212,7 @@ func BenchmarkIntersectRangeTables(b *testing.B) {
 
 func naiveIntersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
 	// Iterate over the smaller table.
-	if countTableRunes(a) > countTableRunes(b) {
+	if countRunesInTable(a) > countRunesInTable(b) {
 		a, b = b, a
 	}
 
