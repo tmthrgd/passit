@@ -3,6 +3,9 @@ package passit
 import (
 	"io"
 	"unicode"
+	"unicode/utf8"
+
+	"golang.org/x/exp/utf8string"
 )
 
 type asciiGenerator struct{ s string }
@@ -43,28 +46,29 @@ func (ag *asciiGenerator) Password(r io.Reader) (string, error) {
 	return ag.s[idx : idx+1], nil
 }
 
-type runeGenerator struct{ runes []rune }
+type runeGenerator struct{ s utf8string.String }
 
 // FromCharset returns a Generator that returns a random rune from charset.
 func FromCharset(charset string) Generator {
-	runes := []rune(charset)
-	switch len(runes) {
+	switch utf8.RuneCountInString(charset) {
 	case 0:
 		return Empty
 	case 1:
 		return String(charset)
 	default:
-		return &runeGenerator{runes}
+		var rg runeGenerator
+		rg.s.Init(charset)
+		return &rg
 	}
 }
 
 func (rg *runeGenerator) Password(r io.Reader) (string, error) {
-	v, err := readSliceN(r, rg.runes)
+	idx, err := readIntN(r, rg.s.RuneCount())
 	if err != nil {
 		return "", err
 	}
 
-	return string(v), nil
+	return rg.s.Slice(idx, idx+1), nil
 }
 
 type unicodeGenerator struct {

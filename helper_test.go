@@ -259,3 +259,15 @@ func TestFromSlice(t *testing.T) {
 			"utf8.ValidString(%q)", pass)
 	}
 }
+
+func benchmarkGeneratorPassword(b *testing.B, gen Generator) {
+	b.Helper()
+	tr := newTestRand()
+
+	for n := 0; n < b.N; n++ {
+		_, err := gen.Password(tr)
+		if err != nil {
+			require.NoError(b, err)
+		}
+	}
+}

@@ -317,12 +317,6 @@ func BenchmarkRegexpPassword(b *testing.B) {
 	if err != nil {
 		require.NoError(b, err)
 	}
-	tr := newTestRand()
 
-	for n := 0; n < b.N; n++ {
-		_, err := gen.Password(tr)
-		if err != nil {
-			require.NoError(b, err)
-		}
-	}
+	benchmarkGeneratorPassword(b, gen)
 }

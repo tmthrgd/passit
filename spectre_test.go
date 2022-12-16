@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestSpectreTemplate(t *testing.T) {
@@ -36,18 +35,6 @@ func TestSpectreTemplate(t *testing.T) {
 	}
 }
 
-var sinkString string
-
 func BenchmarkSpectrePassword(b *testing.B) {
-	tr := newTestRand()
-
-	var pass string
-	for n := 0; n < b.N; n++ {
-		var err error
-		pass, err = SpectreLong.Password(tr)
-		if err != nil {
-			require.NoErrorf(b, err, "failed to generate password")
-		}
-	}
-	sinkString = pass
+	benchmarkGeneratorPassword(b, SpectreLong)
 }

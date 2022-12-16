@@ -118,3 +118,15 @@ func TestRangeTable(t *testing.T) {
 		allRunesAllowed(t, tc.tab, pass)
 	}
 }
+
+func BenchmarkCharsetPassword(b *testing.B) {
+	for _, tc := range []struct{ name, charset string }{
+		{"ASCII", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
+		{"Unicode", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω0123456789"},
+	} {
+		tc := tc
+		b.Run(tc.name, func(b *testing.B) {
+			benchmarkGeneratorPassword(b, FromCharset(tc.charset))
+		})
+	}
+}
