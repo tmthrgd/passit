@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"strings"
+	"unicode/utf8"
 
 	"golang.org/x/exp/slices"
 )
@@ -168,6 +169,37 @@ func (rg *rejectionGenerator) Password(r io.Reader) (string, error) {
 			return pass, nil
 		}
 	}
+}
+
+type sliceGenerator struct{ list []string }
+
+// FromSlice returns a Generator that returns a random string from list. It returns an
+// error if the list of strings is invalid.
+func FromSlice(list ...string) (Generator, error) {
+	if len(list) > maxReadIntN {
+		return nil, errors.New("passit: list too long")
+	}
+
+	for _, s := range list {
+		if s == "" {
+			return nil, errors.New("passit: empty string in list")
+		} else if !utf8.ValidString(s) {
+			return nil, errors.New("passit: list entry contains invalid unicode rune")
+		}
+	}
+
+	switch len(list) {
+	case 0:
+		return Empty, nil
+	case 1:
+		return String(list[0]), nil
+	default:
+		return &sliceGenerator{slices.Clone(list)}, nil
+	}
+}
+
+func (sg *sliceGenerator) Password(r io.Reader) (string, error) {
+	return readSliceN(r, sg.list)
 }
 
 type fixedString string

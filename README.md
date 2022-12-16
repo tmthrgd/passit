@@ -70,7 +70,7 @@ The package also provides a number of generators that produce output based on us
 | `RegexpParser`   | Password that matches a regular expression pattern    |
 | `FromCharset`    | A rune from a charset                                 |
 | `FromRangeTable` | A rune from a `unicode.RangeTable`                    |
-| `FromWords`      | A word from a list of words                           |
+| `FromSlice`      | A string from a slice of strings                      |
 
 There are also a number of 'helper' generators that interact with the output of other generators:
 

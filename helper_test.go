@@ -248,3 +248,34 @@ func TestRejectionSample(t *testing.T) {
 		assert.Equal(t, expect, pass)
 	}
 }
+
+func TestFromSlice(t *testing.T) {
+	mustSlice := func(t *testing.T, list ...string) Generator {
+		t.Helper()
+
+		gen, err := FromSlice(list...)
+		require.NoError(t, err)
+		return gen
+	}
+
+	for _, tc := range []struct {
+		expect string
+		gen    Generator
+	}{
+		{"       ", mustSlice(t)},
+		{"to to to to to to to to", mustSlice(t, "to")},
+		{"and or or and and and and or", mustSlice(t, "and", "or")},
+		{"ευτυχία αιώνια αιώνια ελπίδα ελπίδα ευτυχία ευτυχία αιώνια", mustSlice(t, "ελπίδα", "υγεία", "ευτυχία", "αιώνια")},
+	} {
+		tr := newTestRand()
+
+		pass, err := Repeat(tc.gen, " ", 8).Password(tr)
+		if !assert.NoError(t, err) {
+			continue
+		}
+
+		assert.Equal(t, tc.expect, pass)
+		assert.Truef(t, utf8.ValidString(pass),
+			"utf8.ValidString(%q)", pass)
+	}
+}
