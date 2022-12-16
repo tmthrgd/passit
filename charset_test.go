@@ -13,15 +13,15 @@ func TestCharset(t *testing.T) {
 	for _, tc := range []struct{ expect, charset string }{
 		{"", ""},
 		{"~~~~~~~~~~~~~~~~~~~~~~~~~", "~"},
-		{"0110000100000101100110101", "01"},
-		{"0778244948606109948934141", "0123456789"},
-		{"chzqoyupqagyotuvfssvfazip", "abcdefghijklmnopqrstuvwxyz"},
-		{"CHZQOYUPQAGYOTUVFSSVFAZIP", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
-		{"CHzQoyuPQAGYOtUVfSsvfaZiP", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"},
-		{"sjpUAg8nkoSSQrctlGCdFAxkN", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
-		{"cu+qoyuc#~t_b^uv%%fv%nmip", "abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+"},
-		{"κΔφδΦΓΥΖΞκκΤΠΔΖΠοΣυγψΝηΔΝ", "ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω"},
-		{"🐊🐝🐝💅🎩🍈🍈🚋💬💅🛰🔱🛰🍧🔱🍳🚋🍈💅🚋🍉🍈🍧🍈🐂", "🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋"},
+		{"0110100100010010000000010", "01"},
+		{"2352984966922368666874797", "0123456789"},
+		{"yzxeishgyluaruksywwtcxdji", "abcdefghijklmnopqrstuvwxyz"},
+		{"YZXEISHGYLUARUKSYWWTCXDJI", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+		{"yXisHgYluArukyWwtCXdjIRmD", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"},
+		{"ovNa1Os7MObQ0ruaoUCwj2DdZ", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
+		{"y+)rvfut_lhnehk%ljjtpk#ji", "abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+"},
+		{"ΓΤΞΙΧυχΖτξυΔβΧψΥΠΖΟωωγοοτ", "ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω"},
+		{"👒💩👗🎩🚋🚱💬🚋🌴🌴🍳👒🎩🍉🛰💅🛰🛰🛰💅💻🍈🐝🍳🐝", "🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋"},
 	} {
 		tr := newTestRand()
 
@@ -42,13 +42,13 @@ func TestFixedCharset(t *testing.T) {
 		expect string
 		gen    Generator
 	}{
-		{"0778244948606109948934141", Digit},
-		{"chzqoyupqagyotuvfssvfazip", LatinLower},
-		{"CHZQOYUPQAGYOTUVFSSVFAZIP", LatinUpper},
-		{"chZqOYUpqagyoTuvFsSVFAzIp", LatinMixed},
-		{"0x92i4olu68ewri7h861h87op", LatinLowerDigit},
-		{"0X92I4OLU68EWRI7H861H87OP", LatinUpperDigit},
-		{"SJPuaG8NKOssqRCTLgcDfaXKn", LatinMixedDigit},
+		{"2352984966922368666874797", Digit},
+		{"yzxeishgyluaruksywwtcxdji", LatinLower},
+		{"YZXEISHGYLUARUKSYWWTCXDJI", LatinUpper},
+		{"YxIShGyLUaRUKYwWTcxDJirMd", LatinMixed},
+		{"4rd6x4ix2e8rwqhkqk08smzst", LatinLowerDigit},
+		{"4RD6X4IX2E8RWQHKQK08SMZST", LatinUpperDigit},
+		{"OVnA1oS7moBq0RUAOucWJ2dDz", LatinMixedDigit},
 	} {
 		const size = 25
 
@@ -80,23 +80,23 @@ func TestRangeTable(t *testing.T) {
 	testCases := []testCase{
 		{"", new(unicode.RangeTable)},
 		{"~~~~~~~~~~~~~~~~~~~~~~~~~", newTable("~")},
-		{"0110000100000101100110101", newTable("01")},
-		{"0778244948606109948934141", newTable("0123456789")},
-		{"chzqoyupqagyotuvfssvfazip", newTable("abcdefghijklmnopqrstuvwxyz")},
-		{"CHZQOYUPQAGYOTUVFSSVFAZIP", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
-		{"CHzQoyuPQAGYOtUVfSsvfaZiP", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")},
-		{"iZfK0WydaeIIGhSjb62T50naD", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")},
-		{"$i~ecmi$rohz#uijtt(jtba+d", newTable("abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+")},
-		{"ΥΗσΘςΕπΛγΥΥξηΗΛηζλρΖχαΞΗα", newTable("ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω")},
-		{"👗🐊🐊🐝💅💬💬🛰🍳🐝🐂🌴🐂🍈🌴👒🛰💬🐝🛰🍧💬🍈💬👞", newTable("🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋")},
-		{"e7FCC065cCCe6FA9F047BC9e1", unicode.ASCII_Hex_Digit},
+		{"0110100100010010000000010", newTable("01")},
+		{"2352984966922368666874797", newTable("0123456789")},
+		{"yzxeishgyluaruksywwtcxdji", newTable("abcdefghijklmnopqrstuvwxyz")},
+		{"YZXEISHGYLUARUKSYWWTCXDJI", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZ")},
+		{"yXisHgYluArukyWwtCXdjIRmD", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")},
+		{"elDQrEixCERGqhkQeK2mZs3TP", newTable("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")},
+		{"m~yfj(ihz_*b&*^t_@@hd^r@+", newTable("abcdefghijklmnopqrstuvwxyz~!@#$%^&*()_+")},
+		{"ΕξγΡτρυΛοδρΗΔτχπηΛεωωΖζζο", newTable("ΑαΒβΓγΔδΕεΖζΗηΘθΙιΚκΛλΜμΝνΞξΟοΠπΡρΣσςΤτΥυΦφΧχΨψΩω")},
+		{"🍉💩💻💅🛰🚱🍳🛰🔱🔱👒🍉💅🍧🐂🐝🐂🐂🐂🐝🚋💬🐊👒🐊", newTable("🔱🍧👒🍉💬👞🛰🐝💅🍳🐊🐂🎩💩🍈👗🌴💻🚱🚋")},
+		{"ED9Ed60F4A148f2068a49Ab7f", unicode.ASCII_Hex_Digit},
 	}
 
 	const unicodeVersion = "13.0.0"
 	testCasesUni := []testCase{
 		{"ᵻḙꞪiǰↇꝢṛŸḨẨĠỤǉŦꝋɡḆＹɅẁṦǟḊꭒ", unicode.Latin},
 		{"ἳ𝈛ῥᵡ𐅺όΫ𐅷𐆎ἓ𐅖Ί𝈂ΗᾁῈϼᴧρὺᵞ𐅰Ϟ𐅬θ", unicode.Greek},
-		{"₼₳₹₤$₰𞋿₷₴₸₢₢₠₻€₽₵؋£₭֏$﷼₴௹", unicode.Sc},
+		{"₸₿௹₪￡฿₼𑿠૱฿₫₠￠₻₾₪₸₤£꠸₳￥¤₭₩", unicode.Sc},
 	}
 	if unicode.Version == unicodeVersion {
 		testCases = append(testCases, testCasesUni...)

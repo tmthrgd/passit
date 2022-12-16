@@ -55,7 +55,7 @@ func TestJoin(t *testing.T) {
 		pass, err := gen.Password(tr)
 		require.NoError(t, err)
 
-		assert.Equal(t, "reprint wool pantry unworried mummify Y4% +abc-d", pass)
+		assert.Equal(t, "reprint wool pantry unworried mummify L2* +abc-e", pass)
 		assert.Truef(t, pattern.MatchString(pass),
 			"regexp.MustCompile(%q).MatchString(%q)", pattern, pass)
 		assert.Truef(t, utf8.ValidString(pass),
@@ -71,7 +71,7 @@ func TestJoin(t *testing.T) {
 		pass, err := gen.Password(tr)
 		require.NoError(t, err)
 
-		assert.Equal(t, "C@$h@$Z", pass)
+		assert.Equal(t, "Y@$z@$x", pass)
 		assert.Truef(t, utf8.ValidString(pass),
 			"utf8.ValidString(%q)", pass)
 		allRunesAllowed(t, rangeTableASCII, pass)
@@ -157,10 +157,10 @@ func TestRandomRepeat(t *testing.T) {
 		sep      string
 		expect   string
 	}{
-		{1, 2, " ", "wool"},
-		{2, 5, "", "woolpantryunworriedmummify"},
-		{4, 7, "-", "wool-pantry-unworried-mummify-veneering-securely"},
-		{10, 20, " ", "wool pantry unworried mummify veneering securely munchkin juiciness steep cresting dastardly cubical thriving procreate voice lingo stargazer acetone stroller"},
+		{1, 2, " ", "mascot"},
+		{2, 5, "", "mascotultimatumlanternlushly"},
+		{4, 7, "-", "mascot-ultimatum-lantern-lushly-recoil-humvee"},
+		{10, 20, " ", "mascot ultimatum lantern lushly recoil humvee uncolored phrase spearmint vividness haunt esquire cargo"},
 	} {
 		gen, err := RandomRepeat(EFFLargeWordlist, tc.sep, tc.min, tc.max)
 		if !assert.NoErrorf(t, err, "valid range should not error: %v", tc) {
@@ -190,14 +190,14 @@ func TestAlternate(t *testing.T) {
 		expect string
 	}{
 		{[]Generator{}, ""},
-		{[]Generator{LatinLower}, "c"},
-		{[]Generator{LatinLower, LatinUpper, Digit}, "7"},
-		{[]Generator{EFFShortWordlist1, EFFShortWordlist2, EFFLargeWordlist}, "wool"},
+		{[]Generator{LatinLower}, "y"},
+		{[]Generator{LatinLower, LatinUpper, Digit}, "z"},
+		{[]Generator{EFFShortWordlist1, EFFShortWordlist2, EFFLargeWordlist}, "yummy"},
 		{[]Generator{
 			Repeat(LatinLower, "!", 5),
 			Repeat(LatinUpper, "@", 3),
 			Repeat(Digit, "#", 7),
-		}, "7#7#8#2#4#4#9"},
+		}, "z!x!e!i!s"},
 	} {
 		tr := newTestRand()
 
@@ -217,16 +217,16 @@ func TestRejectionSample(t *testing.T) {
 	tr := newTestRand()
 
 	for _, expect := range []string{
-		"l0LXpszA2lAxxyDUjT8o", // 3
-		"0ZATYpv8h9K3YpeGjsbA", // 3
-		"0ASqickBv1L0WdGukXJ1", // 7
-		"aAA1sxVrP0jGibFTVp2T", // 7
-		"ETeNP2gjuMyU50DbHtOA", // 18
-		"CyglA0KaUPFUvhzRO9DV", // 3
-		"izcumHs0xadaksW0cAS9", // 3
-		"8dhEXXJLAEq0ZH4va5xC", // 95
-		"Mtg00S5dHXBL7ASHEfNd", // 8
-		"330aI6KcSbSCoioRAde1", // 4
+		"OVnA1oS7moBq0RUAOucW", // 1
+		"N0A7kS2RKGEgim1C0pr7", // 23
+		"RNrej47HNFYrK1z23A0D", // 25
+		"Y2Za255TBLAQ6Dwb0bXy", // 12
+		"57A0CPUu01ig0NI4BqvP", // 20
+		"ThD321Av11GE0kvEQhLc", // 11
+		"74gna0HQ5jjKALLPxdrF", // 15
+		"awrGYutFKLcE3O6W0AE6", // 7
+		"mqjrX7JnahA7gSuks0qx", // 1
+		"TVz0ods6Ai0otGpdbbIn", // 15
 	} {
 		pass, err := rs.Password(tr)
 		if !assert.NoError(t, err) {
@@ -244,8 +244,8 @@ func TestFromSlice(t *testing.T) {
 	}{
 		{"       ", FromSlice()},
 		{"to to to to to to to to", FromSlice("to")},
-		{"and or or and and and and or", FromSlice("and", "or")},
-		{"ευτυχία αιώνια αιώνια ελπίδα ελπίδα ευτυχία ευτυχία αιώνια", FromSlice("ελπίδα", "υγεία", "ευτυχία", "αιώνια")},
+		{"and or or and or and and or", FromSlice("and", "or")},
+		{"ευτυχία υγεία αιώνια ελπίδα αιώνια ευτυχία ελπίδα αιώνια", FromSlice("ελπίδα", "υγεία", "ευτυχία", "αιώνια")},
 	} {
 		tr := newTestRand()
 

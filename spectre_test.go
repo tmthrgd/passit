@@ -13,14 +13,14 @@ func TestSpectreTemplate(t *testing.T) {
 		expected1 string
 		expected2 string
 	}{
-		{SpectreBasic, "izJ24tHJ", "eSG10PbL"},
-		{SpectreLong, "ZikzXuwuHeve1(", "Cuhu3-JufeVuzd"},
-		{SpectreMaximum, "i7,o%yC4&fmQ1r*qfcWq", "T4!Vxx)nNumn(Dmem7nB"},
-		{SpectreMedium, "Zik2~Puh", "Yav1(Mur"},
-		{SpectreName, "hiskixuwu", "hevvewucu"},
-		{SpectrePhrase, "zi kixpu hoy vezamcu", "qo nezfe vuz dixudre"},
-		{SpectrePIN, "0778", "2449"},
-		{SpectreShort, "His8", "Zup9"},
+		{SpectreBasic, "Rfr9cSj2", "qt86yQw7"},
+		{SpectreLong, "Dadl8(WeraHinc", "GewyBoru7=Fubu"},
+		{SpectreMaximum, "R2.%r7#UK60qtJ!2wT23", "gN*LO#!SkMImynnfwa0?"},
+		{SpectreMedium, "Dad9~Dun", "Yur2;Gov"},
+		{SpectreName, "xoqduquwe", "rahricege"},
+		{SpectrePhrase, "dadl quw neyhino gov", "wabj ruc liwbujo now"},
+		{SpectrePIN, "2352", "9849"},
+		{SpectreShort, "Xoq2", "Lod9"},
 	} {
 		tr := newTestRand()
 
@@ -38,7 +38,7 @@ func TestSpectreTemplate(t *testing.T) {
 
 var sinkString string
 
-func BenchmarkSpectreTemplate(b *testing.B) {
+func BenchmarkSpectrePassword(b *testing.B) {
 	tr := newTestRand()
 
 	var pass string

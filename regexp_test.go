@@ -19,19 +19,19 @@ func TestRegexp(t *testing.T) {
 	tr := newTestRand()
 
 	for _, expect := range []string{
-		"acd7faaaaaaaabbbbbbbbbbbccccdddddeeeeeeeeeeeeeeee0u.=_K?L#",
-		"x141s8zzyyzzyyzzyyyyyy[",
-		"acd3labbbbbbbbbbccccddddddeeeeeeeeeeeeeeeeefadM[EV Y4V,",
-		"x8100jnzzzzzzyyyyyyyyyyzzzzyyyyyy|",
-		"x06314366735700yyzz'",
-		"x29323870\\nl]zzzzzzyyzzzzzzyy$",
-		"abd5Baaaaaaaaabbbbbbbbbbbbbccccdddeeeeeeeeeeeeeeeeeeef]pRACY!>S5RG)>",
-		"x22581669274S.FERzz#",
-		"acd3Vaaaabbbbbbccccddddeeeeeeeeeeeeeeeeee6\\9)+|.T/ =/:",
-		"abd2raaaaaaaaaaaabbccccdddeeeeeeeeeeeeeeeeeeu(&78)\"~#",
-		"x3508122602218~S~MXyyyyyyyyzzzzzzzzyyyyzzyyyyyyzz,",
-		"x0560855439%i Jyyyyyyyyyyzzzzzzzzyyyyzzzz-",
-		"abd8Maabccccddddeeeeeeeeeeeeeeeeegggggggghhhhhhh)MOC4P`K~C>/W}",
+		"acd5VaaaaaaaaaaaaaaabbbbbbbbbbbccccdddeeeeeeeeeeeeeeeeyTN3~YP<VZ=2: ",
+		"acd6daaaaaaaaaaaaaabccccdddddeeeeeeeeggggggggghhhz2S+@",
+		"x59577893421Azzyyyyyyzzyyyyyyzzzzyyzzzzyyzz<",
+		"acd5eaaaaaaaaaaaaaabbbbbbbbbbbbbccccdddeeeeeeeeeeeeeefK>>U<JLD",
+		"x925947WQOzzzzyyyyzzyyyyzzyyyyyyzzyyyy_",
+		"x2333219060048yyyyzzyyzzyyyyzzyyzzyyyy|",
+		"x8138743=yyyyyyzzyyyyyyyyyyzz,",
+		"x3eKxmpyyzzzzzzyyzzzzzzyyyyzz@",
+		"x84131748(yy*",
+		"x3457867#zzzzzzzzyyzzyyzzzzyyzzzzyy.",
+		"x088772022554J*9$0yyzzyyyyzzzzzzyyzzzzzzyyzzyyyy%",
+		"x4940776138Hq/f}zzyyyyyyyyyyzzzzzzyy^",
+		"x2965.yyzzzzyyzzzzyyyyzzzzzzzzyyyyyy,",
 	} {
 		pass, err := gen.Password(tr)
 		require.NoError(t, err)
@@ -99,19 +99,19 @@ func TestRegexpUnicodeAny(t *testing.T) {
 	tr := newTestRand()
 
 	for _, expect := range []string{
-		"acd7faaaaaaaabbbbbbbbbbbccccdddddeeeeeeeeeeeeeeee1ᾒ𝉁-Ἆᴦδώ𝈩",
-		"x141Ἦ𐅄zzyyzzyyzzyyyyyy[",
-		"acd3labbbbbbbbbbccccddddddeeeeeeeeeeeeeeeeef𝈟ῼἡὒ𐅌ἐυὧ𝈏ᾨῧ",
-		"x100ήᾣzzzzzzyyyyyyyyyyzzzzyyyyyy|",
-		"x06314366735700yyzz'",
-		"x29323870Ἤoὦδzzzzzzyyzzzzzzyy$",
-		"abd5BaaaaaaaaabbbbbbbbbbbbbccccdddeeeeeeeeeeeeeeeeeeefἽΙῺϿ𝈑ᾐΏἣϲ𝈢Ὃ𐅯η𐅸",
-		"x22581669274Ὼϓᾧᾜὼzz#",
-		"acd3Vaaaabbbbbbccccddddeeeeeeeeeeeeeeeeeeᾉᵪᾋ𐅌ᵩϸᾃϠ𐅾ᵧὤ𐅒ᾨ",
-		"abd2raaaaaaaaaaaabbccccdddeeeeeeeeeeeeeeeeeeO῀ἠἇᾤἙἴςε",
-		"x3508122602218Α𐅏Ὴψ𐅮yyyyyyyyzzzzzzzzyyyyzzyyyyyyzz,",
-		"x0560855439ύ+TὟyyyyyyyyyyzzzzzzzzyyyyzzzz-",
-		"abd8Maabccccddddeeeeeeeeeeeeeeeeegggggggghhhhhhh𝉄῭ᵡᵟΎῄB𝈰Ω῀ᾛ϶ϳΌ",
+		"acd5Vaaaaaaaaaaaaaaabbbbbbbbbbbccccdddeeeeeeeeeeeeeeeeᾋ<ὈϠἕΎ῭𐆆ῐὟὋϹθἣ",
+		"acd0Daaaaaaaaabbccccdddddeeeeeeeeeeeeeeeeeeegggggghhhhhhhhhhh𐅆ϐ𐅈𐆋+𝈛",
+		"x85ῨΫyΆzz.",
+		"acd7xaaaaaaaaabbbbbbbbbbbbbbccccddddddeeeeeeeeeeeeeeeeeee𐅅ύ𝈇ὤέᾕ𝈇Ρ𝈢ξ𝈈Ὄ΄",
+		"x5712674230081408Vὦ𐅆𝈈𐆊yyyyyyyyzzyyyy|",
+		"acd4haaabbbbbbbbbbbccccddddddeeeeeeeeegggggggggggggggghhhhhhͲἀ΅{ᾐ:𝈰𐅄𐆆𐅺῞ᾔ𐆊ΖϚΉ",
+		"x275980syyyyzzzzzzzzyyyy>",
+		"abd2caaaaaaaaaaaaabbbbbbbccccddddddeeeeeeeeefggggggggggggggghhhhhhhhhω*𐅉𝈽𐅗ῖΨ𐅊",
+		"x10887720225545΅𐆄ἁ.Όzzzzyyzzzzzzyyzzyyyyyyzz^",
+		"acd4babbbbbbbbbbccccdddeeeeeeeeeeeeeeeef𐆀Ψ𐅸ᾉἥὶ𝈂ἒᾤΫ𝈙𐅮𐅵",
+		"abd9Gaaaabbccccddddddeeeeeeeeeeegggggghhhhhhhhᾧᾜ+ᵞᾚῒSᾞᾲ𐆍ϝ𐆇Ὗ𐅈",
+		"abd5maaaaaaaaaaaaabbbbbccccddddddeeeeeeeeeeeeeeefggggggghhhhᾫὰᾃϠ𐅾ᵧὤ𐅒ᾨὃ",
+		"abd8kaaaaaaaabbbbbbbbbccccdddeeeeeeeeeeeeeeeeeeeefἋϻὗͻ𐆆ᾶϓ𝈛Ὲ𝈿𝈢𝈶𝈽Ͳϸ῭ῑ",
 	} {
 		pass, err := gen.Password(tr)
 		require.NoError(t, err)
@@ -150,19 +150,19 @@ func TestRegexpAnyNL(t *testing.T) {
 	tr := newTestRand()
 
 	for _, expect := range []string{
-		"a2-b-b1A00Aa2-A2-bBaaA\naaBA-b100b0A0-0",
-		"a0-2B2AA-\n-B2-B0-\n\n2\nA-\nB1A-a-b2101-1A",
-		"a0-211a-\nA2B2-A2-BB-b\n-00\na-A10BBB--a0",
-		"a1-\naB-b1B1AA-A1-aB2AA2B1BB-B2-2-aB-0A",
-		"a1-\nabA\nbBbB2-A0-\n0B1B1aBa1-AB1aba2Ab1",
-		"b1-1-B-A102Ab-B0-bBbaA22\nA1-bAA0A1B-Aa",
-		"a2-AA\n0aB--BA-B0-001-a\n1a21-11Aa1-B1ba",
-		"b2-B0b-AB0\n1\n-B2-b\na-2a2A1b-B-aA02-b2a",
-		"b2-2bBA10a2\nA-B1-AB2A1-BA0B--0AaBba-12",
-		"a2-A1--0b1\n22-B1-a0a-0122aa-AA-a-aBb11",
-		"a0-B20-2a\n-2b-A0-b0b101AABB-B010-212b0",
-		"a1-0BA--2-1A--B0---B20-2Aab--202-0bAb2",
-		"b0-A0\nB2--0b2-B2-B-a2A1\nA00-A-1a10a0a1",
+		"a2-1AA1bA-2ab-A1-a-a-ba\n1a\n-bBbAbB12-1",
+		"a0-0-0\n2AAAa1-B2-b\n-1bb2022-0--100a2A1",
+		"a2-0--1\nb1A\na-B1-AbB\nbb1B-b-1aBB-aB0b0",
+		"a1-B10-A2A\nB\n-A2-\n00b00b001-a1BA-10A-2",
+		"b0-BBBAAa1aA\n-B2-Aa\n-Bba22A-BbB-B21B-1",
+		"b1-10aAa\nab1a-B2-2B1bBaa-bb-a20Ba2bBa1",
+		"b0-b2B-0Bb--b-B2-B0--0\n0A\n2--b22ABbbBA",
+		"b2--Ab2b2\nB\n--A1-2\n1-B02B-b-00A-A-aABa",
+		"a0-BA\nb-0-2b2-A2-a0\n-1B-002-1b--a1BB00",
+		"a1-2Ab0BB2BAb-A2-1a2---Ab10-ba10Bbb1A1",
+		"b0--ba1--b-10-B1---BAAaBB22--Ab2BA2120",
+		"a0-\nbB2022A02-B2--0BA201\nA1-1a0--Ab01A",
+		"a2-2a--Ba0a1b-A1-A2aB11\nb1a-1A-01ABB20",
 	} {
 		pass, err := gen.Password(tr)
 		require.NoError(t, err)
@@ -187,10 +187,10 @@ func TestRegexpFoldCaseFlag(t *testing.T) {
 	tr := newTestRand()
 
 	for _, expect := range []string{
-		"AbzYABCzA8A0B1B9tESt0no69",
-		"aBZYaBcza7A7B5B6TESt0no69",
-		"aBVyaBcZA3A5b0b2teST0no69",
-		"abayABCZA4a5b6B2TEst0no69",
+		"AbXYaBCzA6A9B2b6TEST0no69",
+		"ABwyAbczA1a0b6B6TEsT0no69",
+		"aBmyaBCZa9A1b5b5test0no69",
+		"AblYABczA5A8B7B2TesT0no69",
 	} {
 		pass, err := gen.Password(tr)
 		require.NoError(t, err)
@@ -213,10 +213,10 @@ func TestRegexpFoldCaseCapture(t *testing.T) {
 	tr := newTestRand()
 
 	for _, expect := range []string{
-		"aBHyabczA2A4b4B6TEsTanob",
-		"aBsyabcza4a4b6b9teStAnob",
-		"aBEYabczA0a3B9b9TeSTanoB",
-		"abXYabcza2a9B4b3TeSTAnoB",
+		"aBXYabcza8A9B6B9TEsTAnoB",
+		"aByYabczA8a4b9b4teStAnoB",
+		"aBsYabcza6a0B5b8TEstAnob",
+		"abXyabcza7a7b8b3TEStanoB",
 	} {
 		pass, err := gen.Password(tr)
 		require.NoError(t, err)
@@ -240,10 +240,10 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 	tr := newTestRand()
 
 	for _, expect := range []string{
-		"reprint wool pantry unworried mummify veneering U9]",
-		"steep cresting dastardly cubical thriving procreate V9_",
-		"acetone stroller frantic catapult tipping wildland P6*",
-		"consumer phantom handclasp blast broadside spleen E4[",
+		"reprint wool pantry unworried mummify veneering U2,",
+		"uncolored phrase spearmint vividness haunt esquire M3)",
+		"stargazer acetone stroller frantic catapult tipping Q7@",
+		"rake linseed consumer phantom handclasp blast R3/",
 	} {
 		pass, err := gen.Password(tr)
 		require.NoError(t, err)

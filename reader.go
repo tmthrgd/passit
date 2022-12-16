@@ -92,8 +92,8 @@ func readIntN(r io.Reader, n int) (int, error) {
 		return 0, nil
 	}
 
-	// Round up to the nearest multiple of 16 (i.e. 16, 32, 48 or 64).
-	bitLen := (bits.Len(uint(n)) + 15) &^ 15
+	// Round up to the nearest multiple of 8 (i.e. 8, 16, 24, 32, 40, 48, 56 or 64).
+	bitLen := (bits.Len(uint(n)) + 7) &^ 7
 
 	v, err := readUint64n(r, uint64(n), bitLen)
 	return int(v), err
