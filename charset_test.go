@@ -25,12 +25,7 @@ func TestCharset(t *testing.T) {
 	} {
 		tr := newTestRand()
 
-		gen, err := FromCharset(tc.charset)
-		if !assert.NoError(t, err) {
-			continue
-		}
-
-		pass, err := Repeat(gen, "", 25).Password(tr)
+		pass, err := Repeat(FromCharset(tc.charset), "", 25).Password(tr)
 		if !assert.NoError(t, err) {
 			continue
 		}

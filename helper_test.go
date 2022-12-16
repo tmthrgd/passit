@@ -34,14 +34,6 @@ func (zeroReader) Read(p []byte) (int, error) {
 	return len(p), nil
 }
 
-func mustCharset(t *testing.T, charset string) Generator {
-	t.Helper()
-
-	gen, err := FromCharset(charset)
-	require.NoError(t, err)
-	return gen
-}
-
 func TestJoin(t *testing.T) {
 	{
 		pattern := regexp.MustCompile(`^([a-z]+ ){5}[A-Z][0-9][~!@#$%^&*()] \+abc-[de]$`)
@@ -51,11 +43,11 @@ func TestJoin(t *testing.T) {
 			Space,
 			LatinUpper,
 			Digit,
-			mustCharset(t, "~!@#$%^&*()"),
+			FromCharset("~!@#$%^&*()"),
 			Space,
 			String("+abc"),
 			Hyphen,
-			mustCharset(t, "de"),
+			FromCharset("de"),
 		)
 
 		tr := newTestRand()

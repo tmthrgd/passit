@@ -46,25 +46,24 @@ func (ag *asciiGenerator) Password(r io.Reader) (string, error) {
 
 type runeGenerator struct{ runes []rune }
 
-// FromCharset returns a Generator that returns a random rune from charset. It
-// returns an error if the charset is invalid.
-func FromCharset(charset string) (Generator, error) {
+// FromCharset returns a Generator that returns a random rune from charset.
+func FromCharset(charset string) Generator {
 	runes := []rune(charset)
-	if len(runes) > maxReadIntN {
-		return nil, errors.New("passit: too many runes in charset")
-	}
-
 	switch len(runes) {
 	case 0:
-		return Empty, nil
+		return Empty
 	case 1:
-		return String(charset), nil
+		return String(charset)
 	default:
-		return &runeGenerator{runes}, nil
+		return &runeGenerator{runes}
 	}
 }
 
 func (rg *runeGenerator) Password(r io.Reader) (string, error) {
+	if len(rg.runes) > maxReadIntN {
+		return "", errors.New("passit: too many runes in charset")
+	}
+
 	v, err := readSliceN(r, rg.runes)
 	if err != nil {
 		return "", err
