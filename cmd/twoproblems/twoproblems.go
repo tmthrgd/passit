@@ -72,7 +72,7 @@ func wordlist(sr *syntax.Regexp) (passit.Generator, error) {
 		switch name {
 		case "sts10", "":
 			gen = passit.STS10Wordlist
-		case "eff:large":
+		case "eff:large", "eff":
 			gen = passit.EFFLargeWordlist
 		case "eff:short1":
 			gen = passit.EFFShortWordlist1
