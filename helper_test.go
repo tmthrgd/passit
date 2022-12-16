@@ -242,22 +242,14 @@ func TestRejectionSample(t *testing.T) {
 }
 
 func TestFromSlice(t *testing.T) {
-	mustSlice := func(t *testing.T, list ...string) Generator {
-		t.Helper()
-
-		gen, err := FromSlice(list...)
-		require.NoError(t, err)
-		return gen
-	}
-
 	for _, tc := range []struct {
 		expect string
 		gen    Generator
 	}{
-		{"       ", mustSlice(t)},
-		{"to to to to to to to to", mustSlice(t, "to")},
-		{"and or or and and and and or", mustSlice(t, "and", "or")},
-		{"ευτυχία αιώνια αιώνια ελπίδα ελπίδα ευτυχία ευτυχία αιώνια", mustSlice(t, "ελπίδα", "υγεία", "ευτυχία", "αιώνια")},
+		{"       ", FromSlice()},
+		{"to to to to to to to to", FromSlice("to")},
+		{"and or or and and and and or", FromSlice("and", "or")},
+		{"ευτυχία αιώνια αιώνια ελπίδα ελπίδα ευτυχία ευτυχία αιώνια", FromSlice("ελπίδα", "υγεία", "ευτυχία", "αιώνια")},
 	} {
 		tr := newTestRand()
 

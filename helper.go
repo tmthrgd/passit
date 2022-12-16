@@ -172,24 +172,23 @@ func (rg *rejectionGenerator) Password(r io.Reader) (string, error) {
 
 type sliceGenerator struct{ list []string }
 
-// FromSlice returns a Generator that returns a random string from list. It returns an
-// error if the list of strings is invalid.
-func FromSlice(list ...string) (Generator, error) {
-	if len(list) > maxReadIntN {
-		return nil, errors.New("passit: list too long")
-	}
-
+// FromSlice returns a Generator that returns a random string from list.
+func FromSlice(list ...string) Generator {
 	switch len(list) {
 	case 0:
-		return Empty, nil
+		return Empty
 	case 1:
-		return String(list[0]), nil
+		return String(list[0])
 	default:
-		return &sliceGenerator{slices.Clone(list)}, nil
+		return &sliceGenerator{slices.Clone(list)}
 	}
 }
 
 func (sg *sliceGenerator) Password(r io.Reader) (string, error) {
+	if len(sg.list) > maxReadIntN {
+		return "", errors.New("passit: list too long")
+	}
+
 	return readSliceN(r, sg.list)
 }
 
