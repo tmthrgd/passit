@@ -56,18 +56,13 @@ func (p *RegexpParser) SetSpecialCapture(name string, factory SpecialCaptureFact
 //
 // All regexp features supported by regexp/syntax are supported, though some may
 // have no effect.
-//
-// Neither syntax.MatchNL nor syntax.FoldCase will have any effect whether present
-// or not.
 func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Generator, error) {
-	// The generator acts badly when used with syntax.FoldCase. Return an error.
-	if flags&syntax.FoldCase != 0 {
-		return nil, errors.New("passit: syntax.FoldCase is unsupported by RegexpParser")
-	}
-
 	// We intentionally never generate newlines, but passing syntax.MatchNL to
 	// syntax.Parse simplifies the parsed character classes.
 	flags |= syntax.MatchNL
+
+	// Note: The FoldCase, OneLine, DotNL and NonGreedy flags can be set or
+	//   cleared within the pattern.
 
 	r, err := syntax.Parse(pattern, flags)
 	if err != nil {
@@ -154,12 +149,72 @@ func (*RegexpParser) noop(*syntax.Regexp) (regexpGenerator, error) {
 	}, nil
 }
 
-func (*RegexpParser) literal(sr *syntax.Regexp) (regexpGenerator, error) {
-	s := string(sr.Rune)
+func (p *RegexpParser) literal(sr *syntax.Regexp) (regexpGenerator, error) {
+	if sr.Flags&syntax.FoldCase != 0 {
+		return p.foldedLiteral(sr)
+	}
+
+	return p.rawLiteral(sr.Rune), nil
+}
+
+func (*RegexpParser) rawLiteral(runes []rune) regexpGenerator {
+	s := string(runes)
 	return func(b *strings.Builder, r io.Reader) error {
 		b.WriteString(s)
 		return nil
-	}, nil
+	}
+}
+
+func (p *RegexpParser) foldedLiteral(sr *syntax.Regexp) (regexpGenerator, error) {
+	gens := make([]regexpGenerator, 0, len(sr.Rune))
+	litStart := -1
+	for i, c := range sr.Rune {
+		// SimpleFold(c) returns c if there are no equivalent runes.
+		if unicode.SimpleFold(c) == c {
+			if litStart < 0 {
+				litStart = i
+			}
+			continue
+		}
+		if litStart >= 0 {
+			gens = append(gens, p.rawLiteral(sr.Rune[litStart:i+1]))
+			litStart = -1
+		}
+
+		gen, err := p.foldedRune(c)
+		if err != nil {
+			return nil, err
+		}
+		gens = append(gens, gen)
+	}
+
+	if litStart >= 0 {
+		gens = append(gens, p.rawLiteral(sr.Rune[litStart:]))
+	}
+
+	if len(gens) == 1 {
+		return gens[0], nil
+	}
+
+	return p.concatGens(gens), nil
+}
+
+func (p *RegexpParser) foldedRune(c rune) (regexpGenerator, error) {
+	// We generate a syntax.Regexp here and pass it to charClass rather than
+	// generating the unicode.RangeTable directly so that we get a nicer error
+	// message.
+	sr := &syntax.Regexp{Op: syntax.OpCharClass}
+	sr.Rune = append(sr.Rune[:0], c, c)
+
+	for f := unicode.SimpleFold(c); f != c; f = unicode.SimpleFold(f) {
+		sr.Rune = append(sr.Rune, f, f)
+	}
+
+	// We don't need to sort sr.Rune as regexp/syntax ensures that the rune
+	// present in the literal is always the minimum rune. See
+	// regexp/syntax.minFoldRune.
+
+	return p.charClass(sr)
 }
 
 func (p *RegexpParser) charClass(sr *syntax.Regexp) (regexpGenerator, error) {
@@ -281,6 +336,10 @@ func (p *RegexpParser) concat(sr *syntax.Regexp) (regexpGenerator, error) {
 		return nil, err
 	}
 
+	return p.concatGens(gens), nil
+}
+
+func (p *RegexpParser) concatGens(gens []regexpGenerator) regexpGenerator {
 	return func(b *strings.Builder, r io.Reader) error {
 		for _, gen := range gens {
 			if err := gen(b, r); err != nil {
@@ -289,7 +348,7 @@ func (p *RegexpParser) concat(sr *syntax.Regexp) (regexpGenerator, error) {
 		}
 
 		return nil
-	}, nil
+	}
 }
 
 func (p *RegexpParser) alternate(sr *syntax.Regexp) (regexpGenerator, error) {

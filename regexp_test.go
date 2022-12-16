@@ -127,6 +127,58 @@ func TestRegexpUnicodeAny(t *testing.T) {
 	}
 }
 
+func TestRegexpFoldCaseFlag(t *testing.T) {
+	pattern := `ab[a-z]y(abc)z(a[0-9]){2}(b[0-9]){2}test0(?-i:no)69`
+
+	gen, err := ParseRegexp(pattern, syntax.Perl|syntax.FoldCase)
+	require.NoError(t, err)
+
+	tr := newTestRand()
+
+	for _, expect := range []string{
+		"AbzYABCzA8A0B1B9tESt0no69",
+		"aBZYaBcza7A7B5B6TESt0no69",
+		"aBVyaBcZA3A5b0b2teST0no69",
+		"abayABCZA4a5b6B2TEst0no69",
+	} {
+		pass, err := gen.Password(tr)
+		require.NoError(t, err)
+
+		assert.Equal(t, expect, pass)
+
+		matchPattern := "^(?i:" + pattern + ")$"
+		assert.Truef(t, regexp.MustCompile(matchPattern).MatchString(pass),
+			"regexp.MustCompile(%q).MatchString(%q)", matchPattern, pass)
+		allRunesAllowed(t, rangeTableASCII, pass)
+	}
+}
+
+func TestRegexpFoldCaseCapture(t *testing.T) {
+	pattern := `a(?i:b[a-z]y)(abc)z(?i:(a[0-9]){2}(b[0-9]){2})(?i:test)(?i:a(?-i:no)b)`
+
+	gen, err := ParseRegexp(pattern, syntax.Perl)
+	require.NoError(t, err)
+
+	tr := newTestRand()
+
+	for _, expect := range []string{
+		"aBHyabczA2A4b4B6TEsTanob",
+		"aBsyabcza4a4b6b9teStAnob",
+		"aBEYabczA0a3B9b9TeSTanoB",
+		"abXYabcza2a9B4b3TeSTAnoB",
+	} {
+		pass, err := gen.Password(tr)
+		require.NoError(t, err)
+
+		assert.Equal(t, expect, pass)
+
+		matchPattern := "^(?:" + pattern + ")$"
+		assert.Truef(t, regexp.MustCompile(matchPattern).MatchString(pass),
+			"regexp.MustCompile(%q).MatchString(%q)", matchPattern, pass)
+		allRunesAllowed(t, rangeTableASCII, pass)
+	}
+}
+
 func TestRegexpSpecialCaptures(t *testing.T) {
 	var p RegexpParser
 	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist))
