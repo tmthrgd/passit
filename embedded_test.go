@@ -9,6 +9,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func allWordsValid(t *testing.T, list []string) {
+	t.Helper()
+
+	for _, v := range list {
+		assert.Truef(t, utf8.ValidString(v), "utf8.ValidString(%q)", v)
+	}
+}
+
+// These tests are currently the same, but keep them separate in case that changes.
+var allEmojiValid = allWordsValid
+
 func TestSTS10Wordlist(t *testing.T) {
 	const size = 8
 
@@ -23,8 +34,7 @@ func TestSTS10Wordlist(t *testing.T) {
 	assert.Truef(t, utf8.ValidString(pass),
 		"utf8.ValidString(%q)", pass)
 
-	_, err = FromWords(STS10Wordlist.(*embeddedGenerator).list...)
-	assert.NoError(t, err, "wordlist valid")
+	allWordsValid(t, STS10Wordlist.(*embeddedGenerator).list)
 }
 
 func TestEFFLargeWordlist(t *testing.T) {
@@ -41,8 +51,7 @@ func TestEFFLargeWordlist(t *testing.T) {
 	assert.Truef(t, utf8.ValidString(pass),
 		"utf8.ValidString(%q)", pass)
 
-	_, err = FromWords(EFFLargeWordlist.(*embeddedGenerator).list...)
-	assert.NoError(t, err, "wordlist valid")
+	allWordsValid(t, EFFLargeWordlist.(*embeddedGenerator).list)
 }
 
 func TestEFFShortWordlist1(t *testing.T) {
@@ -59,8 +68,7 @@ func TestEFFShortWordlist1(t *testing.T) {
 	assert.Truef(t, utf8.ValidString(pass),
 		"utf8.ValidString(%q)", pass)
 
-	_, err = FromWords(EFFShortWordlist1.(*embeddedGenerator).list...)
-	assert.NoError(t, err, "wordlist valid")
+	allWordsValid(t, EFFShortWordlist1.(*embeddedGenerator).list)
 }
 
 func TestEFFShortWordlist2(t *testing.T) {
@@ -77,8 +85,7 @@ func TestEFFShortWordlist2(t *testing.T) {
 	assert.Truef(t, utf8.ValidString(pass),
 		"utf8.ValidString(%q)", pass)
 
-	_, err = FromWords(EFFShortWordlist2.(*embeddedGenerator).list...)
-	assert.NoError(t, err, "wordlist valid")
+	allWordsValid(t, EFFShortWordlist2.(*embeddedGenerator).list)
 }
 
 func TestEmoji13(t *testing.T) {
@@ -104,11 +111,7 @@ func TestEmoji13(t *testing.T) {
 			"utf8.ValidString(%q)", pass)
 	}
 
-	// Check that each emoji in Emoji13 is a valid UTF8 string.
-	for _, emoji := range Emoji13.(*embeddedGenerator).list {
-		assert.Truef(t, utf8.ValidString(emoji),
-			"utf8.ValidString(%q)", emoji)
-	}
+	allEmojiValid(t, Emoji13.(*embeddedGenerator).list)
 }
 
 func countEmojiInString(list []string, s string) int {
