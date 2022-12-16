@@ -30,7 +30,7 @@ func init() {
 }
 
 func main() {
-	list := flag.String("l", "sts10", "the wordlist to use; valid options are sts10, eff:large, eff:short1 and eff:short2")
+	list := flag.String("l", "sts10", "the wordlist to use; valid options are sts10, eff:large / eff, eff:short1 and eff:short2")
 	count := flag.Int("n", 6, "the number of words in the generated password")
 	sep := flag.String("s", " ", "the separator to use between words")
 	flag.Parse()
@@ -39,7 +39,7 @@ func main() {
 	switch *list {
 	case "sts10":
 		gen = passit.STS10Wordlist
-	case "eff:large":
+	case "eff:large", "eff":
 		gen = passit.EFFLargeWordlist
 	case "eff:short1":
 		gen = passit.EFFShortWordlist1
