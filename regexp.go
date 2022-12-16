@@ -31,7 +31,8 @@ func ParseRegexp(pattern string, flags syntax.Flags) (Generator, error) {
 
 // SetAnyRangeTable sets the unicode.RangeTable used when generating any (.)
 // characters or when restricting character classes ([a-z]) with a user provided
-// one. By default a subset of ASCII is used.
+// one. By default a subset of ASCII is used. Calling SetAnyRangeTable(nil) will
+// reset the RegexpParser back to the default.
 //
 // The regexp Generator is only deterministic if the same unicode.RangeTable is
 // used. Be aware that the builtin unicode.X tables are subject to change as new
@@ -57,12 +58,16 @@ func (p *RegexpParser) SetSpecialCapture(name string, factory SpecialCaptureFact
 // All regexp features supported by regexp/syntax are supported, though some may
 // have no effect.
 func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Generator, error) {
-	// We intentionally never generate newlines, but passing syntax.MatchNL to
-	// syntax.Parse simplifies the parsed character classes.
-	flags |= syntax.MatchNL
-
 	// Note: The FoldCase, OneLine, DotNL and NonGreedy flags can be set or
 	//   cleared within the pattern.
+
+	// If we're not going to generate newlines, we can set syntax.MatchNL in
+	// flags. This simplifies the parsed character classes and avoids needing to
+	// call anyCharNotNL. It does this without changing the output of the
+	// Generator.
+	if !p.hasAnyNL() {
+		flags |= syntax.MatchNL
+	}
 
 	r, err := syntax.Parse(pattern, flags)
 	if err != nil {
@@ -104,8 +109,10 @@ func (p *RegexpParser) parse(r *syntax.Regexp) (regexpGenerator, error) {
 		return p.literal(r)
 	case syntax.OpCharClass:
 		return p.charClass(r)
-	case syntax.OpAnyCharNotNL, syntax.OpAnyChar:
+	case syntax.OpAnyCharNotNL:
 		return p.anyCharNotNL(r)
+	case syntax.OpAnyChar:
+		return p.anyChar(r)
 	case syntax.OpBeginLine, syntax.OpEndLine,
 		syntax.OpBeginText, syntax.OpEndText,
 		syntax.OpWordBoundary, syntax.OpNoWordBoundary:
@@ -232,6 +239,10 @@ func (p *RegexpParser) charClass(sr *syntax.Regexp) (regexpGenerator, error) {
 }
 
 func (p *RegexpParser) anyCharNotNL(sr *syntax.Regexp) (regexpGenerator, error) {
+	return p.charClassInternal(sr, p.anyRangeTableNoNL())
+}
+
+func (p *RegexpParser) anyChar(sr *syntax.Regexp) (regexpGenerator, error) {
 	return p.charClassInternal(sr, p.anyRangeTable())
 }
 
@@ -367,6 +378,12 @@ func (p *RegexpParser) alternate(sr *syntax.Regexp) (regexpGenerator, error) {
 	}, nil
 }
 
+func (p *RegexpParser) hasAnyNL() bool {
+	// rangeTableASCII doesn't include \n so we only need to test this if
+	// SetAnyRangeTable was called.
+	return p.anyTab != nil && unicode.Is(p.anyTab, '\n')
+}
+
 var rangeTableASCII = &unicode.RangeTable{
 	R16: []unicode.Range16{
 		{Lo: 0x0020, Hi: 0x007e, Stride: 1},
@@ -380,6 +397,25 @@ func (p *RegexpParser) anyRangeTable() *unicode.RangeTable {
 	}
 
 	return rangeTableASCII
+}
+
+var rangeTableNoNL = &unicode.RangeTable{
+	R16: []unicode.Range16{
+		{Lo: 0, Hi: '\n' - 1, Stride: 1},
+		{Lo: '\n' + 1, Hi: 1<<16 - 1, Stride: 1},
+	},
+	R32: []unicode.Range32{
+		{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1},
+	},
+	LatinOffset: 1,
+}
+
+func (p *RegexpParser) anyRangeTableNoNL() *unicode.RangeTable {
+	if !p.hasAnyNL() {
+		return p.anyRangeTable()
+	}
+
+	return intersectRangeTables(rangeTableNoNL, p.anyRangeTable())
 }
 
 // SpecialCaptureFactory represents a special capture factory to be used with

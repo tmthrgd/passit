@@ -127,6 +127,57 @@ func TestRegexpUnicodeAny(t *testing.T) {
 	}
 }
 
+var rangeTableReducedNL = &unicode.RangeTable{
+	R16: []unicode.Range16{
+		{Lo: '\n', Hi: '\n', Stride: 1},
+		{Lo: '-', Hi: '-', Stride: 1},
+		{Lo: '0', Hi: '2', Stride: 1},
+		{Lo: 'A', Hi: 'B', Stride: 1},
+		{Lo: 'a', Hi: 'b', Stride: 1},
+	},
+	LatinOffset: 3,
+}
+
+func TestRegexpAnyNL(t *testing.T) {
+	pattern := `[a-z][0-9]-[\x00-\x7f]{10}-[A-Z][0-9]-.{10}-(?-s:.{10})`
+
+	var p RegexpParser
+	p.SetAnyRangeTable(rangeTableReducedNL)
+
+	gen, err := p.Parse(pattern, syntax.Perl|syntax.DotNL)
+	require.NoError(t, err)
+
+	tr := newTestRand()
+
+	for _, expect := range []string{
+		"a2-b-b1A00Aa2-A2-bBaaA\naaBA-b100b0A0-0",
+		"a0-2B2AA-\n-B2-B0-\n\n2\nA-\nB1A-a-b2101-1A",
+		"a0-211a-\nA2B2-A2-BB-b\n-00\na-A10BBB--a0",
+		"a1-\naB-b1B1AA-A1-aB2AA2B1BB-B2-2-aB-0A",
+		"a1-\nabA\nbBbB2-A0-\n0B1B1aBa1-AB1aba2Ab1",
+		"b1-1-B-A102Ab-B0-bBbaA22\nA1-bAA0A1B-Aa",
+		"a2-AA\n0aB--BA-B0-001-a\n1a21-11Aa1-B1ba",
+		"b2-B0b-AB0\n1\n-B2-b\na-2a2A1b-B-aA02-b2a",
+		"b2-2bBA10a2\nA-B1-AB2A1-BA0B--0AaBba-12",
+		"a2-A1--0b1\n22-B1-a0a-0122aa-AA-a-aBb11",
+		"a0-B20-2a\n-2b-A0-b0b101AABB-B010-212b0",
+		"a1-0BA--2-1A--B0---B20-2Aab--202-0bAb2",
+		"b0-A0\nB2--0b2-B2-B-a2A1\nA00-A-1a10a0a1",
+	} {
+		pass, err := gen.Password(tr)
+		require.NoError(t, err)
+
+		if !assert.Equal(t, expect, pass) {
+			t.Logf("%+q", pass)
+		}
+
+		matchPattern := "^(?s:" + pattern + ")$"
+		assert.Truef(t, regexp.MustCompile(matchPattern).MatchString(pass),
+			"regexp.MustCompile(%q).MatchString(%+q)", matchPattern, pass)
+		allRunesAllowed(t, rangeTableReducedNL, pass)
+	}
+}
+
 func TestRegexpFoldCaseFlag(t *testing.T) {
 	pattern := `ab[a-z]y(abc)z(a[0-9]){2}(b[0-9]){2}test0(?-i:no)69`
 
