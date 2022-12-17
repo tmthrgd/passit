@@ -69,7 +69,7 @@ func wordlist(sr *syntax.Regexp) (passit.Generator, error) {
 		name, rest, more := strings.Cut(string(sr.Sub[0].Rune), "/")
 
 		var gen passit.Generator
-		switch name {
+		switch strings.ToLower(name) {
 		case "sts10", "":
 			gen = passit.STS10Wordlist
 		case "eff:large", "eff":
