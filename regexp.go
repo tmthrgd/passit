@@ -230,7 +230,7 @@ func (p *RegexpParser) charClass(sr *syntax.Regexp) (regexpGenerator, error) {
 	}
 
 	// intersectRangeTables requires that the first RangeTable have a Stride of
-	// 1. This is safe as AppendToRangeTable only ever adds ranges with Stride
+	// 1. This is safe as appendToRangeTable only ever adds ranges with Stride
 	// set to 1.
 	tab = intersectRangeTables(tab, p.anyRangeTable())
 
