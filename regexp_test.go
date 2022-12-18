@@ -248,7 +248,9 @@ func TestRegexpPotentialOptimisations(t *testing.T) {
 	// We could optimise (|Z) to Z?, but we elect not to because that allows
 	// callers to guarantee they'll get a 50-50 chance even if the
 	// questNoChanceNumerator/questNoChanceDenominator == 1/2 value changes.
-	pattern := `([a-z]+)?-([a-z]*)?-(|z)`
+	//
+	// Ensure that a character class of one (i.e. [z]) doesn't read from r.
+	pattern := `([a-z]+)?-([a-z]*)?-(|z)-[z]`
 
 	var p RegexpParser
 	p.SetSpecialCapture("nevercall", func(*syntax.Regexp) (Generator, error) {
@@ -261,9 +263,9 @@ func TestRegexpPotentialOptimisations(t *testing.T) {
 	tr := newTestRand()
 
 	for _, expect := range []string{
-		"-eishgyluaru-#--#--#xdjixrm-kysahqom-z#qto-xljhsjlqg-",
-		"al--#-qarpqt-z#-m-z#wggtngiovdmb-jknfncptczbuqov-z#hqcfqgsxekdm--z",
-		"oz-useuce-z#--z#--#zsnhmlvkbat--z#--",
+		"-eishgyluaru--z#---z#---z#xdjixrm-kysahqom-z-z#qto-xljhsjlqg--z",
+		"al---z#-qarpqt-z-z#-m-z-z#wggtngiovdmb-jknfncptczbuqov-z-z#hqcfqgsxekdm--z-z",
+		"oz-useuce-z-z#--z-z#---z#zsnhmlvkbat--z-z#---z",
 	} {
 		pass, err := Repeat(gen, "#", 5).Password(tr)
 		require.NoError(t, err)
