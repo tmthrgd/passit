@@ -156,10 +156,10 @@ func (p *RegexpParser) literal(sr *syntax.Regexp) (regexpGenerator, error) {
 		return p.foldedLiteral(sr)
 	}
 
-	return p.rawLiteral(sr.Rune), nil
+	return rawLiteral(sr.Rune), nil
 }
 
-func (*RegexpParser) rawLiteral(runes []rune) regexpGenerator {
+func rawLiteral(runes []rune) regexpGenerator {
 	s := string(runes)
 	return func(b *strings.Builder, r io.Reader) error {
 		b.WriteString(s)
@@ -179,7 +179,7 @@ func (p *RegexpParser) foldedLiteral(sr *syntax.Regexp) (regexpGenerator, error)
 			continue
 		}
 		if litStart >= 0 {
-			gens = append(gens, p.rawLiteral(sr.Rune[litStart:i+1]))
+			gens = append(gens, rawLiteral(sr.Rune[litStart:i+1]))
 			litStart = -1
 		}
 
@@ -191,14 +191,14 @@ func (p *RegexpParser) foldedLiteral(sr *syntax.Regexp) (regexpGenerator, error)
 	}
 
 	if litStart >= 0 {
-		gens = append(gens, p.rawLiteral(sr.Rune[litStart:]))
+		gens = append(gens, rawLiteral(sr.Rune[litStart:]))
 	}
 
 	if len(gens) == 1 {
 		return gens[0], nil
 	}
 
-	return p.concatGens(gens), nil
+	return concatGenerators(gens), nil
 }
 
 func (p *RegexpParser) foldedRune(c rune) (regexpGenerator, error) {
@@ -227,18 +227,18 @@ func (p *RegexpParser) charClass(sr *syntax.Regexp) (regexpGenerator, error) {
 	}
 
 	setLatinOffset(&tab)
-	return p.charClassInternal(sr, &tab)
+	return charClassGenerator(sr, &tab)
 }
 
 func (p *RegexpParser) anyCharNotNL(sr *syntax.Regexp) (regexpGenerator, error) {
-	return p.charClassInternal(sr, p.anyRangeTableNoNL())
+	return charClassGenerator(sr, p.anyRangeTableNoNL())
 }
 
 func (p *RegexpParser) anyChar(sr *syntax.Regexp) (regexpGenerator, error) {
-	return p.charClassInternal(sr, p.anyRangeTable())
+	return charClassGenerator(sr, p.anyRangeTable())
 }
 
-func (*RegexpParser) charClassInternal(sr *syntax.Regexp, tab *unicode.RangeTable) (regexpGenerator, error) {
+func charClassGenerator(sr *syntax.Regexp, tab *unicode.RangeTable) (regexpGenerator, error) {
 	count := countRunesInTable(tab)
 	if count == 0 {
 		return nil, fmt.Errorf("passit: character class %s contains zero allowed runes", sr)
@@ -357,10 +357,10 @@ func (p *RegexpParser) concat(sr *syntax.Regexp) (regexpGenerator, error) {
 		}
 	}
 
-	return p.concatGens(gens), nil
+	return concatGenerators(gens), nil
 }
 
-func (p *RegexpParser) concatGens(gens []regexpGenerator) regexpGenerator {
+func concatGenerators(gens []regexpGenerator) regexpGenerator {
 	return func(b *strings.Builder, r io.Reader) error {
 		for _, gen := range gens {
 			if err := gen(b, r); err != nil {
