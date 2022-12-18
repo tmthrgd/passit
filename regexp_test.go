@@ -233,10 +233,14 @@ func TestRegexpFoldCaseCapture(t *testing.T) {
 func TestRegexpPotentialOptimisations(t *testing.T) {
 	// We could opt to map (Z+)? and (Z*)? to Z*, but we elect not to because
 	// while they have the same meaning, they don't have the same probability.
-	// ? has a 50-50 chance to output nothing while * has a
-	// 1/maxUnboundedRepeatCount == 1/15 change to output nothing. Also (Z+)?
-	// and Z* have a different maximum repeat count.
-	pattern := `([a-z]+)?-([a-z]*)?`
+	// ? has a questNoChanceNumerator/questNoChanceDenominator == 1/2 chance to
+	// output nothing while * has a 1/maxUnboundedRepeatCount == 1/15 change to
+	// output nothing. Also (Z+)? and Z* have a different maximum repeat count.
+	//
+	// We could optimise (|Z) to Z?, but we elect not to because that allows
+	// callers to guarantee they'll get a 50-50 chance even if the
+	// questNoChanceNumerator/questNoChanceDenominator == 1/2 value changes.
+	pattern := `([a-z]+)?-([a-z]*)?-(|z)`
 
 	gen, err := ParseRegexp(pattern, syntax.Perl)
 	require.NoError(t, err)
@@ -244,9 +248,9 @@ func TestRegexpPotentialOptimisations(t *testing.T) {
 	tr := newTestRand()
 
 	for _, expect := range []string{
-		"-eishgyluaru--------xdjixr",
-		"-kysahqom-wq-opvxl-hsjlqgcr-lskghaqarpqtzg-mp-wggtngiovdm--h",
-		"nfncp-zbuqovtt-hqc-gsxekdmu-hozr-----",
+		"-eishgyluaru--------xdjixrm-kysahqom-z-qto-xljhsjlqg-",
+		"al----qarpqt-z--m-z-wggtngiovdmb-jknfncptczbuqov-z-hqcfqgsxekdm--z",
+		"oz-useuce-z---z----zsnhmlvkbat--z---",
 	} {
 		pass, err := Repeat(gen, "-", 5).Password(tr)
 		require.NoError(t, err)
@@ -258,6 +262,31 @@ func TestRegexpPotentialOptimisations(t *testing.T) {
 			"regexp.MustCompile(%q).MatchString(%q)", matchPattern, pass)
 		allRunesAllowed(t, rangeTableASCII, pass)
 	}
+}
+
+type incUint8 uint8
+
+func (m *incUint8) Read(p []byte) (int, error) {
+	p[0] = byte(*m)
+	(*m)++
+	return 1, nil
+}
+
+func TestRegexpQuestProbability(t *testing.T) {
+	gen, err := ParseRegexp(`Z?`, syntax.Perl)
+	require.NoError(t, err)
+
+	var (
+		ir    incUint8
+		empty int
+	)
+	for i := 0; i < questNoChanceDenominator; i++ {
+		pass, err := gen.Password(&ir)
+		require.NoError(t, err)
+		empty += 1 - len(pass)
+	}
+
+	assert.Equal(t, questNoChanceNumerator, empty, "wrong number of empty passwords")
 }
 
 func TestRegexpSpecialCaptures(t *testing.T) {

@@ -11,7 +11,14 @@ import (
 	"unicode"
 )
 
-const maxUnboundedRepeatCount = 15
+const (
+	maxUnboundedRepeatCount = 15
+
+	// questNoChance is the likelihood that Z? will output nothing.
+	// The fraction should be reduced.
+	questNoChanceNumerator   = 1
+	questNoChanceDenominator = 2
+)
 
 type regexpGenerator func(*strings.Builder, io.Reader) error
 
@@ -295,8 +302,21 @@ func (p *RegexpParser) plus(sr *syntax.Regexp) (regexpGenerator, error) {
 }
 
 func (p *RegexpParser) quest(sr *syntax.Regexp) (regexpGenerator, error) {
-	// This has a 50-50 chance to output nothing.
-	return p.repeatInternal(sr, 0, 1)
+	gen, err := p.parse(sr.Sub[0])
+	if err != nil {
+		return nil, err
+	}
+
+	return func(b *strings.Builder, r io.Reader) error {
+		n, err := readIntN(r, questNoChanceDenominator)
+		if err != nil {
+			return err
+		}
+		if n < questNoChanceNumerator {
+			return nil
+		}
+		return gen(b, r)
+	}, nil
 }
 
 func (p *RegexpParser) repeat(sr *syntax.Regexp) (regexpGenerator, error) {
