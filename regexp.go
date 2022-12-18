@@ -59,6 +59,11 @@ func (p *RegexpParser) SetAnyRangeTable(tab *unicode.RangeTable) {
 // SetSpecialCapture adds a special capture factory to use for matching named
 // captures. A regexp pattern such as "(?P<name>)" will invoke the factory and use
 // the returned Generator instead of the contents of the capture.
+//
+// If attempting to parse the inner contents of the capture, be aware that the
+// regexp parser may have mangled them. For instance "(?P<name>1|2)" will become
+// "(?P<name>[1-2])", "(?P<name>z|z)" will become "(?P<name>z)" and
+// "(?i:(?P<name>z))" will become "(?P<name>(?i:Z))".
 func (p *RegexpParser) SetSpecialCapture(name string, factory SpecialCaptureFactory) {
 	if p.specialCaptures == nil {
 		p.specialCaptures = make(map[string]SpecialCaptureFactory)
