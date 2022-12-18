@@ -292,13 +292,13 @@ func (p *RegexpParser) namedCapture(sr *syntax.Regexp) (regexpGenerator, error) 
 }
 
 func (p *RegexpParser) star(sr *syntax.Regexp) (regexpGenerator, error) {
-	return p.repeatInternal(sr, 0, maxUnboundedRepeatCount)
+	sr.Min, sr.Max = 0, -1
+	return p.repeat(sr)
 }
 
 func (p *RegexpParser) plus(sr *syntax.Regexp) (regexpGenerator, error) {
-	// We use maxUnboundedRepeatCount+1 here so that x{1,} and x+ are identical,
-	// x{0,} and x* are already identical.
-	return p.repeatInternal(sr, 1, maxUnboundedRepeatCount+1)
+	sr.Min, sr.Max = 1, -1
+	return p.repeat(sr)
 }
 
 func (p *RegexpParser) quest(sr *syntax.Regexp) (regexpGenerator, error) {
@@ -320,15 +320,12 @@ func (p *RegexpParser) quest(sr *syntax.Regexp) (regexpGenerator, error) {
 }
 
 func (p *RegexpParser) repeat(sr *syntax.Regexp) (regexpGenerator, error) {
+	min := sr.Min
 	max := sr.Max
 	if max == -1 {
 		max = sr.Min + maxUnboundedRepeatCount
 	}
 
-	return p.repeatInternal(sr, sr.Min, max)
-}
-
-func (p *RegexpParser) repeatInternal(sr *syntax.Regexp, min, max int) (regexpGenerator, error) {
 	gen, err := p.parse(sr.Sub[0])
 	if err != nil {
 		return nil, err
