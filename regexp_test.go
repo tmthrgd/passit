@@ -230,6 +230,36 @@ func TestRegexpFoldCaseCapture(t *testing.T) {
 	}
 }
 
+func TestRegexpPotentialOptimisations(t *testing.T) {
+	// We could opt to map (Z+)? and (Z*)? to Z*, but we elect not to because
+	// while they have the same meaning, they don't have the same probability.
+	// ? has a 50-50 chance to output nothing while * has a
+	// 1/maxUnboundedRepeatCount == 1/15 change to output nothing. Also (Z+)?
+	// and Z* have a different maximum repeat count.
+	pattern := `([a-z]+)?-([a-z]*)?`
+
+	gen, err := ParseRegexp(pattern, syntax.Perl)
+	require.NoError(t, err)
+
+	tr := newTestRand()
+
+	for _, expect := range []string{
+		"-eishgyluaru--------xdjixr",
+		"-kysahqom-wq-opvxl-hsjlqgcr-lskghaqarpqtzg-mp-wggtngiovdm--h",
+		"nfncp-zbuqovtt-hqc-gsxekdmu-hozr-----",
+	} {
+		pass, err := Repeat(gen, "-", 5).Password(tr)
+		require.NoError(t, err)
+
+		assert.Equal(t, expect, pass)
+
+		matchPattern := "^(?:" + pattern + "-" + pattern + "-" + pattern + "-" + pattern + "-" + pattern + ")$"
+		assert.Truef(t, regexp.MustCompile(matchPattern).MatchString(pass),
+			"regexp.MustCompile(%q).MatchString(%q)", matchPattern, pass)
+		allRunesAllowed(t, rangeTableASCII, pass)
+	}
+}
+
 func TestRegexpSpecialCaptures(t *testing.T) {
 	var p RegexpParser
 	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist))

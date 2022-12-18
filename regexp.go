@@ -295,6 +295,7 @@ func (p *RegexpParser) plus(sr *syntax.Regexp) (regexpGenerator, error) {
 }
 
 func (p *RegexpParser) quest(sr *syntax.Regexp) (regexpGenerator, error) {
+	// This has a 50-50 chance to output nothing.
 	return p.repeatInternal(sr, 0, 1)
 }
 
