@@ -4,6 +4,7 @@ import (
 	"errors"
 	"regexp"
 	"regexp/syntax"
+	"strings"
 	"testing"
 	"unicode"
 
@@ -399,6 +400,19 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 func BenchmarkRegexpParse(b *testing.B) {
 	const pattern = `a{1}.{0}[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
 	var p RegexpParser
+
+	for n := 0; n < b.N; n++ {
+		_, err := p.Parse(pattern, syntax.Perl)
+		if err != nil {
+			require.NoError(b, err)
+		}
+	}
+}
+
+func BenchmarkRegexpParseMaxCaptureDepth(b *testing.B) {
+	pattern := strings.Repeat("(", 999) + "z" + strings.Repeat(")", 999)
+	var p RegexpParser
+	b.ResetTimer()
 
 	for n := 0; n < b.N; n++ {
 		_, err := p.Parse(pattern, syntax.Perl)

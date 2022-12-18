@@ -104,13 +104,18 @@ func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Generator, err
 }
 
 func (p *RegexpParser) parse(r *syntax.Regexp) (regexpGenerator, error) {
+	// Strip un-named captures without recursing.
+	for r.Op == syntax.OpCapture && r.Name == "" {
+		r = r.Sub[0]
+	}
+
 	var (
 		gen regexpGenerator
 		err error
 	)
 	switch r.Op {
 	case syntax.OpEmptyMatch:
-		// This is handled by onlyEmptyOutput.
+		// This is handled below by onlyEmptyOutput.
 	case syntax.OpLiteral:
 		gen, err = p.literal(r)
 	case syntax.OpCharClass:
@@ -122,9 +127,10 @@ func (p *RegexpParser) parse(r *syntax.Regexp) (regexpGenerator, error) {
 	case syntax.OpBeginLine, syntax.OpEndLine,
 		syntax.OpBeginText, syntax.OpEndText,
 		syntax.OpWordBoundary, syntax.OpNoWordBoundary:
-		// This is handled by onlyEmptyOutput.
+		// This is handled below by onlyEmptyOutput.
 	case syntax.OpCapture:
-		gen, err = p.capture(r)
+		// Un-named captures are handled above.
+		gen, err = p.namedCapture(r)
 	case syntax.OpStar:
 		gen, err = p.star(r)
 	case syntax.OpPlus:
@@ -253,14 +259,6 @@ func charClassGenerator(sr *syntax.Regexp, tab *unicode.RangeTable) (regexpGener
 		b.WriteRune(getRuneInTable(tab, idx))
 		return err
 	}, nil
-}
-
-func (p *RegexpParser) capture(sr *syntax.Regexp) (regexpGenerator, error) {
-	if sr.Name != "" {
-		return p.namedCapture(sr)
-	}
-
-	return p.parse(sr.Sub[0])
 }
 
 func (p *RegexpParser) namedCapture(sr *syntax.Regexp) (regexpGenerator, error) {
