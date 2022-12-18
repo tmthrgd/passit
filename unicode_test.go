@@ -51,16 +51,17 @@ func TestCountRunesInTable(t *testing.T) {
 }
 
 func TestGetRuneInTable(t *testing.T) {
+	var got, expect []rune
 	for _, tabs := range []map[string]*unicode.RangeTable{
 		unicode.Categories, unicode.Properties, unicode.Scripts,
 	} {
 		for name, tab := range tabs {
-			var got []rune
+			got = got[:0]
 			for i, c := 0, countRunesInTable(tab); i < c; i++ {
 				got = append(got, getRuneInTable(tab, i))
 			}
 
-			var expect []rune
+			expect = expect[:0]
 			rangetable.Visit(tab, func(r rune) {
 				expect = append(expect, r)
 			})
@@ -70,23 +71,7 @@ func TestGetRuneInTable(t *testing.T) {
 	}
 }
 
-func TestUnstridifyRangeTable(t *testing.T) {
-	// This will trip the race detector if unicode.C is modified.
-	go func() { _ = *unicode.C }()
-
-	oldC := *unicode.C
-	rt := unstridifyRangeTable(unicode.C)
-	assert.Equal(t, &oldC, unicode.C, "mutated input")
-
-	for _, r16 := range rt.R16 {
-		require.Equal(t, uint16(1), r16.Stride)
-	}
-	for _, r32 := range rt.R32 {
-		require.Equal(t, uint32(1), r32.Stride)
-	}
-}
-
-func TestIntersectRangeTables(t *testing.T) {
+func TestAddIntersectingRunes(t *testing.T) {
 	rangeTableLatin1 := &unicode.RangeTable{
 		R16:         []unicode.Range16{{Lo: 0, Hi: unicode.MaxLatin1, Stride: 1}},
 		LatinOffset: 1,
@@ -96,7 +81,100 @@ func TestIntersectRangeTables(t *testing.T) {
 		LatinOffset: 1,
 	}
 	stridedR32 := &unicode.RangeTable{
+		R32: []unicode.Range32{{Lo: 1 << 16, Hi: 1<<16 + 128, Stride: 2}},
+	}
+	stridedBoth := &unicode.RangeTable{
+		R16:         []unicode.Range16{{Lo: 0, Hi: 128, Stride: 2}},
 		R32:         []unicode.Range32{{Lo: 1 << 16, Hi: 1<<16 + 128, Stride: 2}},
+		LatinOffset: 1,
+	}
+	notASCII := &unicode.RangeTable{
+		R16: []unicode.Range16{
+			{Lo: 0, Hi: 0x20 - 1, Stride: 1},
+			{Lo: 0x7e + 1, Hi: 1<<16 - 1, Stride: 1},
+		},
+		R32: []unicode.Range32{
+			{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1},
+		},
+		LatinOffset: 1,
+	}
+	fullRange := &unicode.RangeTable{
+		R16: []unicode.Range16{{Lo: 0, Hi: 1<<16 - 1, Stride: 1}},
+		R32: []unicode.Range32{{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1}},
+	}
+	noLowerAZ := &unicode.RangeTable{
+		R16: []unicode.Range16{
+			{Lo: 0, Hi: 'a' - 1, Stride: 1},
+			{Lo: 'z' + 1, Hi: 1<<16 - 1, Stride: 1},
+		},
+		R32: []unicode.Range32{
+			{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1},
+		},
+		LatinOffset: 1,
+	}
+	multiRangeTable1 := rangetable.Merge(
+		unicode.Latin,
+		unicode.Greek,
+		unicode.Cyrillic,
+		unicode.ASCII_Hex_Digit)
+	multiRangeTable2 := rangetable.Merge(
+		unicode.Lu, unicode.Ll, unicode.Lt, unicode.Lo,
+		unicode.N,
+		unicode.P,
+		unicode.Sm, unicode.Sc, unicode.So,
+		rangeTableASCII)
+
+	asciiSpace := &unicode.RangeTable{
+		R16:         []unicode.Range16{{Lo: ' ', Hi: ' ', Stride: 1}},
+		LatinOffset: 1,
+	}
+	tab := intersectRangeTables(asciiSpace, unicode.Z)
+	assert.Equal(t, asciiSpace, tab)
+
+	var runes1, runes2, runes3 []rune
+	for _, tabs := range [][2]*unicode.RangeTable{
+		{rangeTableASCII, multiRangeTable2},
+		{rangeTableLatin1, multiRangeTable2},
+		{stridedR16, multiRangeTable2},
+		{stridedR32, multiRangeTable2},
+		{stridedBoth, multiRangeTable2},
+		{stridedR16, rangeTableASCII},
+		{stridedR32, rangeTableASCII},
+		{stridedBoth, rangeTableASCII},
+		{multiRangeTable1, multiRangeTable2},
+		{unicode.Latin, unicode.C},
+		{unicode.Sc, unicode.S},
+		{unicode.L, unicode.Lo},
+		{fullRange, multiRangeTable2},
+		{noLowerAZ, multiRangeTable2},
+		{unicode.M, multiRangeTable2},
+		{unicode.M, notASCII},
+	} {
+		t1 := naiveIntersectRangeTables(tabs[0], tabs[1])
+		t2 := intersectRangeTables(tabs[0], tabs[1])
+		t3 := intersectRangeTables(tabs[1], tabs[0])
+
+		runes1 = runes1[:0]
+		rangetable.Visit(t1, func(r rune) { runes1 = append(runes1, r) })
+
+		runes2 = runes2[:0]
+		rangetable.Visit(t2, func(r rune) { runes2 = append(runes2, r) })
+
+		runes3 = runes3[:0]
+		rangetable.Visit(t3, func(r rune) { runes3 = append(runes3, r) })
+
+		require.Equal(t, runes1, runes2)
+		require.Equal(t, runes1, runes3)
+	}
+}
+
+func TestRemoveNLFromRangeTable(t *testing.T) {
+	rangeTableLatin1 := &unicode.RangeTable{
+		R16:         []unicode.Range16{{Lo: 0, Hi: unicode.MaxLatin1, Stride: 1}},
+		LatinOffset: 1,
+	}
+	stridedR16 := &unicode.RangeTable{
+		R16:         []unicode.Range16{{Lo: 0, Hi: 128, Stride: 2}},
 		LatinOffset: 1,
 	}
 	stridedBoth := &unicode.RangeTable{
@@ -114,61 +192,74 @@ func TestIntersectRangeTables(t *testing.T) {
 		},
 		LatinOffset: 1,
 	}
-	multiRangeTable := rangetable.Merge(
+	fullRange := &unicode.RangeTable{
+		R16: []unicode.Range16{{Lo: 0, Hi: 1<<16 - 1, Stride: 1}},
+		R32: []unicode.Range32{{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1}},
+	}
+	noLowerAZ := &unicode.RangeTable{
+		R16: []unicode.Range16{
+			{Lo: 0, Hi: 'a' - 1, Stride: 1},
+			{Lo: 'z' + 1, Hi: 1<<16 - 1, Stride: 1},
+		},
+		R32: []unicode.Range32{
+			{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1},
+		},
+		LatinOffset: 1,
+	}
+	onlyNL := &unicode.RangeTable{
+		R16: []unicode.Range16{
+			{Lo: '\n', Hi: '\n', Stride: 1},
+		},
+		LatinOffset: 1,
+	}
+	multiRangeTable1 := rangetable.Merge(
+		onlyNL,
+		unicode.Latin,
+		unicode.Greek,
+		unicode.Cyrillic,
+		unicode.ASCII_Hex_Digit)
+	multiRangeTable2 := rangetable.Merge(
+		onlyNL,
 		unicode.Lu, unicode.Ll, unicode.Lt, unicode.Lo,
 		unicode.N,
 		unicode.P,
 		unicode.Sm, unicode.Sc, unicode.So,
-		rangeTableASCII,
-	)
+		rangeTableASCII)
 
-	asciiSpace := &unicode.RangeTable{
-		R16:         []unicode.Range16{{Lo: ' ', Hi: ' ', Stride: 1}},
+	rangeTableNoNL := &unicode.RangeTable{
+		R16: []unicode.Range16{
+			{Lo: 0, Hi: '\n' - 1, Stride: 1},
+			{Lo: '\n' + 1, Hi: 1<<16 - 1, Stride: 1},
+		},
+		R32: []unicode.Range32{
+			{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1},
+		},
 		LatinOffset: 1,
 	}
-	tab := intersectRangeTables(asciiSpace, unicode.Z)
-	assert.Equal(t, asciiSpace, tab)
 
-	var runes1, runes2, runes3 []rune
-	for _, tabs := range [][2]*unicode.RangeTable{
-		{rangeTableASCII, multiRangeTable},
-		{rangeTableLatin1, multiRangeTable},
-		{stridedR16, multiRangeTable},
-		{stridedR32, multiRangeTable},
-		{stridedBoth, multiRangeTable},
-		{stridedR16, rangeTableASCII},
-		{stridedR32, rangeTableASCII},
-		{stridedBoth, rangeTableASCII},
-		{rangetable.Merge(unicode.Latin, unicode.Greek, unicode.Cyrillic, unicode.ASCII_Hex_Digit), multiRangeTable},
-		{unicode.Latin, unicode.C},
-		{unicode.Sc, unicode.S},
-		{unicode.L, unicode.Lo},
-		{
-			&unicode.RangeTable{
-				R16: []unicode.Range16{{Lo: 0, Hi: 1<<16 - 1, Stride: 1}},
-				R32: []unicode.Range32{{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1}},
-			},
-			multiRangeTable,
-		},
-		{
-			&unicode.RangeTable{
-				R16: []unicode.Range16{
-					{Lo: 0, Hi: 'a' - 1, Stride: 1},
-					{Lo: 'z' + 1, Hi: 1<<16 - 1, Stride: 1},
-				},
-				R32: []unicode.Range32{
-					{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1},
-				},
-				LatinOffset: 1,
-			},
-			multiRangeTable,
-		},
-		{unicode.M, multiRangeTable},
-		{unicode.M, notASCII},
+	var runes1, runes2 []rune
+	for i, tab := range []*unicode.RangeTable{
+		rangeTableLatin1,
+		stridedR16,
+		stridedBoth,
+		notASCII,
+		fullRange,
+		noLowerAZ,
+		onlyNL,
+		multiRangeTable1,
+		multiRangeTable2,
 	} {
-		t1 := naiveIntersectRangeTables(tabs[0], tabs[1])
-		t2 := intersectRangeTables(unstridifyRangeTable(tabs[0]), tabs[1])
-		t3 := intersectRangeTables(unstridifyRangeTable(tabs[1]), tabs[0])
+		if !unicode.Is(tab, '\n') {
+			t.Log(i)
+			panic("table does not contain newline")
+		}
+
+		t1 := intersectRangeTables(tab, rangeTableNoNL)
+		t2 := removeNLFromRangeTable(tab)
+
+		ct := countRunesInTable(tab)
+		c2 := countRunesInTable(t2)
+		require.Equalf(t, ct-1, c2, "table should contain one less rune (i=%d)", i)
 
 		runes1 = runes1[:0]
 		rangetable.Visit(t1, func(r rune) { runes1 = append(runes1, r) })
@@ -176,110 +267,134 @@ func TestIntersectRangeTables(t *testing.T) {
 		runes2 = runes2[:0]
 		rangetable.Visit(t2, func(r rune) { runes2 = append(runes2, r) })
 
-		runes3 = runes3[:0]
-		rangetable.Visit(t3, func(r rune) { runes3 = append(runes3, r) })
-
-		require.Equal(t, runes1, runes2)
-		require.Equal(t, runes1, runes3)
+		require.Equalf(t, runes1, runes2, "tables should contain same runes (i=%d)", i)
 	}
 }
 
-func BenchmarkIntersectRangeTables(b *testing.B) {
-	t1 := rangetable.Merge(
-		unicode.Latin, unicode.Greek, unicode.Cyrillic, unicode.ASCII_Hex_Digit,
-	)
-	t1u := unstridifyRangeTable(t1)
-
-	multiRangeTable := rangetable.Merge(
+func BenchmarkAddIntersectingRunes(b *testing.B) {
+	tab1 := rangetable.Merge(
+		unicode.Latin,
+		unicode.Greek,
+		unicode.Cyrillic,
+		unicode.ASCII_Hex_Digit)
+	tab2 := rangetable.Merge(
 		unicode.Lu, unicode.Ll, unicode.Lt, unicode.Lo,
 		unicode.N,
 		unicode.P,
 		unicode.Sm, unicode.Sc, unicode.So,
-		rangeTableASCII,
-	)
+		rangeTableASCII)
 
 	b.Run("naive", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
-			naiveIntersectRangeTables(t1, multiRangeTable)
+			_ = naiveIntersectRangeTables(tab1, tab2)
 		}
 	})
 	b.Run("efficient", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
-			intersectRangeTables(t1u, multiRangeTable)
+			_ = intersectRangeTables(tab1, tab2)
 		}
 	})
+}
+
+func BenchmarkRemoveNLFromRangeTable(b *testing.B) {
+	onlyNL := &unicode.RangeTable{
+		R16: []unicode.Range16{
+			{Lo: '\n', Hi: '\n', Stride: 1},
+		},
+		LatinOffset: 1,
+	}
+	noNL := &unicode.RangeTable{
+		R16: []unicode.Range16{
+			{Lo: 0, Hi: '\n' - 1, Stride: 1},
+			{Lo: '\n' + 1, Hi: 1<<16 - 1, Stride: 1},
+		},
+		R32: []unicode.Range32{
+			{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1},
+		},
+		LatinOffset: 1,
+	}
+	tab := rangetable.Merge(
+		onlyNL,
+		unicode.Latin,
+		unicode.Greek,
+		unicode.Cyrillic,
+		unicode.ASCII_Hex_Digit)
+
+	b.Run("naive", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			_ = naiveRemoveNLFromRangeTable(tab)
+		}
+	})
+	b.Run("intersect", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			_ = intersectRangeTables(noNL, tab)
+		}
+	})
+	b.Run("efficient", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			_ = removeNLFromRangeTable(tab)
+		}
+	})
+}
+
+func visitRanges(tab *unicode.RangeTable, fn func(lo, hi rune)) {
+	for i := range tab.R16 {
+		range_ := &tab.R16[i]
+		if range_.Stride == 1 {
+			fn(rune(range_.Lo), rune(range_.Hi))
+			continue
+		}
+		for r := range_.Lo; range_.Lo <= r && r <= range_.Hi; r += range_.Stride {
+			fn(rune(r), rune(r))
+		}
+	}
+
+	for i := range tab.R32 {
+		range_ := &tab.R32[i]
+		if range_.Stride == 1 {
+			fn(rune(range_.Lo), rune(range_.Hi))
+			continue
+		}
+		for r := range_.Lo; range_.Lo <= r && r <= range_.Hi; r += range_.Stride {
+			fn(rune(r), rune(r))
+		}
+	}
+}
+
+func naiveAddIntersectingRunes(runes []rune, lo, hi rune, parent *unicode.RangeTable) []rune {
+	runes = slices.Grow(runes, int(hi-lo))
+	for r := lo; r <= hi; r++ {
+		if unicode.Is(parent, r) {
+			runes = append(runes, r)
+		}
+	}
+
+	return runes
 }
 
 func naiveIntersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
-	// Iterate over the smaller table.
-	if countRunesInTable(a) > countRunesInTable(b) {
-		a, b = b, a
-	}
-
-	var rt unicode.RangeTable
-	rangetable.Visit(a, func(r rune) {
-		if !unicode.Is(b, r) {
-			return
-		}
-
-		const maxR16 = 1<<16 - 1
-		if r <= maxR16 {
-			rt.R16 = append(rt.R16, unicode.Range16{
-				Lo:     uint16(r),
-				Hi:     uint16(r),
-				Stride: 1,
-			})
-
-			if r <= unicode.MaxLatin1 {
-				rt.LatinOffset++
-			}
-		} else {
-			rt.R32 = append(rt.R32, unicode.Range32{
-				Lo:     uint32(r),
-				Hi:     uint32(r),
-				Stride: 1,
-			})
-		}
+	var runes []rune
+	visitRanges(a, func(lo, hi rune) {
+		runes = naiveAddIntersectingRunes(runes, lo, hi, b)
 	})
-
-	return rangetable.Merge(&rt)
+	return rangetable.New(runes...)
 }
 
-func unstridifyRangeTable(tab *unicode.RangeTable) *unicode.RangeTable {
-	rt := &unicode.RangeTable{
-		R16: slices.Clip(tab.R16),
-		R32: slices.Clip(tab.R32),
-	}
+func intersectRangeTables(a, b *unicode.RangeTable) *unicode.RangeTable {
+	var rt unicode.RangeTable
+	visitRanges(a, func(lo, hi rune) {
+		addIntersectingRunes(&rt, lo, hi, b)
+	})
+	setLatinOffset(&rt)
+	return &rt
+}
 
-	for i := 0; i < len(rt.R16); i++ {
-		if r16 := rt.R16[i]; r16.Stride != 1 {
-			add := make([]unicode.Range16, 0, (r16.Hi-r16.Lo)/r16.Stride+1)
-			for r := rune(r16.Lo); r <= rune(r16.Hi); r += rune(r16.Stride) {
-				if r <= unicode.MaxLatin1 {
-					rt.LatinOffset++
-				}
-
-				add = append(add, unicode.Range16{Lo: uint16(r), Hi: uint16(r), Stride: 1})
-			}
-
-			rt.R16 = slices.Replace(rt.R16, i, i+1, add...)
-			i += len(add) - 1
-		} else if r16.Hi <= unicode.MaxLatin1 {
-			rt.LatinOffset++
+func naiveRemoveNLFromRangeTable(tab *unicode.RangeTable) *unicode.RangeTable {
+	runes := make([]rune, 0, countRunesInTable(tab))
+	rangetable.Visit(tab, func(r rune) {
+		if r != '\n' {
+			runes = append(runes, r)
 		}
-	}
-
-	for i := 0; i < len(rt.R32); i++ {
-		if r32 := rt.R32[i]; r32.Stride != 1 {
-			add := make([]unicode.Range32, 0, (r32.Hi-r32.Lo)/r32.Stride+1)
-			for r := rune(r32.Lo); r <= rune(r32.Hi); r += rune(r32.Stride) {
-				add = append(add, unicode.Range32{Lo: uint32(r), Hi: uint32(r), Stride: 1})
-			}
-
-			rt.R32 = slices.Replace(rt.R32, i, i+1, add...)
-			i += len(add) - 1
-		}
-	}
-
-	return rt
+	})
+	return rangetable.New(runes...)
 }

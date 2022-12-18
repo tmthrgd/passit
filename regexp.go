@@ -224,17 +224,14 @@ func (p *RegexpParser) foldedRune(c rune) (regexpGenerator, error) {
 }
 
 func (p *RegexpParser) charClass(sr *syntax.Regexp) (regexpGenerator, error) {
-	tab := new(unicode.RangeTable)
+	anyTab := p.anyRangeTable()
+	var tab unicode.RangeTable
 	for i := 0; i < len(sr.Rune); i += 2 {
-		appendToRangeTable(tab, sr.Rune[i], sr.Rune[i+1])
+		addIntersectingRunes(&tab, sr.Rune[i], sr.Rune[i+1], anyTab)
 	}
 
-	// intersectRangeTables requires that the first RangeTable have a Stride of
-	// 1. This is safe as appendToRangeTable only ever adds ranges with Stride
-	// set to 1.
-	tab = intersectRangeTables(tab, p.anyRangeTable())
-
-	return p.charClassInternal(sr, tab)
+	setLatinOffset(&tab)
+	return p.charClassInternal(sr, &tab)
 }
 
 func (p *RegexpParser) anyCharNotNL(sr *syntax.Regexp) (regexpGenerator, error) {
@@ -391,23 +388,12 @@ func (p *RegexpParser) anyRangeTable() *unicode.RangeTable {
 	return rangeTableASCII
 }
 
-var rangeTableNoNL = &unicode.RangeTable{
-	R16: []unicode.Range16{
-		{Lo: 0, Hi: '\n' - 1, Stride: 1},
-		{Lo: '\n' + 1, Hi: 1<<16 - 1, Stride: 1},
-	},
-	R32: []unicode.Range32{
-		{Lo: 1 << 16, Hi: unicode.MaxRune, Stride: 1},
-	},
-	LatinOffset: 1,
-}
-
 func (p *RegexpParser) anyRangeTableNoNL() *unicode.RangeTable {
 	if !p.hasAnyNL() {
 		return p.anyRangeTable()
 	}
 
-	return intersectRangeTables(rangeTableNoNL, p.anyRangeTable())
+	return removeNLFromRangeTable(p.anyRangeTable())
 }
 
 // SpecialCaptureFactory represents a special capture factory to be used with

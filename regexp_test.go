@@ -135,7 +135,7 @@ var rangeTableReducedNL = &unicode.RangeTable{
 		{Lo: 'A', Hi: 'B', Stride: 1},
 		{Lo: 'a', Hi: 'b', Stride: 1},
 	},
-	LatinOffset: 3,
+	LatinOffset: 5,
 }
 
 func TestRegexpAnyNL(t *testing.T) {
