@@ -11,7 +11,7 @@ import (
 )
 
 func TestRegexp(t *testing.T) {
-	pattern := `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
+	pattern := `a{1}.{0}[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
 
 	gen, err := ParseRegexp(pattern, syntax.Perl)
 	require.NoError(t, err)
@@ -88,7 +88,7 @@ var asciiGreek13RangeTable = &unicode.RangeTable{
 }
 
 func TestRegexpUnicodeAny(t *testing.T) {
-	pattern := `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
+	pattern := `a{1}.{0}[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
 
 	var p RegexpParser
 	p.SetAnyRangeTable(asciiGreek13RangeTable)
@@ -356,7 +356,7 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 }
 
 func BenchmarkRegexpParse(b *testing.B) {
-	const pattern = `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
+	const pattern = `a{1}.{0}[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
 	var p RegexpParser
 
 	for n := 0; n < b.N; n++ {
@@ -368,7 +368,7 @@ func BenchmarkRegexpParse(b *testing.B) {
 }
 
 func BenchmarkRegexpPassword(b *testing.B) {
-	const pattern = `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
+	const pattern = `a{1}.{0}[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
 	gen, err := ParseRegexp(pattern, syntax.Perl)
 	if err != nil {
 		require.NoError(b, err)
