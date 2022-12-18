@@ -68,7 +68,7 @@ The package also provides a number of generators that produce output based on us
 | ---------------- | ----------------------------------------------------- |
 | `String`         | A fixed string                                        |
 | `RegexpParser`   | Password that matches a regular expression pattern    |
-| `FromCharset`    | A rune from a charset                                 |
+| `FromCharset`    | A rune from a charset string                          |
 | `FromRangeTable` | A rune from a `unicode.RangeTable`                    |
 | `FromSlice`      | A string from a slice of strings                      |
 
