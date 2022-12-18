@@ -22,6 +22,15 @@ const (
 
 type regexpGenerator func(*strings.Builder, io.Reader) error
 
+func (rg regexpGenerator) Password(r io.Reader) (string, error) {
+	var b strings.Builder
+	if err := rg(&b, r); err != nil {
+		return "", err
+	}
+
+	return b.String(), nil
+}
+
 // RegexpParser is a regular expressions parser that parses patterns into a
 // Generator that generates passwords matching the parsed regexp. The zero-value is
 // a usable parser.
@@ -83,31 +92,7 @@ func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Generator, err
 		return nil, err
 	}
 
-	// Simplify is great if one is trying to match the regexp, but less so when
-	// generating a string from a regexp. Simplify transforms the regexp in ways
-	// that might not be obvious. Because the output is dependent on the
-	// specific stream read from the io.Reader, some of these transformations
-	// are less than ideal. It's also possible that the simplifications
-	// performed could differ between go releases.
-	//
-	// For example x{3,6} is transformed to xxx(?:x(?:xx?)?)?. This requires
-	// more reads from the underlying io.Reader and is more work for the
-	// generator.
-	//
-	// TODO(tmthrgd): It may be worth adding some simplifications of our own.
-	//
-	// r = r.Simplify()
-
 	return p.parse(r)
-}
-
-func (rg regexpGenerator) Password(r io.Reader) (string, error) {
-	var b strings.Builder
-	if err := rg(&b, r); err != nil {
-		return "", err
-	}
-
-	return b.String(), nil
 }
 
 func (p *RegexpParser) parse(r *syntax.Regexp) (regexpGenerator, error) {
