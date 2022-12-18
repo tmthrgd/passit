@@ -272,6 +272,8 @@ func (p *RegexpParser) namedCapture(sr *syntax.Regexp) (regexpGenerator, error) 
 		return nil, errors.New("passit: named capture refers to unknown special capture factory")
 	}
 
+	// We pass in sr rather than sr.Sub[0] so that the factory can differentiate
+	// how it was called if it's present under multiple names.
 	gen, err := factory(sr)
 	if err != nil {
 		return nil, err
