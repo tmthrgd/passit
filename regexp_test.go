@@ -1,6 +1,7 @@
 package passit
 
 import (
+	"errors"
 	"regexp"
 	"regexp/syntax"
 	"testing"
@@ -231,6 +232,13 @@ func TestRegexpFoldCaseCapture(t *testing.T) {
 }
 
 func TestRegexpPotentialOptimisations(t *testing.T) {
+	// This is a pattern that should always output nothing. We lock that in and
+	// ensure it doesn't read from r. See onlyEmptyOutput.
+	emptyPatterns := `(?:)+(?:)*(?:)?(?:){4,10}((?:)|(?:)).{0}Z{0}(?P<nevercall>){0}` +
+		`((?:))+((?:)|(?:))*((?:)+)?((?:)*){4,10}(((?:))|((?:)))` +
+		`((?:)?)+((?:){10})*(.{0}Z{0}(?P<nevercall>){0})?` +
+		`(((?:)|(?m:^)|(?m:$)|\A|(?-m:$)|\z|\b|\B)|((.{0}Z{0})|((?:)|(?:))))`
+
 	// We could opt to map (Z+)? and (Z*)? to Z*, but we elect not to because
 	// while they have the same meaning, they don't have the same probability.
 	// ? has a questNoChanceNumerator/questNoChanceDenominator == 1/2 chance to
@@ -242,22 +250,27 @@ func TestRegexpPotentialOptimisations(t *testing.T) {
 	// questNoChanceNumerator/questNoChanceDenominator == 1/2 value changes.
 	pattern := `([a-z]+)?-([a-z]*)?-(|z)`
 
-	gen, err := ParseRegexp(pattern, syntax.Perl)
+	var p RegexpParser
+	p.SetSpecialCapture("nevercall", func(*syntax.Regexp) (Generator, error) {
+		return String("zNeverCallz"), nil
+	})
+
+	gen, err := p.Parse(emptyPatterns+pattern+emptyPatterns, syntax.Perl)
 	require.NoError(t, err)
 
 	tr := newTestRand()
 
 	for _, expect := range []string{
-		"-eishgyluaru--------xdjixrm-kysahqom-z-qto-xljhsjlqg-",
-		"al----qarpqt-z--m-z-wggtngiovdmb-jknfncptczbuqov-z-hqcfqgsxekdm--z",
-		"oz-useuce-z---z----zsnhmlvkbat--z---",
+		"-eishgyluaru-#--#--#xdjixrm-kysahqom-z#qto-xljhsjlqg-",
+		"al--#-qarpqt-z#-m-z#wggtngiovdmb-jknfncptczbuqov-z#hqcfqgsxekdm--z",
+		"oz-useuce-z#--z#--#zsnhmlvkbat--z#--",
 	} {
-		pass, err := Repeat(gen, "-", 5).Password(tr)
+		pass, err := Repeat(gen, "#", 5).Password(tr)
 		require.NoError(t, err)
 
 		assert.Equal(t, expect, pass)
 
-		matchPattern := "^(?:" + pattern + "-" + pattern + "-" + pattern + "-" + pattern + "-" + pattern + ")$"
+		matchPattern := "^(?:" + pattern + "#" + pattern + "#" + pattern + "#" + pattern + "#" + pattern + ")$"
 		assert.Truef(t, regexp.MustCompile(matchPattern).MatchString(pass),
 			"regexp.MustCompile(%q).MatchString(%q)", matchPattern, pass)
 		allRunesAllowed(t, rangeTableASCII, pass)
@@ -293,6 +306,9 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 	var p RegexpParser
 	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist))
 	p.SetSpecialCapture("words", SpecialCaptureWithRepeat(EFFLargeWordlist, " "))
+	p.SetSpecialCapture("alwayserror", func(*syntax.Regexp) (Generator, error) {
+		return nil, errors.New("this should always return an error")
+	})
 
 	gen, err := p.Parse(`((?P<word>) ){6}[[:upper:]][[:digit:]][[:punct:]]`, syntax.Perl)
 	require.NoError(t, err)
@@ -340,6 +356,16 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 	}{
 		{"(?P<unknown>)", "passit: named capture refers to unknown special capture factory"},
 		{"(?P<unknown>inner)", "passit: named capture refers to unknown special capture factory"},
+		{"(?P<unknown>){0}", "passit: named capture refers to unknown special capture factory"},
+		{"(?P<unknown>inner){0}", "passit: named capture refers to unknown special capture factory"},
+		{"(|(?P<unknown>)){0}", "passit: named capture refers to unknown special capture factory"},
+		{"(|(?P<unknown>inner)){0}", "passit: named capture refers to unknown special capture factory"},
+		{"(?P<alwayserror>)", "this should always return an error"},
+		{"(?P<alwayserror>inner)", "this should always return an error"},
+		{"(?P<alwayserror>){0}", "this should always return an error"},
+		{"(?P<alwayserror>inner){0}", "this should always return an error"},
+		{"(|(?P<alwayserror>)){0}", "this should always return an error"},
+		{"(|(?P<alwayserror>inner)){0}", "this should always return an error"},
 		{"(?P<word>1)", "passit: unsupported capture"},
 		{"(?P<word> )", "passit: unsupported capture"},
 		{"(?P<word>[0-9])", "passit: unsupported capture"},

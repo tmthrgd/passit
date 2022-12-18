@@ -96,58 +96,58 @@ func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Generator, err
 }
 
 func (p *RegexpParser) parse(r *syntax.Regexp) (regexpGenerator, error) {
+	var (
+		gen regexpGenerator
+		err error
+	)
 	switch r.Op {
 	case syntax.OpEmptyMatch:
-		return p.noop(r)
+		// This is handled by onlyEmptyOutput.
 	case syntax.OpLiteral:
-		return p.literal(r)
+		gen, err = p.literal(r)
 	case syntax.OpCharClass:
-		return p.charClass(r)
+		gen, err = p.charClass(r)
 	case syntax.OpAnyCharNotNL:
-		return p.anyCharNotNL(r)
+		gen, err = p.anyCharNotNL(r)
 	case syntax.OpAnyChar:
-		return p.anyChar(r)
+		gen, err = p.anyChar(r)
 	case syntax.OpBeginLine, syntax.OpEndLine,
 		syntax.OpBeginText, syntax.OpEndText,
 		syntax.OpWordBoundary, syntax.OpNoWordBoundary:
-		return p.noop(r)
+		// This is handled by onlyEmptyOutput.
 	case syntax.OpCapture:
-		return p.capture(r)
+		gen, err = p.capture(r)
 	case syntax.OpStar:
-		return p.star(r)
+		gen, err = p.star(r)
 	case syntax.OpPlus:
-		return p.plus(r)
+		gen, err = p.plus(r)
 	case syntax.OpQuest:
-		return p.quest(r)
+		gen, err = p.quest(r)
 	case syntax.OpRepeat:
-		return p.repeat(r)
+		gen, err = p.repeat(r)
 	case syntax.OpConcat:
-		return p.concat(r)
+		gen, err = p.concat(r)
 	case syntax.OpAlternate:
-		return p.alternate(r)
+		gen, err = p.alternate(r)
 	default:
-		return nil, fmt.Errorf("passit: invalid regexp %q, unhandled op %s", r, r.Op)
+		err = fmt.Errorf("passit: invalid regexp %q, unhandled op %s", r, r.Op)
 	}
-}
-
-func (p *RegexpParser) parseMany(rs []*syntax.Regexp) ([]regexpGenerator, error) {
-	gens := make([]regexpGenerator, len(rs))
-	for i, r := range rs {
-		gen, err := p.parse(r)
-		if err != nil {
-			return nil, err
-		}
-
-		gens[i] = gen
+	if err != nil {
+		return nil, err
 	}
 
-	return gens, nil
-}
+	// Check onlyEmptyOutput after we've parsed the syntax.Regexp to ensure we
+	// surface any errors.
+	if onlyEmptyOutput(r) {
+		return func(*strings.Builder, io.Reader) error {
+			return nil
+		}, nil
+	}
 
-func (*RegexpParser) noop(*syntax.Regexp) (regexpGenerator, error) {
-	return func(*strings.Builder, io.Reader) error {
-		return nil
-	}, nil
+	if gen == nil {
+		panic("passit: internal error: gen is nil after onlyEmptyOutput")
+	}
+	return gen, nil
 }
 
 func (p *RegexpParser) literal(sr *syntax.Regexp) (regexpGenerator, error) {
@@ -344,9 +344,17 @@ func (p *RegexpParser) repeat(sr *syntax.Regexp) (regexpGenerator, error) {
 }
 
 func (p *RegexpParser) concat(sr *syntax.Regexp) (regexpGenerator, error) {
-	gens, err := p.parseMany(sr.Sub)
-	if err != nil {
-		return nil, err
+	gens := make([]regexpGenerator, 0, len(sr.Sub))
+	for _, r := range sr.Sub {
+		gen, err := p.parse(r)
+		if err != nil {
+			return nil, err
+		}
+
+		// Skip past empty generators.
+		if !onlyEmptyOutput(r) {
+			gens = append(gens, gen)
+		}
 	}
 
 	return p.concatGens(gens), nil
@@ -365,9 +373,16 @@ func (p *RegexpParser) concatGens(gens []regexpGenerator) regexpGenerator {
 }
 
 func (p *RegexpParser) alternate(sr *syntax.Regexp) (regexpGenerator, error) {
-	gens, err := p.parseMany(sr.Sub)
-	if err != nil {
-		return nil, err
+	gens := make([]regexpGenerator, len(sr.Sub))
+	for i, r := range sr.Sub {
+		gen, err := p.parse(r)
+		if err != nil {
+			return nil, err
+		}
+
+		// We don't skip empty generators here as they change the behaviour
+		// of the generator.
+		gens[i] = gen
 	}
 
 	return func(b *strings.Builder, r io.Reader) error {
@@ -407,6 +422,41 @@ func (p *RegexpParser) anyRangeTableNoNL() *unicode.RangeTable {
 	}
 
 	return removeNLFromRangeTable(p.anyRangeTable())
+}
+
+func onlyEmptyOutput(sr *syntax.Regexp) bool {
+	switch sr.Op {
+	case syntax.OpEmptyMatch:
+		return true
+	case syntax.OpCapture:
+		if sr.Name != "" {
+			return false
+		}
+		// fallout
+	case syntax.OpStar, syntax.OpPlus, syntax.OpQuest:
+		// fallout
+	case syntax.OpRepeat:
+		if sr.Min == 0 && sr.Max == 0 {
+			return true
+		}
+		// fallout
+	case syntax.OpConcat, syntax.OpAlternate:
+		// fallout
+	case syntax.OpBeginLine, syntax.OpEndLine,
+		syntax.OpBeginText, syntax.OpEndText,
+		syntax.OpWordBoundary, syntax.OpNoWordBoundary:
+		return true
+	default:
+		return false
+	}
+
+	for _, sub := range sr.Sub {
+		if !onlyEmptyOutput(sub) {
+			return false
+		}
+	}
+
+	return true
 }
 
 // SpecialCaptureFactory represents a special capture factory to be used with
