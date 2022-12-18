@@ -202,10 +202,6 @@ func (p *RegexpParser) foldedLiteral(sr *syntax.Regexp) (regexpGenerator, error)
 		gens = append(gens, rawLiteral(sr.Rune[litStart:]))
 	}
 
-	if len(gens) == 1 {
-		return gens[0], nil
-	}
-
 	return concatGenerators(gens), nil
 }
 
@@ -359,7 +355,8 @@ func (p *RegexpParser) concat(sr *syntax.Regexp) (regexpGenerator, error) {
 			return nil, err
 		}
 
-		// Skip past empty generators.
+		// Skip past empty generators. We do this after the call to parse to
+		// ensure we surface any errors.
 		if !onlyEmptyOutput(r) {
 			gens = append(gens, gen)
 		}
@@ -369,6 +366,11 @@ func (p *RegexpParser) concat(sr *syntax.Regexp) (regexpGenerator, error) {
 }
 
 func concatGenerators(gens []regexpGenerator) regexpGenerator {
+	// len(gens) > 0 is always true.
+	if len(gens) == 1 {
+		return gens[0]
+	}
+
 	return func(b *strings.Builder, r io.Reader) error {
 		for _, gen := range gens {
 			if err := gen(b, r); err != nil {
