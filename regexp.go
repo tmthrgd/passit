@@ -79,6 +79,14 @@ func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Generator, err
 	// Note: The FoldCase, OneLine, DotNL and NonGreedy flags can be set or
 	//   cleared within the pattern.
 
+	// The Literal flag is odd in that it can interact with FoldCase in ways
+	// that may be invalid. syntax.literalRegexp doesn't call syntax.minFoldRune
+	// so the resulting OpLiteral won't properly be the minimum folded runes.
+	// That means foldedLiteral will create an invalid character class.
+	if flags&(syntax.Literal|syntax.FoldCase) == syntax.Literal|syntax.FoldCase {
+		return nil, errors.New("passit: Literal flag is unsupported when used with FoldCase")
+	}
+
 	// If we're not going to generate newlines, we can set syntax.MatchNL in
 	// flags. This simplifies the parsed character classes and avoids needing to
 	// call anyCharNotNL. It does this without changing the output of the

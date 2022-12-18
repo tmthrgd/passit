@@ -304,6 +304,19 @@ func TestRegexpQuestProbability(t *testing.T) {
 	assert.Equal(t, questNoChanceNumerator, empty, "wrong number of empty passwords")
 }
 
+func TestRegexpLiteral(t *testing.T) {
+	gen, err := ParseRegexp(`test123`, syntax.Literal)
+	require.NoError(t, err, "ParseRegexp(..., Literal)")
+
+	pass, err := gen.Password(errTestReader())
+	require.NoError(t, err, "Password: error")
+	assert.Equal(t, "test123", pass, "Password: output")
+
+	_, err = ParseRegexp(`test123`, syntax.Literal|syntax.FoldCase)
+	assert.EqualError(t, err, "passit: Literal flag is unsupported when used with FoldCase",
+		"ParseRegexp(..., Literal|FoldCase)")
+}
+
 func TestRegexpSpecialCaptures(t *testing.T) {
 	var p RegexpParser
 	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist))

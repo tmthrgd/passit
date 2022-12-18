@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"crypto/aes"
 	"crypto/cipher"
+	"errors"
 	"io"
 	"math/bits"
 	"regexp"
 	"strings"
 	"testing"
+	"testing/iotest"
 	"unicode/utf8"
 
 	"github.com/stretchr/testify/assert"
@@ -32,6 +34,10 @@ func (zeroReader) Read(p []byte) (int, error) {
 		p[i] = 0
 	}
 	return len(p), nil
+}
+
+func errTestReader() io.Reader {
+	return iotest.ErrReader(errors.New("should not call Read"))
 }
 
 func TestJoin(t *testing.T) {

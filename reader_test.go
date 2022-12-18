@@ -2,11 +2,9 @@ package passit
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"testing"
-	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -145,7 +143,7 @@ func TestReadUint64nBias(t *testing.T) {
 }
 
 func TestReadIntN(t *testing.T) {
-	n, err := readIntN(iotest.ErrReader(errors.New("should not call Read")), 1)
+	n, err := readIntN(errTestReader(), 1)
 	if assert.NoError(t, err, "readIntN with n=1 and error io.Reader: error") {
 		assert.Equal(t, 0, n, "readIntN with n=1 and error io.Reader: result")
 	}
