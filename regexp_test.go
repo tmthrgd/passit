@@ -395,6 +395,35 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 		_, err := p.Parse(tc.pattern, syntax.Perl)
 		assert.EqualError(t, err, tc.errString, tc.pattern)
 	}
+
+	p.SetSpecialCapture("*", func(sr *syntax.Regexp) (Generator, error) {
+		return String(sr.String()), nil
+	})
+
+	for _, tc := range []struct {
+		pattern, expect string
+	}{
+		{"(?P<unknown>)", "(?P<unknown>)"},
+		{"(?P<unknown>inner)", "(?P<unknown>inner)"},
+		{"(?P<unknown>1|2)", "(?P<unknown>[1-2])"},
+		{"(?i:(?P<unknown>z))", "(?P<unknown>(?i:Z))"},
+		{"(?P<unknown>z|z)", "(?P<unknown>z)"},
+		{"(?P<otherunknown>)", "(?P<otherunknown>)"},
+		{"(?P<woah>)", "(?P<woah>)"},
+	} {
+		tr := newTestRand()
+
+		gen, err := p.Parse(tc.pattern, syntax.Perl)
+		if !assert.NoError(t, err, tc.pattern) {
+			continue
+		}
+
+		pass, err := gen.Password(tr)
+		if assert.NoError(t, err, tc.pattern) {
+			assert.Equal(t, tc.expect, pass, tc.pattern)
+			allRunesAllowed(t, rangeTableASCII, pass)
+		}
+	}
 }
 
 func BenchmarkRegexpParse(b *testing.B) {

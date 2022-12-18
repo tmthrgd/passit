@@ -58,7 +58,8 @@ func (p *RegexpParser) SetAnyRangeTable(tab *unicode.RangeTable) {
 
 // SetSpecialCapture adds a special capture factory to use for matching named
 // captures. A regexp pattern such as "(?P<name>)" will invoke the factory and use
-// the returned Generator instead of the contents of the capture.
+// the returned Generator instead of the contents of the capture. If name is "*",
+// the factory will be used as a fallback if a named factory can't be found.
 //
 // If attempting to parse the inner contents of the capture, be aware that the
 // regexp parser may have mangled them. For instance "(?P<name>1|2)" will become
@@ -268,6 +269,9 @@ func charClassGenerator(sr *syntax.Regexp, tab *unicode.RangeTable) (regexpGener
 
 func (p *RegexpParser) namedCapture(sr *syntax.Regexp) (regexpGenerator, error) {
 	factory, ok := p.specialCaptures[sr.Name]
+	if !ok {
+		factory, ok = p.specialCaptures["*"]
+	}
 	if !ok {
 		return nil, errors.New("passit: named capture refers to unknown special capture factory")
 	}
