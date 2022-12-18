@@ -100,10 +100,10 @@ func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Generator, err
 		return nil, err
 	}
 
-	return p.parse(r)
+	return p.compile(r)
 }
 
-func (p *RegexpParser) parse(r *syntax.Regexp) (regexpGenerator, error) {
+func (p *RegexpParser) compile(r *syntax.Regexp) (regexpGenerator, error) {
 	// Strip un-named captures without recursing.
 	for r.Op == syntax.OpCapture && r.Name == "" {
 		r = r.Sub[0]
@@ -150,7 +150,7 @@ func (p *RegexpParser) parse(r *syntax.Regexp) (regexpGenerator, error) {
 		return nil, err
 	}
 
-	// Check onlyEmptyOutput after we've parsed the syntax.Regexp to ensure we
+	// Check onlyEmptyOutput after we've compiled the syntax.Regexp to ensure we
 	// surface any errors.
 	if onlyEmptyOutput(r) {
 		return func(*strings.Builder, io.Reader) error {
@@ -294,7 +294,7 @@ func (p *RegexpParser) plus(sr *syntax.Regexp) (regexpGenerator, error) {
 func (p *RegexpParser) quest(sr *syntax.Regexp) (regexpGenerator, error) {
 	// NonGreedy, which we ignore, is the only relevant flag here.
 
-	gen, err := p.parse(sr.Sub[0])
+	gen, err := p.compile(sr.Sub[0])
 	if err != nil {
 		return nil, err
 	}
@@ -320,7 +320,7 @@ func (p *RegexpParser) repeat(sr *syntax.Regexp) (regexpGenerator, error) {
 		max = sr.Min + maxUnboundedRepeatCount
 	}
 
-	gen, err := p.parse(sr.Sub[0])
+	gen, err := p.compile(sr.Sub[0])
 	if err != nil {
 		return nil, err
 	}
@@ -348,13 +348,13 @@ func (p *RegexpParser) repeat(sr *syntax.Regexp) (regexpGenerator, error) {
 func (p *RegexpParser) concat(sr *syntax.Regexp) (regexpGenerator, error) {
 	gens := make([]regexpGenerator, 0, len(sr.Sub))
 	for _, r := range sr.Sub {
-		gen, err := p.parse(r)
+		gen, err := p.compile(r)
 		if err != nil {
 			return nil, err
 		}
 
-		// Skip past empty generators. We do this after the call to parse to
-		// ensure we surface any errors.
+		// Skip past empty generators. We do this after the call to compile
+		// to ensure we surface any errors.
 		if !onlyEmptyOutput(r) {
 			gens = append(gens, gen)
 		}
@@ -383,7 +383,7 @@ func concatGenerators(gens []regexpGenerator) regexpGenerator {
 func (p *RegexpParser) alternate(sr *syntax.Regexp) (regexpGenerator, error) {
 	gens := make([]regexpGenerator, len(sr.Sub))
 	for i, r := range sr.Sub {
-		gen, err := p.parse(r)
+		gen, err := p.compile(r)
 		if err != nil {
 			return nil, err
 		}
