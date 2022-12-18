@@ -56,6 +56,9 @@ func (p *RegexpParser) SetSpecialCapture(name string, factory SpecialCaptureFact
 //
 // All regexp features supported by regexp/syntax are supported, though some may
 // have no effect.
+//
+// It is an error to use named captures (?P<name>) except to refer to special
+// capture factories added with SetSpecialCapture.
 func (p *RegexpParser) Parse(pattern string, flags syntax.Flags) (Generator, error) {
 	// Note: The FoldCase, OneLine, DotNL and NonGreedy flags can be set or
 	//   cleared within the pattern.
@@ -266,7 +269,7 @@ func (p *RegexpParser) capture(sr *syntax.Regexp) (regexpGenerator, error) {
 func (p *RegexpParser) namedCapture(sr *syntax.Regexp) (regexpGenerator, error) {
 	factory, ok := p.specialCaptures[sr.Name]
 	if !ok {
-		return p.parse(sr.Sub[0])
+		return nil, errors.New("passit: named capture refers to unknown special capture factory")
 	}
 
 	gen, err := factory(sr)

@@ -11,7 +11,7 @@ import (
 )
 
 func TestRegexp(t *testing.T) {
-	pattern := `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+(?P<punct>[[:punct:]])`
+	pattern := `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
 
 	gen, err := ParseRegexp(pattern, syntax.Perl)
 	require.NoError(t, err)
@@ -88,7 +88,7 @@ var asciiGreek13RangeTable = &unicode.RangeTable{
 }
 
 func TestRegexpUnicodeAny(t *testing.T) {
-	pattern := `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+(?P<punct>[[:punct:]])`
+	pattern := `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
 
 	var p RegexpParser
 	p.SetAnyRangeTable(asciiGreek13RangeTable)
@@ -233,6 +233,7 @@ func TestRegexpFoldCaseCapture(t *testing.T) {
 func TestRegexpSpecialCaptures(t *testing.T) {
 	var p RegexpParser
 	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist))
+	p.SetSpecialCapture("words", SpecialCaptureWithRepeat(EFFLargeWordlist, " "))
 
 	gen, err := p.Parse(`((?P<word>) ){6}[[:upper:]][[:digit:]][[:punct:]]`, syntax.Perl)
 	require.NoError(t, err)
@@ -251,12 +252,6 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 		assert.Equal(t, expect, pass)
 		allRunesAllowed(t, rangeTableASCII, pass)
 	}
-}
-
-func TestRegexpSpecialCaptureFactories(t *testing.T) {
-	var p RegexpParser
-	p.SetSpecialCapture("word", SpecialCaptureBasic(EFFLargeWordlist))
-	p.SetSpecialCapture("words", SpecialCaptureWithRepeat(EFFLargeWordlist, " "))
 
 	for _, tc := range []struct {
 		pattern, expect string
@@ -284,6 +279,8 @@ func TestRegexpSpecialCaptureFactories(t *testing.T) {
 	for _, tc := range []struct {
 		pattern, errString string
 	}{
+		{"(?P<unknown>)", "passit: named capture refers to unknown special capture factory"},
+		{"(?P<unknown>inner)", "passit: named capture refers to unknown special capture factory"},
 		{"(?P<word>1)", "passit: unsupported capture"},
 		{"(?P<word> )", "passit: unsupported capture"},
 		{"(?P<word>[0-9])", "passit: unsupported capture"},
@@ -300,7 +297,7 @@ func TestRegexpSpecialCaptureFactories(t *testing.T) {
 }
 
 func BenchmarkRegexpParse(b *testing.B) {
-	const pattern = `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+(?P<punct>[[:punct:]])`
+	const pattern = `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
 	var p RegexpParser
 
 	for n := 0; n < b.N; n++ {
@@ -312,7 +309,7 @@ func BenchmarkRegexpParse(b *testing.B) {
 }
 
 func BenchmarkRegexpPassword(b *testing.B) {
-	const pattern = `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+(?P<punct>[[:punct:]])`
+	const pattern = `a[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
 	gen, err := ParseRegexp(pattern, syntax.Perl)
 	if err != nil {
 		require.NoError(b, err)
