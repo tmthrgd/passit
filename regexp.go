@@ -166,6 +166,7 @@ func (*RegexpParser) noop(*syntax.Regexp) (regexpGenerator, error) {
 }
 
 func (p *RegexpParser) literal(sr *syntax.Regexp) (regexpGenerator, error) {
+	// FoldCase is the only flag relevant here.
 	if sr.Flags&syntax.FoldCase != 0 {
 		return p.foldedLiteral(sr)
 	}
@@ -292,16 +293,20 @@ func (p *RegexpParser) namedCapture(sr *syntax.Regexp) (regexpGenerator, error) 
 }
 
 func (p *RegexpParser) star(sr *syntax.Regexp) (regexpGenerator, error) {
+	// NonGreedy, which we ignore, is the only relevant flag here.
 	sr.Min, sr.Max = 0, -1
 	return p.repeat(sr)
 }
 
 func (p *RegexpParser) plus(sr *syntax.Regexp) (regexpGenerator, error) {
+	// NonGreedy, which we ignore, is the only relevant flag here.
 	sr.Min, sr.Max = 1, -1
 	return p.repeat(sr)
 }
 
 func (p *RegexpParser) quest(sr *syntax.Regexp) (regexpGenerator, error) {
+	// NonGreedy, which we ignore, is the only relevant flag here.
+
 	gen, err := p.parse(sr.Sub[0])
 	if err != nil {
 		return nil, err
@@ -320,6 +325,8 @@ func (p *RegexpParser) quest(sr *syntax.Regexp) (regexpGenerator, error) {
 }
 
 func (p *RegexpParser) repeat(sr *syntax.Regexp) (regexpGenerator, error) {
+	// NonGreedy, which we ignore, is the only relevant flag here.
+
 	min := sr.Min
 	max := sr.Max
 	if max == -1 {
