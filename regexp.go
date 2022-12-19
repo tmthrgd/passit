@@ -222,7 +222,7 @@ func (p *RegexpParser) foldedRune(c rune) (regexpGenerator, error) {
 	// generating the unicode.RangeTable directly so that we get a nicer error
 	// message.
 	sr := &syntax.Regexp{Op: syntax.OpCharClass}
-	sr.Rune = append(sr.Rune[:0], c, c)
+	sr.Rune = append(sr.Rune0[:0], c, c)
 
 	for f := unicode.SimpleFold(c); f != c; f = unicode.SimpleFold(f) {
 		sr.Rune = append(sr.Rune, f, f)
