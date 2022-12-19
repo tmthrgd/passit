@@ -375,7 +375,6 @@ func (p *RegexpParser) concat(sr *syntax.Regexp) (regexpGenerator, error) {
 }
 
 func concatGenerators(gens []regexpGenerator) regexpGenerator {
-	// len(gens) > 0 is always true.
 	if len(gens) == 1 {
 		return gens[0]
 	}
