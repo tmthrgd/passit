@@ -154,9 +154,17 @@ func TestReadIntN(t *testing.T) {
 		}, "readIntN with invalid n=%d", n)
 	}
 
-	tr := newTestRand()
+	trR := struct{ io.Reader }{newTestRand()}
+	trBR := struct {
+		io.Reader
+		io.ByteReader
+	}{
+		errTestReader(),
+		newTestRand().(io.ByteReader),
+	}
 
 	for _, tc := range []struct{ N, Expect int }{
+		{1, 0},
 		{10, 2},
 		{100, 75},
 		{128, 84},
@@ -165,18 +173,21 @@ func TestReadIntN(t *testing.T) {
 		{1<<16 - 1, 34875},
 		{100, 76},
 		{128, 122},
+		{1, 0},
 		{1<<8 - 1, 89},
 		{1<<16 - 1, 13514},
 		{1<<24 - 1, 5778987},
 		{1<<32 - 1, 4207869154},
 		{1<<48 - 1, 32432210391166},
 		{1<<63 - 1, 6523467746500912216},
+		{1, 0},
 		{1<<8 - 1, 206},
 		{1<<16 - 1, 46688},
 		{1<<24 - 1, 15962787},
 		{1<<32 - 1, 1907999272},
 		{1<<48 - 1, 187561078750898},
 		{1<<63 - 1, 720003246643169708},
+		{1, 0},
 		{1<<8 - 1, 148},
 		{1<<16 - 1, 49547},
 		{1<<24 - 1, 139488},
@@ -184,9 +195,14 @@ func TestReadIntN(t *testing.T) {
 		{1<<48 - 1, 189899984657044},
 		{1<<63 - 1, 1847124326628430800},
 	} {
-		got, err := readIntN(tr, tc.N)
-		if assert.NoErrorf(t, err, "readIntN with n=%d: error", tc.N) {
-			assert.Equalf(t, tc.Expect, got, "readIntN with n=%d: result", tc.N)
+		got, err := readIntN(trR, tc.N)
+		if assert.NoErrorf(t, err, "readIntN(io.Reader, %d): error", tc.N) {
+			assert.Equalf(t, tc.Expect, got, "readIntN(io.Reader, %d): result", tc.N)
+		}
+
+		got, err = readIntN(trBR, tc.N)
+		if assert.NoErrorf(t, err, "readIntN(io.ByteReader, %d): error", tc.N) {
+			assert.Equalf(t, tc.Expect, got, "readIntN(io.ByteReader, %d): result", tc.N)
 		}
 	}
 }
