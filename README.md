@@ -1,8 +1,8 @@
 # passit
 
-[`passit`](https://pkg.go.dev/go.tmthrgd.dev/passit) is a collection of password
-generators in Go. It features a variety of different password generators from
-charsets to regular expressions and emoji.
+[`passit`](https://pkg.go.dev/go.tmthrgd.dev/passit) is a password generation
+toolkit for Go. It features a variety of different password generators from charsets
+to regular expressions, wordlists and emoji.
 
 All generators implement the following interface:
 
@@ -38,7 +38,7 @@ The package provides a number of generators that produce output from a fixed set
 | `LatinUpperDigit`   | [A-Z0-9]                                                  | "A" "J" "0" "7"         |
 | `LatinMixed`        | [a-zA-Z]                                                  | "a" "j" "A" "J"         |
 | `LatinMixedDigit`   | [a-zA-Z0-9]                                               | "a" "j" "A" "J" "0" "7" |
-| `STS10Wordlist`     | A word from Sam Schlinkert's '1Password Replacement List' | "aback" "loophole" |
+| `STS10Wordlist`     | A word from Sam Schlinkert's '1Password Replacement List' | "aback" "loophole"      |
 | `EFFLargeWordlist`  | A word from the EFF Large Wordlist for Passphrases        | "abacus" "partition"    |
 | `EFFShortWordlist1` | A word from the EFF Short Wordlist for Passphrases #1     | "acid" "match"          |
 | `EFFShortWordlist2` | A word from the EFF Short Wordlist for Passphrases #2     | "aardvark" "jaywalker"  |
