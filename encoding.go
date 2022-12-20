@@ -47,9 +47,9 @@ func HexUpper(count int) Generator {
 	})
 }
 
-// Base32Std returns a Generator that encodes count-bytes with
+// Base32 returns a Generator that encodes count-bytes with
 // encoding/base32.StdEncoding without padding.
-func Base32Std(count int) Generator {
+func Base32(count int) Generator {
 	rawStd := base32.StdEncoding.WithPadding(base32.NoPadding)
 	return newEncoding(count, rawStd.EncodeToString)
 }
@@ -61,9 +61,9 @@ func Base32Hex(count int) Generator {
 	return newEncoding(count, rawHex.EncodeToString)
 }
 
-// Base64Std returns a Generator that encodes count-bytes with
+// Base64 returns a Generator that encodes count-bytes with
 // encoding/base64.RawStdEncoding.
-func Base64Std(count int) Generator {
+func Base64(count int) Generator {
 	return newEncoding(count, base64.RawStdEncoding.EncodeToString)
 }
 

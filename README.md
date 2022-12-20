@@ -45,9 +45,9 @@ The package provides a number of generators that produce output from a fixed set
 | `Emoji13`           | A Unicode 13.0 emoji                                      | "⌚" "🕸️" "🧎🏾‍♀️"          |
 | `HexLower`          | Lowercase hexadecimal encoding                            | "66e94bd4ef8a2c3b"      |
 | `HexUpper`          | Uppercase hexadecimal encoding                            | "66E94BD4EF8A2C3B"      |
-| `Base32Std`         | Base32 standard encoding                                  | "M3UUXVHPRIWDW"         |
+| `Base32`            | Base32 standard encoding                                  | "M3UUXVHPRIWDW"         |
 | `Base32Hex`         | Base32 hexadecimal encoding                               | "CRKKNL7FH8M3M"         |
-| `Base64Std`         | Base64 standard encoding                                  | "ZulL1O+KLDs"           |
+| `Base64`            | Base64 standard encoding                                  | "ZulL1O+KLDs"           |
 | `Base64URL`         | Base64 URL encoding                                       | "ZulL1O-KLDs"           |
 | `Ascii85`           | Ascii85 encoding                                          | "B'Dt<mtrYX"            |
 | `SpectreMaximum`    | The Spectre maximum template                              | "i7,o%yC4&fmQ1r*qfcWq"  |
