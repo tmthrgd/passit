@@ -42,7 +42,7 @@ The package provides a number of generators that produce output from a fixed set
 | `EFFLargeWordlist`  | A word from the EFF Large Wordlist for Passphrases        | "abacus" "partition"    |
 | `EFFShortWordlist1` | A word from the EFF Short Wordlist for Passphrases #1     | "acid" "match"          |
 | `EFFShortWordlist2` | A word from the EFF Short Wordlist for Passphrases #2     | "aardvark" "jaywalker"  |
-| `Emoji13`           | A Unicode 13.0 emoji                                      | "⌚" "🕸️" "🧎🏾‍♀️"          |
+| `Emoji13`           | A Unicode 13.0 fully-qualified emoji                      | "⌚" "🕸️" "🧎🏾‍♀️"          |
 | `HexLower`          | Lowercase hexadecimal encoding                            | "66e94bd4ef8a2c3b"      |
 | `HexUpper`          | Uppercase hexadecimal encoding                            | "66E94BD4EF8A2C3B"      |
 | `Base32`            | Base32 standard encoding                                  | "M3UUXVHPRIWDW"         |

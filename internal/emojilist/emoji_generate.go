@@ -23,7 +23,6 @@ import (
 func main() {
 	flag.Parse()
 	loadEmoji()
-	loadEmojiZWJ()
 	writeEmoji()
 }
 
@@ -35,18 +34,10 @@ func emojiVersion() string {
 }
 
 func loadEmoji() {
-	ucd_Parse(gen_OpenUnicodeFile("emoji", emojiVersion(), "emoji-sequences.txt"), func(p *ucd_Parser) {
-		if strings.Contains(p.String(0), "..") {
-			emoji = append(emoji, []rune{p.Rune(0)})
-		} else {
+	ucd_Parse(gen_OpenUnicodeFile("emoji", emojiVersion(), "emoji-test.txt"), func(p *ucd_Parser) {
+		if p.String(1) == "fully-qualified" {
 			emoji = append(emoji, p.Runes(0))
 		}
-	})
-}
-
-func loadEmojiZWJ() {
-	ucd_Parse(gen_OpenUnicodeFile("emoji", emojiVersion(), "emoji-zwj-sequences.txt"), func(p *ucd_Parser) {
-		emoji = append(emoji, p.Runes(0))
 	})
 }
 
