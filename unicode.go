@@ -35,7 +35,7 @@ func getRuneInTable(tab *unicode.RangeTable, v int) rune {
 		v -= size
 	}
 
-	panic("passit: internal error: unicode.RangeTable did not contain rune")
+	panic("passit: index out of range of unicode.RangeTable")
 }
 
 func addIntersectingRunes(tab *unicode.RangeTable, lo, hi rune, parent *unicode.RangeTable) {
