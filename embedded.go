@@ -69,3 +69,6 @@ var Emoji13 Generator = &embeddedGenerator{raw: &emojilist.Unicode13}
 // Emoji15 is a Generator that returns a random fully-qualified emoji from the
 // Unicode 15.0 emoji list.
 var Emoji15 Generator = &embeddedGenerator{raw: &emojilist.Unicode15}
+
+// EmojiLatest is an alias for the latest supported emoji list.
+var EmojiLatest = Emoji15
