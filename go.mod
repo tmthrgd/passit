@@ -1,11 +1,11 @@
 module go.tmthrgd.dev/passit
 
-go 1.18
+go 1.21
 
 require (
-	github.com/stretchr/testify v1.8.1
-	golang.org/x/exp v0.0.0-20221211140036-ad323defaf05
-	golang.org/x/text v0.5.0
+	github.com/stretchr/testify v1.8.4
+	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
+	golang.org/x/text v0.12.0
 )
 
 require (
