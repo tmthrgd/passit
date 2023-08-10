@@ -114,6 +114,32 @@ func TestEmoji13(t *testing.T) {
 	allEmojiValid(t, Emoji13.(*embeddedGenerator).list)
 }
 
+func TestEmoji15(t *testing.T) {
+	const size = 25
+
+	tr := newTestRand()
+
+	for _, expect := range []string{
+		"➡️🦸🏼\u200d♂️👩🏾\u200d🦳📱✍🏻🪣👨🏾\u200d🌾🤩🤵🏽\u200d♂️👮🏼🧗🏾\u200d♂️👷🏾\u200d♀️🧝🏾\u200d♂️👔🟨↗️🕵🏽👦🏽🏃🏽\u200d♂️🦶🤾🏿\u200d♂️⛺👮🏿👇🏽👳🏿",
+		"🌀🦿👈🏽🏄🏽\u200d♀️🧑🏻\u200d🦰🔃🫣🏪🪿🧗🏽👃8️⃣👩🏿\u200d🦰🇹🇦👮🏼\u200d♂️👨🏼\u200d❤️\u200d👨🏿🧑🏿\u200d🦱🤸🏽\u200d♂️🛫👩🏻\u200d🦰👩🏽\u200d❤️\u200d💋\u200d👨🏾🦶🏾㊗️👩🏼\u200d🎤💁🏻\u200d♂️",
+		"🧑🏿\u200d🤝\u200d🧑🏻🚶🏻\u200d♂️👨🏿\u200d⚖️🔟👨🏿\u200d🤝\u200d👨🏾👨\u200d👩\u200d👦🧝🏽\u200d♀️🔽🙋🏿\u200d♂️🧑🏼👩🏾\u200d🍼💆🏻\u200d♂️👩🏿\u200d🦽🐀💂🏻\u200d♀️🆑🍠🥸🤚🏾🚶🏻\u200d♂️🇦🇲💙👐💪🏾🫁",
+		"👱🏻🧒🏿🧢🐖👨🏿\u200d✈️🦀🎅👨🏾\u200d❤️\u200d💋\u200d👨🏼👨🏼\u200d🦱🎫🥻🙆🏿\u200d♂️👩🏼\u200d❤️\u200d💋\u200d👨🏼👴🏿💪🏻💂🏿\u200d♂️🛌🌚🏈👩🏻\u200d🤝\u200d👨🏽🛀🏾👋🏾🧑🏼\u200d🤝\u200d🧑🏻🏫✋🏼",
+	} {
+		pass, err := Repeat(Emoji15, "", size).Password(tr)
+		if !assert.NoError(t, err) {
+			continue
+		}
+
+		assert.Equal(t, expect, pass)
+		assert.Equal(t, size, countEmojiInString(Emoji15.(*embeddedGenerator).list, pass),
+			"countEmojiInString(%q)", pass)
+		assert.Truef(t, utf8.ValidString(pass),
+			"utf8.ValidString(%q)", pass)
+	}
+
+	allEmojiValid(t, Emoji15.(*embeddedGenerator).list)
+}
+
 func countEmojiInString(list []string, s string) int {
 	var count int
 outer:

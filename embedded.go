@@ -65,3 +65,7 @@ var EFFShortWordlist2 Generator = &embeddedGenerator{raw: &wordlist.EFFShortWord
 // Emoji13 is a Generator that returns a random fully-qualified emoji from the
 // Unicode 13.0 emoji list.
 var Emoji13 Generator = &embeddedGenerator{raw: &emojilist.Unicode13}
+
+// Emoji15 is a Generator that returns a random fully-qualified emoji from the
+// Unicode 15.0 emoji list.
+var Emoji15 Generator = &embeddedGenerator{raw: &emojilist.Unicode15}
