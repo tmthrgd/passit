@@ -92,11 +92,11 @@ func TestRangeTable(t *testing.T) {
 		{"ED9Ed60F4A148f2068a49Ab7f", unicode.ASCII_Hex_Digit},
 	}
 
-	const unicodeVersion = "13.0.0"
+	const unicodeVersion = "15.0.0"
 	testCasesUni := []testCase{
-		{"ᵻḙꞪiǰↇꝢṛŸḨẨĠỤǉŦꝋɡḆＹɅẁṦǟḊꭒ", unicode.Latin},
+		{"ʊⅴXǞǟṓŅ𝼈Ņꝧ𐞓Ꞇ𝼕áÆẞḔꝅḩʎĀĮꟑＴｆ", unicode.Latin},
 		{"ἳ𝈛ῥᵡ𐅺όΫ𐅷𐆎ἓ𐅖Ί𝈂ΗᾁῈϼᴧρὺᵞ𐅰Ϟ𐅬θ", unicode.Greek},
-		{"₸₿௹₪￡฿₼𑿠૱฿₫₠￠₻₾₪₸₤£꠸₳￥¤₭₩", unicode.Sc},
+		{"₷₼૱₧﷼૱₼𑿟৳௹𞋿₪௹＄₻₾₩₵₡𞋿$⃀₲￡¢", unicode.Sc},
 	}
 	if unicode.Version == unicodeVersion {
 		testCases = append(testCases, testCasesUni...)
