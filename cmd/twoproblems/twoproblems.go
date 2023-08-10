@@ -45,7 +45,7 @@ func main1() error {
 
 	var rp passit.RegexpParser
 	rp.SetSpecialCapture("word", wordlist)
-	rp.SetSpecialCapture("emoji", passit.SpecialCaptureWithRepeat(passit.Emoji13, ""))
+	rp.SetSpecialCapture("emoji", passit.SpecialCaptureWithRepeat(passit.EmojiLatest, ""))
 
 	gen, err := rp.Parse(flag.Arg(0), syntax.Perl)
 	if err != nil {
