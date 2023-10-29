@@ -29,38 +29,43 @@ type Generator interface {
 
 The package provides a number of generators that produce output from a fixed set:
 
-| Generator           | Description                                               | Examples                |
-| ------------------- | --------------------------------------------------------- | ----------------------- |
-| `Digit`             | [0-9]                                                     | "0" "7"                 |
-| `LatinLower`        | [a-z]                                                     | "a" "j"                 |
-| `LatinLowerDigit`   | [a-z0-9]                                                  | "a" "j" "0" "7"         |
-| `LatinUpper`        | [A-Z]                                                     | "A" "J"                 |
-| `LatinUpperDigit`   | [A-Z0-9]                                                  | "A" "J" "0" "7"         |
-| `LatinMixed`        | [a-zA-Z]                                                  | "a" "j" "A" "J"         |
-| `LatinMixedDigit`   | [a-zA-Z0-9]                                               | "a" "j" "A" "J" "0" "7" |
-| `STS10Wordlist`     | A word from Sam Schlinkert's '1Password Replacement List' | "aback" "loophole"      |
-| `EFFLargeWordlist`  | A word from the EFF Large Wordlist for Passphrases        | "abacus" "partition"    |
-| `EFFShortWordlist1` | A word from the EFF Short Wordlist for Passphrases #1     | "acid" "match"          |
-| `EFFShortWordlist2` | A word from the EFF Short Wordlist for Passphrases #2     | "aardvark" "jaywalker"  |
-| `Emoji13`           | A Unicode 13.0 fully-qualified emoji                      | "⌚" "🕸️" "🧎🏾‍♀️"          |
-| `HexLower`          | Lowercase hexadecimal encoding                            | "66e94bd4ef8a2c3b"      |
-| `HexUpper`          | Uppercase hexadecimal encoding                            | "66E94BD4EF8A2C3B"      |
-| `Base32`            | Base32 standard encoding                                  | "M3UUXVHPRIWDW"         |
-| `Base32Hex`         | Base32 hexadecimal encoding                               | "CRKKNL7FH8M3M"         |
-| `Base64`            | Base64 standard encoding                                  | "ZulL1O+KLDs"           |
-| `Base64URL`         | Base64 URL encoding                                       | "ZulL1O-KLDs"           |
-| `Ascii85`           | Ascii85 encoding                                          | "B'Dt<mtrYX"            |
-| `SpectreMaximum`    | The Spectre maximum template                              | "i7,o%yC4&fmQ1r*qfcWq"  |
-| `SpectreLong`       | The Spectre long template                                 | "ZikzXuwuHeve1("        |
-| `SpectreMedium`     | The Spectre medium template                               | "Zik2~Puh"              |
-| `SpectreBasic`      | The Spectre basic template                                | "izJ24tHJ"              |
-| `SpectreShort`      | The Spectre short template                                | "His8"                  |
-| `SpectrePIN`        | The Spectre PIN template                                  | "0778"                  |
-| `SpectreName`       | The Spectre name template                                 | "hiskixuwu"             |
-| `SpectrePhrase`     | The Spectre phrase template                               | "zi kixpu hoy vezamcu"  |
-| `Empty`             | Empty string                                              | ""                      |
-| `Hyphen`            | ASCII hyphen-minus                                        | "-"                     |
-| `Space`             | ASCII space                                               | " "                     |
+| Generator             | Description                                               | Examples                |
+| --------------------- | --------------------------------------------------------- | ----------------------- |
+| `Digit`               | [0-9]                                                     | "0" "7"                 |
+| `LatinLower`          | [a-z]                                                     | "a" "j"                 |
+| `LatinLowerDigit`     | [a-z0-9]                                                  | "a" "j" "0" "7"         |
+| `LatinUpper`          | [A-Z]                                                     | "A" "J"                 |
+| `LatinUpperDigit`     | [A-Z0-9]                                                  | "A" "J" "0" "7"         |
+| `LatinMixed`          | [a-zA-Z]                                                  | "a" "j" "A" "J"         |
+| `LatinMixedDigit`     | [a-zA-Z0-9]                                               | "a" "j" "A" "J" "0" "7" |
+| `OrchardStreetMedium` | A word from Sam Schlinkert's Orchard Street Medium List   | "abandon" "forest"      |
+| `OrchardStreetLong`   | A word from Sam Schlinkert's Orchard Street Long List     | "abandon" "mobility"    |
+| `OrchardStreetAlpha`  | A word from Sam Schlinkert's Orchard Street Alpha List    | "abbot" "points"        |
+| `OrchardStreetQWERTY` | A word from Sam Schlinkert's Orchard Street QWERTY List   | "access" "peg"          |
+| `STS10Wordlist`       | A word from Sam Schlinkert's '1Password Replacement List' | "aback" "loophole"      |
+| `EFFLargeWordlist`    | A word from the EFF Large Wordlist for Passphrases        | "abacus" "partition"    |
+| `EFFShortWordlist1`   | A word from the EFF Short Wordlist for Passphrases #1     | "acid" "match"          |
+| `EFFShortWordlist2`   | A word from the EFF Short Wordlist for Passphrases #2     | "aardvark" "jaywalker"  |
+| `Emoji13`             | A Unicode 13.0 fully-qualified emoji                      | "⌚" "🕸️" "🧎🏾‍♀️"          |
+| `Emoji15`             | A Unicode 15.0 fully-qualified emoji                      | "⌚" "🏎️" "🧏🏿‍♂️"          |
+| `HexLower`            | Lowercase hexadecimal encoding                            | "66e94bd4ef8a2c3b"      |
+| `HexUpper`            | Uppercase hexadecimal encoding                            | "66E94BD4EF8A2C3B"      |
+| `Base32`              | Base32 standard encoding                                  | "M3UUXVHPRIWDW"         |
+| `Base32Hex`           | Base32 hexadecimal encoding                               | "CRKKNL7FH8M3M"         |
+| `Base64`              | Base64 standard encoding                                  | "ZulL1O+KLDs"           |
+| `Base64URL`           | Base64 URL encoding                                       | "ZulL1O-KLDs"           |
+| `Ascii85`             | Ascii85 encoding                                          | "B'Dt<mtrYX"            |
+| `SpectreMaximum`      | The Spectre maximum template                              | "i7,o%yC4&fmQ1r*qfcWq"  |
+| `SpectreLong`         | The Spectre long template                                 | "ZikzXuwuHeve1("        |
+| `SpectreMedium`       | The Spectre medium template                               | "Zik2~Puh"              |
+| `SpectreBasic`        | The Spectre basic template                                | "izJ24tHJ"              |
+| `SpectreShort`        | The Spectre short template                                | "His8"                  |
+| `SpectrePIN`          | The Spectre PIN template                                  | "0778"                  |
+| `SpectreName`         | The Spectre name template                                 | "hiskixuwu"             |
+| `SpectrePhrase`       | The Spectre phrase template                               | "zi kixpu hoy vezamcu"  |
+| `Empty`               | Empty string                                              | ""                      |
+| `Hyphen`              | ASCII hyphen-minus                                        | "-"                     |
+| `Space`               | ASCII space                                               | " "                     |
 
 The package also provides a number of generators that produce output based on user input:
 
@@ -98,16 +103,13 @@ Two commands for easy CLI password generation are provided.
 
 ### passphrase
 
-`passphrase` is a tool that generates random passphrases using either
-Sam Schlinkert's '1Password Replacement List' (1password-replacement.txt),
-the EFF Large Wordlist for Passphrases (eff_large_wordlist.txt),
-the EFF Short Wordlist for Passphrases #1 (eff_short_wordlist_1.txt), or
-the EFF Short Wordlist for Passphrases #2 (eff_short_wordlist_2_0.txt).
+`passphrase` is a tool that generates random passphrases using one of the embedded
+wordlists supported by passit.
 
 ```shell
 $ go install go.tmthrgd.dev/passit/cmd/passphrase@latest
 $ passphrase -n 5 -s -
-keeper-stockade-grooved-warrants-toned
+assumes-forth-humanities-exemption-paid
 ```
 
 ### twoproblems
@@ -119,18 +121,19 @@ expression template.
 $ go install go.tmthrgd.dev/passit/cmd/twoproblems@latest
 $ twoproblems '[[:alpha:]]{15}-[[:digit:]]{3}[[:punct:]]{2}'
 KsMtvHnSOmqjIll-277&$
-$ twoproblems '[[:alpha:][:digit:]]{5}-(?P<word>/5/-)-[[:punct:]]{5}'
-7iy71-equity-platelet-subtitle-give-rescued-@_$!*
+$ twoproblems '[[:alnum:]]{5}-(?P<word>/5/-)-[[:punct:]]{5}'
+7Gfyv-degree-currency-revolt-coined-requested-*@`}[
 ```
 
 Two special captures (`(?P<name>)`) are supported:
 
 1. `(?P<word>)`: A word from any of the supported wordlists. This can take up to
- three paramaters: the name of a supported wordlist ('sts10' - default, 'eff:large'
- / 'eff', 'eff:short1' or 'eff:short2'), an optional number to generate multiple
- words, and an optional separator to insert between the words (defaults to a space),
- each parameter is separated by a '/'.
-1. `(?P<emoji>)`: A Unicode 13.0 emoji returned from `Emoji13`. This can take a number
+ three paramaters: the name of a supported wordlist ('orchard:medium' - default,
+ 'orchard:long', 'orchard:alpha, 'orchard:qwerty, 'sts10', 'eff:large' / 'eff',
+ 'eff:short1' or 'eff:short2'), an optional number to generate multiple words, and
+ an optional separator to insert between the words (defaults to a space), each
+ parameter is separated by a '/'.
+1. `(?P<emoji>)`: A Unicode 15.0 emoji returned from `Emoji15`. This can take a number
  to generate multiple emoji.
 
 ## Sources of randomness
@@ -194,9 +197,7 @@ func ExampleEFFLargeWordlist_WithAESCTR() {
 type zeroReader struct{}
 
 func (zeroReader) Read(p []byte) (int, error) {
-	for i := range p {
-		p[i] = 0
-	}
+	clear(p)
 	return len(p), nil
 }
 ```
@@ -205,3 +206,6 @@ func (zeroReader) Read(p []byte) (int, error) {
 
 This library is Copyright (c) 2022, Tom Thorogood and is licensed under a
 BSD 3-Clause License.
+
+Embedded wordlists are subject to their own copyright license referenced in the
+documentation.
