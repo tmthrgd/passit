@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"math/bits"
+	"net/url"
 	"os"
 	"regexp/syntax"
 	"strconv"
@@ -67,33 +68,59 @@ func wordlist(sr *syntax.Regexp) (passit.Generator, error) {
 	case syntax.OpEmptyMatch:
 		return passit.OrchardStreetLong, nil
 	case syntax.OpLiteral:
-		name, rest, more := strings.Cut(string(sr.Sub[0].Rune), "/")
-		name = strings.ToLower(name)
-
-		gen := wordlists.NameToGenerator(name)
-		if gen == nil && name == "" {
-			gen = passit.OrchardStreetLong
-		}
-		if gen == nil {
-			return nil, fmt.Errorf("twoproblems: unsupported wordlist %q", name)
-		}
-
-		if !more {
-			return gen, nil
-		}
-
-		countStr, sep, ok := strings.Cut(rest, "/")
-		if !ok {
-			sep = " "
-		}
-
-		count, err := strconv.ParseUint(countStr, 10, bits.UintSize-1)
+		p, err := parseWordlistParams(string(sr.Sub[0].Rune))
 		if err != nil {
-			return nil, fmt.Errorf("twoproblems: failed to parse wordlist count: %w", err)
+			return nil, fmt.Errorf("twoproblems: failed to parse word parameters: %w", err)
 		}
 
-		return passit.Repeat(gen, sep, int(count)), nil
+		gen := passit.OrchardStreetLong
+		if v, ok := p["list"]; ok {
+			name := strings.ToLower(v)
+			gen = wordlists.NameToGenerator(name)
+			if gen == nil {
+				return nil, fmt.Errorf("twoproblems: unsupported wordlist %q", name)
+			}
+		}
+
+		sep := " "
+		if v, ok := p["sep"]; ok {
+			sep = v
+		}
+
+		if v, ok := p["count"]; ok {
+			count, err := strconv.ParseUint(v, 10, bits.UintSize-1)
+			if err != nil {
+				return nil, fmt.Errorf("twoproblems: failed to parse wordlist count: %w", err)
+			}
+
+			gen = passit.Repeat(gen, sep, int(count))
+		}
+
+		return gen, nil
 	default:
 		return nil, errors.New("twoproblems: unsupported capture")
 	}
+}
+
+func parseWordlistParams(query string) (map[string]string, error) {
+	// This is like url.ParseQuery, but uses PathUnescape instead of
+	// QueryUnescape and lowercases all keys.
+
+	v := make(map[string]string)
+	for query != "" {
+		var key string
+		key, query, _ = strings.Cut(query, "&")
+		key, value, _ := strings.Cut(key, "=")
+		key = strings.ToLower(key)
+		key, err := url.PathUnescape(key)
+		if err != nil {
+			return nil, err
+		}
+		value, err = url.PathUnescape(value)
+		if err != nil {
+			return nil, err
+		}
+		v[key] = value
+	}
+	return v, nil
 }
