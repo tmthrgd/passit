@@ -40,7 +40,7 @@ func main() {
 func main1() error {
 	list := flag.String("l", "orchard:long",
 		"the wordlist to use; valid options are orchard:medium, orchard:long, orchard:alpha, "+
-			"orchard:qwerty, sts10, eff:large / eff, eff:short1 and eff:short2")
+			"orchard:qwerty, eff:large / eff, eff:short1 and eff:short2")
 	count := flag.Int("n", 6, "the number of words in the generated passphrase")
 	sep := flag.String("s", " ", "the separator to use between words")
 	titleCase := flag.Bool("t", false, "generate a title case passphrase")
