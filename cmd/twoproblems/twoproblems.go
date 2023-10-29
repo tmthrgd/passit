@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"go.tmthrgd.dev/passit"
+	"go.tmthrgd.dev/passit/internal/wordlists"
 )
 
 func init() {
@@ -64,21 +65,16 @@ func main1() error {
 func wordlist(sr *syntax.Regexp) (passit.Generator, error) {
 	switch sr.Sub[0].Op {
 	case syntax.OpEmptyMatch:
-		return passit.STS10Wordlist, nil
+		return passit.OrchardStreetMedium, nil
 	case syntax.OpLiteral:
 		name, rest, more := strings.Cut(string(sr.Sub[0].Rune), "/")
+		name = strings.ToLower(name)
 
-		var gen passit.Generator
-		switch strings.ToLower(name) {
-		case "sts10", "":
-			gen = passit.STS10Wordlist
-		case "eff:large", "eff":
-			gen = passit.EFFLargeWordlist
-		case "eff:short1":
-			gen = passit.EFFShortWordlist1
-		case "eff:short2":
-			gen = passit.EFFShortWordlist2
-		default:
+		gen := wordlists.NameToGenerator(name)
+		if gen == nil && name == "" {
+			gen = passit.OrchardStreetMedium
+		}
+		if gen == nil {
 			return nil, fmt.Errorf("twoproblems: unsupported wordlist %q", name)
 		}
 
