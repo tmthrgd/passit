@@ -134,6 +134,8 @@ Two special captures (`(?P<name>)`) are supported:
 1. `(?P<word>)`: A word from any of the supported wordlists. This takes parameters
  similar to a URL query string (e.g. `x=1&y=2&y=3`), including supporting percent
  escaping. The supported parameters are:
+   - `case` transform the word to a given case ('lower' - default, 'upper' or
+     'title');
    - `count` generate N multiple words instead of just one;
    - `list` the name of a supported wordlist to use ('orchard:medium',
      'orchard:long' - default, 'orchard:alpha, 'orchard:qwerty, 'sts10',

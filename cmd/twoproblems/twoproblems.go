@@ -18,6 +18,7 @@ import (
 
 	"go.tmthrgd.dev/passit"
 	"go.tmthrgd.dev/passit/internal/wordlists"
+	"golang.org/x/text/language"
 )
 
 func init() {
@@ -79,6 +80,19 @@ func wordlist(sr *syntax.Regexp) (passit.Generator, error) {
 			gen = wordlists.NameToGenerator(name)
 			if gen == nil {
 				return nil, fmt.Errorf("twoproblems: unsupported wordlist %q", name)
+			}
+		}
+
+		if v, ok := p["case"]; ok {
+			switch case_ := strings.ToLower(v); case_ {
+			case "lower":
+				// Already lower case.
+			case "upper":
+				gen = passit.UpperCase(gen)
+			case "title":
+				gen = passit.TitleCase(gen, language.English)
+			default:
+				return nil, fmt.Errorf("twoproblems: unsupported case %q", case_)
 			}
 		}
 
