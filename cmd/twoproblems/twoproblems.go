@@ -65,14 +65,14 @@ func main1() error {
 func wordlist(sr *syntax.Regexp) (passit.Generator, error) {
 	switch sr.Sub[0].Op {
 	case syntax.OpEmptyMatch:
-		return passit.OrchardStreetMedium, nil
+		return passit.OrchardStreetLong, nil
 	case syntax.OpLiteral:
 		name, rest, more := strings.Cut(string(sr.Sub[0].Rune), "/")
 		name = strings.ToLower(name)
 
 		gen := wordlists.NameToGenerator(name)
 		if gen == nil && name == "" {
-			gen = passit.OrchardStreetMedium
+			gen = passit.OrchardStreetLong
 		}
 		if gen == nil {
 			return nil, fmt.Errorf("twoproblems: unsupported wordlist %q", name)

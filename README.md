@@ -128,11 +128,11 @@ $ twoproblems '[[:alnum:]]{5}-(?P<word>/5/-)-[[:punct:]]{5}'
 Two special captures (`(?P<name>)`) are supported:
 
 1. `(?P<word>)`: A word from any of the supported wordlists. This can take up to
- three paramaters: the name of a supported wordlist ('orchard:medium' - default,
- 'orchard:long', 'orchard:alpha, 'orchard:qwerty, 'sts10', 'eff:large' / 'eff',
- 'eff:short1' or 'eff:short2'), an optional number to generate multiple words, and
- an optional separator to insert between the words (defaults to a space), each
- parameter is separated by a '/'.
+ three paramaters: the name of a supported wordlist ('orchard:medium',
+ 'orchard:long' - default, 'orchard:alpha, 'orchard:qwerty, 'sts10',
+ 'eff:large' / 'eff', 'eff:short1' or 'eff:short2'), an optional number to generate
+ multiple words, and an optional separator to insert between the words (defaults to
+ a space), each parameter is separated by a '/'.
 1. `(?P<emoji>)`: A Unicode 15.0 emoji returned from `Emoji15`. This can take a number
  to generate multiple emoji.
 

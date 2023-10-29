@@ -36,7 +36,7 @@ func main() {
 }
 
 func main1() error {
-	list := flag.String("l", "orchard:medium",
+	list := flag.String("l", "orchard:long",
 		"the wordlist to use; valid options are orchard:medium, orchard:long, orchard:alpha, "+
 			"orchard:qwerty, sts10, eff:large / eff, eff:short1 and eff:short2")
 	count := flag.Int("n", 6, "the number of words in the generated password")
