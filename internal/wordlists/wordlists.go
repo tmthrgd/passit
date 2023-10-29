@@ -15,8 +15,6 @@ func NameToGenerator(name string) passit.Generator {
 		return passit.OrchardStreetAlpha
 	case "orchard:qwerty":
 		return passit.OrchardStreetQWERTY
-	case "sts10":
-		return passit.STS10Wordlist
 	case "eff:large", "eff":
 		return passit.EFFLargeWordlist
 	case "eff:short1":

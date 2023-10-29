@@ -138,8 +138,8 @@ Two special captures (`(?P<name>)`) are supported:
      'title');
    - `count` generate N multiple words instead of just one;
    - `list` the name of a supported wordlist to use ('orchard:medium',
-     'orchard:long' - default, 'orchard:alpha, 'orchard:qwerty, 'sts10',
-     'eff:large' / 'eff', 'eff:short1' or 'eff:short2');
+     'orchard:long' - default, 'orchard:alpha, 'orchard:qwerty, 'eff:large' / 'eff',
+     'eff:short1' or 'eff:short2');
    - `sep` a separator to insert between words (defaults to a space).
 1. `(?P<emoji>)`: A Unicode 15.0 emoji returned from `Emoji15`. This can take a
  number to generate multiple emoji.
