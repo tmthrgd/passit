@@ -27,10 +27,47 @@ func (eg *embeddedGenerator) Password(r io.Reader) (string, error) {
 	return readSliceN(r, eg.list)
 }
 
+// OrchardStreetMedium is a Generator that returns a random word from
+// Sam Schlinkert's Orchard Street Medium List.
+//
+// It contains 8,192 words and has 13.000 bits of entropy per word. This list is
+// uniquely decodable and can be used with or without separators.
+//
+// This wordlist is licensed by Sam Schlinkert under a CC BY-SA 4.0 license.
+var OrchardStreetMedium Generator = &embeddedGenerator{raw: &wordlist.OrchardStreetMedium}
+
+// OrchardStreetLong is a Generator that returns a random word from
+// Sam Schlinkert's Orchard Street Long List.
+//
+// It contains 17,576 words and has 14.101 bits of entropy per word. This list is
+// uniquely decodable and can be used with or without separators.
+//
+// This wordlist is licensed by Sam Schlinkert under a CC BY-SA 4.0 license.
+var OrchardStreetLong Generator = &embeddedGenerator{raw: &wordlist.OrchardStreetLong}
+
+// OrchardStreetAlpha is a Generator that returns a random word from
+// Sam Schlinkert's Orchard Street Alpha List.
+//
+// It contains 1,296 words and has 10.340 bits of entropy per word. This list is
+// uniquely decodable and can be used with or without separators.
+//
+// This wordlist is licensed by Sam Schlinkert under a CC BY-SA 4.0 license.
+var OrchardStreetAlpha Generator = &embeddedGenerator{raw: &wordlist.OrchardStreetAlpha}
+
+// OrchardStreetQWERTY is a Generator that returns a random word from
+// Sam Schlinkert's Orchard Street QWERTY List.
+//
+// It contains 1,296 words and has 10.340 bits of entropy per word. This list is
+// uniquely decodable and can be used with or without separators.
+//
+// This wordlist is licensed by Sam Schlinkert under a CC BY-SA 4.0 license.
+var OrchardStreetQWERTY Generator = &embeddedGenerator{raw: &wordlist.OrchardStreetQWERTY}
+
 // STS10Wordlist is a Generator that returns a random word from Sam Schlinkert's
 // '1Password Replacement List'.
 //
-// It contains 18,208 words and has 14.152 bits of entropy per word.
+// It contains 18,208 words and has 14.152 bits of entropy per word. This list is
+// not uniquely decodable and should only be used with separators.
 //
 // This wordlist is licensed by Sam Schlinkert under a CC BY 3.0 license.
 var STS10Wordlist Generator = &embeddedGenerator{raw: &wordlist.STS10Wordlist}
