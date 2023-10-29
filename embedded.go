@@ -70,6 +70,9 @@ var OrchardStreetQWERTY Generator = &embeddedGenerator{raw: &wordlist.OrchardStr
 // not uniquely decodable and should only be used with separators.
 //
 // This wordlist is licensed by Sam Schlinkert under a CC BY 3.0 license.
+//
+// Deprecated: This list is not safe to use without separators. Use one of the other
+// wordlists instead, like OrchardStreetLong.
 var STS10Wordlist Generator = &embeddedGenerator{raw: &wordlist.STS10Wordlist}
 
 // EFFLargeWordlist is a Generator that returns a random word from the
