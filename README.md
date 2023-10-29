@@ -79,13 +79,17 @@ The package also provides a number of generators that produce output based on us
 
 There are also a number of 'helper' generators that interact with the output of other generators:
 
-| Generator         | Description                                                            |
-| ----------------- | ---------------------------------------------------------------------- |
-| `Alternate`       | Select a generator at random                                           |
-| `Join`            | Concatenate the output of multiple generators                          |
-| `Repeat`          | Invoke a generator multiple times and concatenate the output           |
-| `RandomRepeat`    | Invoke a generator a random number of times and concatenate the output |
-| `RejectionSample` | Continually invoke a generator until the output passes a test          |
+| Generator         | Description                                                                     |
+| ----------------- | ------------------------------------------------------------------------------- |
+| `Alternate`       | Select a generator at random                                                    |
+| `Join`            | Concatenate the output of multiple generators                                   |
+| `Repeat`          | Invoke a generator multiple times and concatenate the output                    |
+| `RandomRepeat`    | Invoke a generator a random number of times and concatenate the output          |
+| `RejectionSample` | Continually invoke a generator until the output passes a test                   |
+| `Transform`       | Invoke a generator and convert the output according to a user supplied function |
+| `LowerCase`       | Invoke a generator and convert the output to lower case                         |
+| `UpperCase`       | Invoke a generator and convert the output to upper case                         |
+| `TitleCase`       | Invoke a generator and convert the output to language-specific title case       |
 
 Most generators only generate a single of something, be it a rune, ASCII character
 or word. For generating longer passwords use `Repeat` or `RandomRepeat`, possibly
