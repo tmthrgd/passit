@@ -3,9 +3,9 @@ module go.tmthrgd.dev/passit
 go 1.22.0
 
 require (
-	github.com/stretchr/testify v1.8.4
-	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
-	golang.org/x/text v0.13.0
+	github.com/stretchr/testify v1.9.0
+	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0
+	golang.org/x/text v0.18.0
 )
 
 require (
