@@ -57,7 +57,7 @@ func TestGetRuneInTable(t *testing.T) {
 	} {
 		for name, tab := range tabs {
 			got = got[:0]
-			for i, c := 0, countRunesInTable(tab); i < c; i++ {
+			for i := range countRunesInTable(tab) {
 				got = append(got, getRuneInTable(tab, i))
 			}
 
@@ -285,12 +285,12 @@ func BenchmarkAddIntersectingRunes(b *testing.B) {
 		rangeTableASCII)
 
 	b.Run("naive", func(b *testing.B) {
-		for n := 0; n < b.N; n++ {
+		for range b.N {
 			_ = naiveIntersectRangeTables(tab1, tab2)
 		}
 	})
 	b.Run("efficient", func(b *testing.B) {
-		for n := 0; n < b.N; n++ {
+		for range b.N {
 			_ = intersectRangeTables(tab1, tab2)
 		}
 	})
@@ -321,17 +321,17 @@ func BenchmarkRemoveNLFromRangeTable(b *testing.B) {
 		unicode.ASCII_Hex_Digit)
 
 	b.Run("naive", func(b *testing.B) {
-		for n := 0; n < b.N; n++ {
+		for range b.N {
 			_ = naiveRemoveNLFromRangeTable(tab)
 		}
 	})
 	b.Run("intersect", func(b *testing.B) {
-		for n := 0; n < b.N; n++ {
+		for range b.N {
 			_ = intersectRangeTables(noNL, tab)
 		}
 	})
 	b.Run("efficient", func(b *testing.B) {
-		for n := 0; n < b.N; n++ {
+		for range b.N {
 			_ = removeNLFromRangeTable(tab)
 		}
 	})

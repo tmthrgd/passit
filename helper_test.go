@@ -258,7 +258,7 @@ func benchmarkGeneratorPassword(b *testing.B, gen Generator) {
 	b.Helper()
 	tr := newTestRand()
 
-	for n := 0; n < b.N; n++ {
+	for range b.N {
 		_, err := gen.Password(tr)
 		if err != nil {
 			require.NoError(b, err)

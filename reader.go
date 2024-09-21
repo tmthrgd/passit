@@ -24,7 +24,7 @@ func readUint64Buffer(r io.Reader, byteLen int) (uint64, error) {
 
 func readUint64Byte(br io.ByteReader, byteLen int) (uint64, error) {
 	var v, n uint64
-	for i := 0; i < byteLen; i++ {
+	for range byteLen {
 		b, err := br.ReadByte()
 		if err != nil {
 			return 0, wrapReadError(err)

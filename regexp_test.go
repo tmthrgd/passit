@@ -296,7 +296,7 @@ func TestRegexpQuestProbability(t *testing.T) {
 		ir    incUint8
 		empty int
 	)
-	for i := 0; i < questNoChanceDenominator; i++ {
+	for range questNoChanceDenominator {
 		pass, err := gen.Password(&ir)
 		require.NoError(t, err)
 		empty += 1 - len(pass)
@@ -430,7 +430,7 @@ func BenchmarkRegexpParse(b *testing.B) {
 	const pattern = `a{1}.{0}[bc]d[0-9][^\x00-AZ-az-\x{10FFFF}]a*b+c{4}d{3,6}e{5,}f?(g+h+)?.{2}[^a-z]+|x[0-9]+?.{0,5}(?:yy|zz)+[[:punct:]]`
 	var p RegexpParser
 
-	for n := 0; n < b.N; n++ {
+	for range b.N {
 		_, err := p.Parse(pattern, syntax.Perl)
 		if err != nil {
 			require.NoError(b, err)
@@ -443,7 +443,7 @@ func BenchmarkRegexpParseMaxCaptureDepth(b *testing.B) {
 	var p RegexpParser
 	b.ResetTimer()
 
-	for n := 0; n < b.N; n++ {
+	for range b.N {
 		_, err := p.Parse(pattern, syntax.Perl)
 		if err != nil {
 			require.NoError(b, err)

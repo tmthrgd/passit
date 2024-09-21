@@ -37,7 +37,7 @@ func putUintN[T constraints.Unsigned](b []byte, n int, v T) {
 	v64 := uint64(v)
 
 	_ = b[n-1] // early bounds check to guarantee safety of writes below
-	for i := 0; i < n; i++ {
+	for i := range n {
 		b[i] = byte(v64)
 		v64 >>= 8
 	}
@@ -131,7 +131,7 @@ func TestReadUint64nBias(t *testing.T) {
 		tc := tc
 		t.Run(fmt.Sprintf("uint%d_%s", tc.bitLen, tc.variant), func(t *testing.T) {
 			var result [10]int
-			for i := 0; i < 500; i++ {
+			for range 500 {
 				n, _ := readUint64n(tc.src, 10, tc.bitLen)
 				result[n]++
 			}

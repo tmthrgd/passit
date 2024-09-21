@@ -346,7 +346,7 @@ func (p *RegexpParser) repeat(sr *syntax.Regexp) (regexpGenerator, error) {
 			return err
 		}
 
-		for n += min; n > 0; n-- {
+		for range min + n {
 			if err := gen(b, r); err != nil {
 				return err
 			}

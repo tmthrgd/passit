@@ -34,7 +34,7 @@ func (st SpectreTemplate) readTemplate(r io.Reader) (string, error) {
 		return "", err
 	}
 
-	for ; n > 0; n-- {
+	for range n {
 		_, templates, _ = strings.Cut(templates, ":")
 	}
 
