@@ -1,9 +1,8 @@
 package passit
 
 import (
+	"slices"
 	"unicode"
-
-	"golang.org/x/exp/slices"
 )
 
 func countRunesInTable(tab *unicode.RangeTable) int {

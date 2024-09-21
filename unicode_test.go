@@ -1,6 +1,7 @@
 package passit
 
 import (
+	"slices"
 	"strings"
 	"testing"
 	"unicode"
@@ -8,7 +9,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/exp/slices"
 	"golang.org/x/text/unicode/rangetable"
 )
 

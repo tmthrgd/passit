@@ -2,9 +2,8 @@ package passit
 
 import (
 	"io"
+	"slices"
 	"strings"
-
-	"golang.org/x/exp/slices"
 )
 
 type concatGenerator struct {
