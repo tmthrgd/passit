@@ -30,9 +30,7 @@ func newTestRand() io.Reader {
 type zeroReader struct{}
 
 func (zeroReader) Read(p []byte) (int, error) {
-	for i := range p {
-		p[i] = 0
-	}
+	clear(p)
 	return len(p), nil
 }
 
