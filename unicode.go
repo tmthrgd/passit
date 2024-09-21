@@ -133,32 +133,28 @@ func setLatinOffset(tab *unicode.RangeTable) {
 }
 
 func intersection(lo0, hi0, lo1, hi1, stride1 rune) (lo, hi, stride rune) {
-	lo, hi, stride = lo1, hi1, stride1
-
 	if stride1 == 1 {
-		if lo < lo0 {
-			lo = lo0
-		}
-		if hi > hi0 {
-			hi = hi0
-		}
-	} else {
-		if lo < lo0 {
-			c := lo0 - lo1
-			c += stride1 - 1
-			c -= c % stride1
-			lo += c
-		}
-		if hi > hi0 {
-			c := hi1 - hi0
-			c += stride1 - 1
-			c -= c % stride1
-			hi -= c
-		}
-		if lo == hi {
-			stride = 1
-		}
+		return max(lo0, lo1), min(hi0, hi1), 1
 	}
 
-	return
+	lo = lo1
+	if lo < lo0 {
+		c := lo0 - lo1
+		c += stride1 - 1
+		c -= c % stride1
+		lo += c
+	}
+
+	hi = hi1
+	if hi > hi0 {
+		c := hi1 - hi0
+		c += stride1 - 1
+		c -= c % stride1
+		hi -= c
+	}
+
+	if lo == hi {
+		return lo, hi, 1
+	}
+	return lo, hi, stride1
 }
