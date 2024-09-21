@@ -405,8 +405,8 @@ func TestRegexpSpecialCaptures(t *testing.T) {
 	}{
 		{"(?P<unknown>)", "(?P<unknown>)"},
 		{"(?P<unknown>inner)", "(?P<unknown>inner)"},
-		{"(?P<unknown>1|2)", "(?P<unknown>[1-2])"},
-		{"(?i:(?P<unknown>z))", "(?P<unknown>(?i:Z))"},
+		{"(?P<unknown>1|2)", "(?P<unknown>[12])"},
+		{"(?i:(?P<unknown>z))", "(?i:(?P<unknown>Z))"},
 		{"(?P<unknown>z|z)", "(?P<unknown>z)"},
 		{"(?P<otherunknown>)", "(?P<otherunknown>)"},
 		{"(?P<woah>)", "(?P<woah>)"},
