@@ -1,6 +1,7 @@
 package passit
 
 import (
+	"strings"
 	"testing"
 	"unicode"
 	"unicode/utf8"
@@ -49,6 +50,9 @@ func TestFixedCharset(t *testing.T) {
 		{"4rd6x4ix2e8rwqhkqk08smzst", LatinLowerDigit},
 		{"4RD6X4IX2E8RWQHKQK08SMZST", LatinUpperDigit},
 		{"OVnA1oS7moBq0RUAOucWJ2dDz", LatinMixedDigit},
+		{"'*,?:+-`)-_^+?,/]#{/_};\"[", ASCIINoLettersNumbers},
+		{"38\\#>-#2+]}&]+\"%%1{}!'.-\"", ASCIINoLetters},
+		{")lMM\\KmzULOyAQ$WB>xgf{$K#", ASCIIGraphic},
 	} {
 		const size = 25
 
@@ -66,6 +70,39 @@ func TestFixedCharset(t *testing.T) {
 			"utf8.ValidString(%q)", pass)
 		allRunesAllowed(t, tc.gen.(*asciiGenerator).s, pass)
 	}
+}
+
+func TestASCIINoLettersNumbers(t *testing.T) {
+	var expect strings.Builder
+	for r := range unicode.MaxASCII + 1 {
+		if unicode.In(r, unicode.P, unicode.S) {
+			expect.WriteRune(r)
+		}
+	}
+	assert.Equal(t, expect.String(), ASCIINoLettersNumbers.(*asciiGenerator).s,
+		"ASCIINoLettersNumbers doesn't match ASCII characters in Unicode categories P or S")
+}
+
+func TestASCIINoLetters(t *testing.T) {
+	var expect strings.Builder
+	for r := range unicode.MaxASCII + 1 {
+		if unicode.In(r, unicode.N, unicode.P, unicode.S) {
+			expect.WriteRune(r)
+		}
+	}
+	assert.Equal(t, expect.String(), ASCIINoLetters.(*asciiGenerator).s,
+		"ASCIINoLetters doesn't match ASCII characters in Unicode categories N, P or S")
+}
+
+func TestASCIIGraphic(t *testing.T) {
+	var expect strings.Builder
+	for r := range unicode.MaxASCII + 1 {
+		if unicode.IsGraphic(r) && !unicode.IsSpace(r) {
+			expect.WriteRune(r)
+		}
+	}
+	assert.Equal(t, expect.String(), ASCIIGraphic.(*asciiGenerator).s,
+		"ASCIIGraphic doesn't match ASCII characters in Unicode categories L, M, N, P, S, Zs")
 }
 
 func TestRangeTable(t *testing.T) {

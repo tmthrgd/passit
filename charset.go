@@ -36,6 +36,35 @@ var LatinUpperDigit Generator = &asciiGenerator{"ABCDEFGHIJKLMNOPQRSTUVWXYZ01234
 // the latin alphabet or a numeric digit.
 var LatinMixedDigit Generator = &asciiGenerator{"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"}
 
+// ASCIINoLettersNumbers is a Generator that returns a random ASCII punctuation or
+// symbol character. The set of characters is
+//
+//	!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+//
+// This is ASCII characters from the Unicode P/Punctuation and S/Symbol categories,
+// or alternatively ASCII graphic characters that are not letters, numbers or
+// spaces.
+var ASCIINoLettersNumbers Generator = &asciiGenerator{"!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"}
+
+// ASCIINoLetters is a Generator that returns a random ASCII number, punctuation or
+// symbol character. The set of characters is
+//
+//	!"#$%&'()*+,-./0123456789:;<=>?@[\]^_`{|}~
+//
+// This is ASCII characters from the Unicode N/Number, P/Punctuation and S/Symbol
+// categories, or alternatively ASCII graphic characters that are not letters or
+// spaces.
+var ASCIINoLetters Generator = &asciiGenerator{"!\"#$%&'()*+,-./0123456789:;<=>?@[\\]^_`{|}~"}
+
+// ASCIIGraphic is a Generator that returns a random ASCII graphic character
+// excluding space. The set of characters is
+//
+//	!"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+//
+// This is ASCII characters from the Unicode L/Letter, M/Mark, N/Number,
+// P/Punctuation and S/Symbol categories.
+var ASCIIGraphic Generator = &asciiGenerator{"!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"}
+
 func (ag *asciiGenerator) Password(r io.Reader) (string, error) {
 	idx, err := readIntN(r, len(ag.s))
 	if err != nil {

@@ -29,43 +29,46 @@ type Generator interface {
 
 The package provides a number of generators that produce output from a fixed set:
 
-| Generator             | Description                                               | Examples                |
-| --------------------- | --------------------------------------------------------- | ----------------------- |
-| `Digit`               | [0-9]                                                     | "0" "7"                 |
-| `LatinLower`          | [a-z]                                                     | "a" "j"                 |
-| `LatinLowerDigit`     | [a-z0-9]                                                  | "a" "j" "0" "7"         |
-| `LatinUpper`          | [A-Z]                                                     | "A" "J"                 |
-| `LatinUpperDigit`     | [A-Z0-9]                                                  | "A" "J" "0" "7"         |
-| `LatinMixed`          | [a-zA-Z]                                                  | "a" "j" "A" "J"         |
-| `LatinMixedDigit`     | [a-zA-Z0-9]                                               | "a" "j" "A" "J" "0" "7" |
-| `OrchardStreetMedium` | A word from Sam Schlinkert's Orchard Street Medium List   | "abandon" "forest"      |
-| `OrchardStreetLong`   | A word from Sam Schlinkert's Orchard Street Long List     | "abandon" "mobility"    |
-| `OrchardStreetAlpha`  | A word from Sam Schlinkert's Orchard Street Alpha List    | "abbot" "points"        |
-| `OrchardStreetQWERTY` | A word from Sam Schlinkert's Orchard Street QWERTY List   | "access" "peg"          |
-| `STS10Wordlist`       | A word from Sam Schlinkert's '1Password Replacement List' | "aback" "loophole"      |
-| `EFFLargeWordlist`    | A word from the EFF Large Wordlist for Passphrases        | "abacus" "partition"    |
-| `EFFShortWordlist1`   | A word from the EFF Short Wordlist for Passphrases #1     | "acid" "match"          |
-| `EFFShortWordlist2`   | A word from the EFF Short Wordlist for Passphrases #2     | "aardvark" "jaywalker"  |
-| `Emoji13`             | A Unicode 13.0 fully-qualified emoji                      | "⌚" "🕸️" "🧎🏾‍♀️"          |
-| `Emoji15`             | A Unicode 15.0 fully-qualified emoji                      | "⌚" "🏎️" "🧏🏿‍♂️"          |
-| `HexLower`            | Lowercase hexadecimal encoding                            | "66e94bd4ef8a2c3b"      |
-| `HexUpper`            | Uppercase hexadecimal encoding                            | "66E94BD4EF8A2C3B"      |
-| `Base32`              | Base32 standard encoding                                  | "M3UUXVHPRIWDW"         |
-| `Base32Hex`           | Base32 hexadecimal encoding                               | "CRKKNL7FH8M3M"         |
-| `Base64`              | Base64 standard encoding                                  | "ZulL1O+KLDs"           |
-| `Base64URL`           | Base64 URL encoding                                       | "ZulL1O-KLDs"           |
-| `Ascii85`             | Ascii85 encoding                                          | "B'Dt<mtrYX"            |
-| `SpectreMaximum`      | The Spectre maximum template                              | "i7,o%yC4&fmQ1r*qfcWq"  |
-| `SpectreLong`         | The Spectre long template                                 | "ZikzXuwuHeve1("        |
-| `SpectreMedium`       | The Spectre medium template                               | "Zik2~Puh"              |
-| `SpectreBasic`        | The Spectre basic template                                | "izJ24tHJ"              |
-| `SpectreShort`        | The Spectre short template                                | "His8"                  |
-| `SpectrePIN`          | The Spectre PIN template                                  | "0778"                  |
-| `SpectreName`         | The Spectre name template                                 | "hiskixuwu"             |
-| `SpectrePhrase`       | The Spectre phrase template                               | "zi kixpu hoy vezamcu"  |
-| `Empty`               | Empty string                                              | ""                      |
-| `Hyphen`              | ASCII hyphen-minus                                        | "-"                     |
-| `Space`               | ASCII space                                               | " "                     |
+| Generator               | Description                                               | Examples                        |
+| ----------------------- | --------------------------------------------------------- | ------------------------------- |
+| `Digit`                 | [0-9]                                                     | "0" "7"                         |
+| `LatinLower`            | [a-z]                                                     | "a" "j"                         |
+| `LatinLowerDigit`       | [a-z0-9]                                                  | "a" "j" "0" "7"                 |
+| `LatinUpper`            | [A-Z]                                                     | "A" "J"                         |
+| `LatinUpperDigit`       | [A-Z0-9]                                                  | "A" "J" "0" "7"                 |
+| `LatinMixed`            | [a-zA-Z]                                                  | "a" "j" "A" "J"                 |
+| `LatinMixedDigit`       | [a-zA-Z0-9]                                               | "a" "j" "A" "J" "0" "7"         |
+| `ASCIINoLettersNumbers` | !"#$%&'()*+,-./:;<=>?@[\\]^_`{\|}~                        | "!" "=" "@" "`" "{" "~"         |
+| `ASCIINoLetters`        | !"#$%&'()*+,-./0123456789:;<=>?@[\\]^_`{\|}~              | "!" "0" "7" "=" "@" "~"         |
+| `ASCIIGraphic`          | [[:graph:]]                                               | "!" "0" "7" "=" "A" "J" "a" "j" |
+| `OrchardStreetMedium`   | A word from Sam Schlinkert's Orchard Street Medium List   | "abandon" "forest"              |
+| `OrchardStreetLong`     | A word from Sam Schlinkert's Orchard Street Long List     | "abandon" "mobility"            |
+| `OrchardStreetAlpha`    | A word from Sam Schlinkert's Orchard Street Alpha List    | "abbot" "points"                |
+| `OrchardStreetQWERTY`   | A word from Sam Schlinkert's Orchard Street QWERTY List   | "access" "peg"                  |
+| `STS10Wordlist`         | A word from Sam Schlinkert's '1Password Replacement List' | "aback" "loophole"              |
+| `EFFLargeWordlist`      | A word from the EFF Large Wordlist for Passphrases        | "abacus" "partition"            |
+| `EFFShortWordlist1`     | A word from the EFF Short Wordlist for Passphrases #1     | "acid" "match"                  |
+| `EFFShortWordlist2`     | A word from the EFF Short Wordlist for Passphrases #2     | "aardvark" "jaywalker"          |
+| `Emoji13`               | A Unicode 13.0 fully-qualified emoji                      | "⌚" "🕸️" "🧎🏾‍♀️"                  |
+| `Emoji15`               | A Unicode 15.0 fully-qualified emoji                      | "⌚" "🏎️" "🧏🏿‍♂️"                  |
+| `HexLower`              | Lowercase hexadecimal encoding                            | "66e94bd4ef8a2c3b"              |
+| `HexUpper`              | Uppercase hexadecimal encoding                            | "66E94BD4EF8A2C3B"              |
+| `Base32`                | Base32 standard encoding                                  | "M3UUXVHPRIWDW"                 |
+| `Base32Hex`             | Base32 hexadecimal encoding                               | "CRKKNL7FH8M3M"                 |
+| `Base64`                | Base64 standard encoding                                  | "ZulL1O+KLDs"                   |
+| `Base64URL`             | Base64 URL encoding                                       | "ZulL1O-KLDs"                   |
+| `Ascii85`               | Ascii85 encoding                                          | "B'Dt<mtrYX"                    |
+| `SpectreMaximum`        | The Spectre maximum template                              | "i7,o%yC4&fmQ1r*qfcWq"          |
+| `SpectreLong`           | The Spectre long template                                 | "ZikzXuwuHeve1("                |
+| `SpectreMedium`         | The Spectre medium template                               | "Zik2~Puh"                      |
+| `SpectreBasic`          | The Spectre basic template                                | "izJ24tHJ"                      |
+| `SpectreShort`          | The Spectre short template                                | "His8"                          |
+| `SpectrePIN`            | The Spectre PIN template                                  | "0778"                          |
+| `SpectreName`           | The Spectre name template                                 | "hiskixuwu"                     |
+| `SpectrePhrase`         | The Spectre phrase template                               | "zi kixpu hoy vezamcu"          |
+| `Empty`                 | Empty string                                              | ""                              |
+| `Hyphen`                | ASCII hyphen-minus                                        | "-"                             |
+| `Space`                 | ASCII space                                               | " "                             |
 
 The package also provides a number of generators that produce output based on user input:
 
