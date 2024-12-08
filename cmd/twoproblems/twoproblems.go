@@ -40,6 +40,7 @@ func main() {
 }
 
 func main1() error {
+	count := flag.Int("c", 1, "the number of passwords to generate, one per line")
 	flag.Parse()
 
 	if flag.NArg() != 1 {
@@ -55,12 +56,15 @@ func main1() error {
 		return fmt.Errorf("twoproblems: failed to parse %q pattern: %w", flag.Arg(0), err)
 	}
 
-	pass, err := gen.Password(bufio.NewReader(rand.Reader))
-	if err != nil {
-		return fmt.Errorf("twoproblems: failed to generate password: %w", err)
+	r := bufio.NewReader(rand.Reader)
+	for range *count {
+		pass, err := gen.Password(r)
+		if err != nil {
+			return fmt.Errorf("twoproblems: failed to generate password: %w", err)
+		}
+		fmt.Println(pass)
 	}
 
-	fmt.Println(pass)
 	return nil
 }
 
