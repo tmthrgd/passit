@@ -1,18 +1,15 @@
-// Command passphrase generates random passphrases using either
-// Sam Schlinkert's '1Password Replacement List' (1password-replacement.txt),
-// the EFF Large Wordlist for Passphrases (eff_large_wordlist.txt),
-// the EFF Short Wordlist for Passphrases #1 (eff_short_wordlist_1.txt), or
-// the EFF Short Wordlist for Passphrases #2 (eff_short_wordlist_2_0.txt).
+// Command passphrase generates random passphrases using one of the embedded
+// wordlists supported by passit.
 package main
 
 import (
+	"bufio"
 	"crypto/rand"
 	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"go.tmthrgd.dev/passit"
 	"go.tmthrgd.dev/passit/internal/wordlists"
@@ -39,12 +36,14 @@ func main() {
 
 func main1() error {
 	list := flag.String("l", "orchard:long",
-		"the wordlist to use; valid options are orchard:medium, orchard:long, orchard:alpha, "+
-			"orchard:qwerty, eff:large / eff, eff:short1 and eff:short2")
-	count := flag.Int("n", 6, "the number of words in the generated passphrase")
+		"the wordlist to use; valid options are:\n"+
+			"orchard:medium, orchard:long, orchard:alpha, "+
+			"orchard:qwerty, eff:large, eff:short1 and eff:short2")
+	words := flag.Int("n", 6, "the number of words in the generated passphrase")
 	sep := flag.String("s", " ", "the separator to use between words")
 	titleCase := flag.Bool("t", false, "generate a title case passphrase")
 	upperCase := flag.Bool("u", false, "generate an upper case passphrase")
+	count := flag.Int("c", 1, "the number of passwords to generate, one per line")
 	flag.Parse()
 
 	gen := wordlists.NameToGenerator(*list)
@@ -52,19 +51,22 @@ func main1() error {
 		return errors.New("passphrase: invalid wordlist specified")
 	}
 
-	if *titleCase {
+	if *upperCase {
+		gen = passit.UpperCase(gen)
+	} else if *titleCase {
 		gen = passit.TitleCase(gen, language.English)
 	}
 
-	pass, err := passit.Repeat(gen, *sep, *count).Password(rand.Reader)
-	if err != nil {
-		return err
+	gen = passit.Repeat(gen, *sep, *words)
+
+	r := bufio.NewReader(rand.Reader)
+	for range *count {
+		pass, err := gen.Password(r)
+		if err != nil {
+			return err
+		}
+		fmt.Println(pass)
 	}
 
-	if *upperCase {
-		pass = strings.ToUpper(pass)
-	}
-
-	fmt.Println(pass)
 	return nil
 }
