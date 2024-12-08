@@ -45,9 +45,8 @@ type repeatGenerator struct {
 	count int
 }
 
-// Repeat returns a Generator that concatenates the output of invoking the Generator
-// count times to create a single string. The separator string sep is placed between
-// the outputs in the resulting string.
+// Repeat returns a Generator that invokes the Generator count times and
+// concatenates the output with a fixed separator.
 func Repeat(gen Generator, sep string, count int) Generator {
 	switch {
 	case count < 0:
@@ -73,6 +72,51 @@ func (rg *repeatGenerator) Password(r io.Reader) (string, error) {
 	}
 
 	return strings.Join(parts, rg.sep), nil
+}
+
+type repeatGenGenerator struct {
+	gen   Generator
+	sep   Generator
+	count int
+}
+
+// RepeatGen returns a Generator that invokes gen count times and concatenates the
+// output with a dynamic separator produced by sep.
+//
+// For instance, RepeatGen(gen, sep, 4) would be equivalent to
+// Join("", gen, sep, gen, sep, gen, sep, gen).
+func RepeatGen(gen, sep Generator, count int) Generator {
+	switch {
+	case count < 0:
+		panic("passit: count must be positive")
+	case count == 0:
+		return Empty
+	case count == 1:
+		return gen
+	default:
+		return &repeatGenGenerator{gen, sep, count}
+	}
+}
+
+func (rg *repeatGenGenerator) Password(r io.Reader) (string, error) {
+	var b strings.Builder
+	for i := range rg.count {
+		if i > 0 {
+			sep, err := rg.sep.Password(r)
+			if err != nil {
+				return "", err
+			}
+			b.WriteString(sep)
+		}
+
+		part, err := rg.gen.Password(r)
+		if err != nil {
+			return "", err
+		}
+		b.WriteString(part)
+	}
+
+	return b.String(), nil
 }
 
 type randomRepeatGenerator struct {

@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 	"testing/iotest"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/stretchr/testify/assert"
@@ -105,6 +106,43 @@ func TestRepeat(t *testing.T) {
 		tr := newTestRand()
 
 		pass, err := Repeat(EFFLargeWordlist, tc.sep, tc.count).Password(tr)
+		if !assert.NoErrorf(t, err, "valid range should not error when generating: %v", tc) {
+			continue
+		}
+
+		assert.Equal(t, tc.expect, pass, "valid range expected password: %v", tc)
+	}
+}
+
+func TestRepeatGen(t *testing.T) {
+	assert.PanicsWithValue(t, "passit: count must be positive", func() {
+		RepeatGen(Hyphen, Space, -1)
+	})
+
+	assert.Equal(t, Empty, RepeatGen(Hyphen, Space, 0),
+		"Repeat with count zero should return Empty")
+
+	assert.Equal(t, Hyphen, RepeatGen(Hyphen, Space, 1),
+		"Repeat with count one should return Generator")
+
+	for _, tc := range []struct {
+		count  int
+		sep    Generator
+		expect string
+	}{
+		{2, Space, "reprint wool"},
+		{2, Digit, "reprint5ultimatum"},
+		{4, Empty, "reprintwoolpantryunworried"},
+		{4, LatinUpper, "reprintXultimatumIunworriedGrecoil"},
+		{4, FromRangeTable(unicode.P), "reprint」pantry𛲟mummify❩securely"},
+		{12, String("-"), "reprint-wool-pantry-unworried-mummify-veneering-securely-munchkin-juiciness-steep-cresting-dastardly"},
+		{12, FromCharset("-~_"), "reprint-ultimatum-unworried~recoil~munchkin~phrase~cubical_haunt-voice-cycle_acetone~grunt"},
+		{12, ASCIINoLettersNumbers, "reprint,ultimatum+unworried)recoil?munchkin]phrase\"cubical|haunt(voice$cycle/acetone$grunt"},
+		{12, ASCIINoLetters, "reprint\\ultimatum-unworried+recoil+munchkin%phrase.cubical>haunt6voice$cycle{acetone`grunt"},
+	} {
+		tr := newTestRand()
+
+		pass, err := RepeatGen(EFFLargeWordlist, tc.sep, tc.count).Password(tr)
 		if !assert.NoErrorf(t, err, "valid range should not error when generating: %v", tc) {
 			continue
 		}
